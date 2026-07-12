@@ -1,0 +1,12 @@
+{
+  "sections": [
+    {
+      "type": "policy-body",
+      "id": "policy-body",
+      "settings": {
+        "fallbackTitle": "Policy",
+        "fallbackBody": "<p>This policy hasn't been published yet. Add it from the admin <strong>Settings → Policies</strong> to fill this in.</p>"
+      }
+    }
+  ]
+}

@@ -6,6 +6,8 @@ import { SearchModal } from '../overlays/SearchModal'
 import { AccountMenu } from '../overlays/AccountMenu'
 import { MobileNavDrawer } from '../overlays/MobileNavDrawer'
 import { openOverlay, closeOverlay } from '../components/useOverlayChannel'
+import { CookieConsent } from '../components/CookieConsent'
+import { PixelScripts } from '../components/PixelScripts'
 
 /**
  * Templates are bundled into the layout so the SPA router can swap them in
@@ -60,6 +62,7 @@ function resolveTemplate(pathname: string): string {
   if (/^\/collections\/[^/]+$/.test(p)) return 'collection'
   if (/^\/products\/[^/]+$/.test(p)) return 'product'
   if (/^\/pages\/[^/]+$/.test(p)) return 'page'
+  if (/^\/policies\/[^/]+$/.test(p)) return 'policy'
   if (/^\/blogs\/[^/]+\/[^/]+$/.test(p)) return 'article'
   if (/^\/blogs\/[^/]+$/.test(p)) return 'blog'
   return '404'
@@ -474,6 +477,126 @@ function useStorefrontMenus(handles: {
   return menus
 }
 
+interface ShopLogo {
+  url: string
+  altText?: string | null
+}
+interface ShopPolicyLink {
+  title: string
+  url: string
+}
+export interface StorefrontShop {
+  name?: string | null
+  description?: string | null
+  brand?: {
+    logo?: ShopLogo | null
+    slogan?: string | null
+    shortDescription?: string | null
+  } | null
+  policies: ShopPolicyLink[]
+  cookieBanner?: {
+    enabled: boolean
+    dataSharingTitle?: string | null
+    dataSharingVisible?: boolean
+  } | null
+}
+
+/**
+ * Self-fetch the store's identity, legal policies, and cookie-banner config.
+ *
+ * Mirrors `useStorefrontMenus` and follows the same reasoning as PageBody: the
+ * theme-runtime image bakes its own (older) copy of `@tanqory/theme-kit`, so
+ * relying on `data.shop` wouldn't reach prod until the runtime image is rebuilt.
+ * Fetching directly keeps the wire-up to this one hot-PUT-able theme file. When
+ * the baked theme-kit catches up this can be swapped for `useData().shop`.
+ */
+function useStorefrontShop(): StorefrontShop | null {
+  const [shop, setShop] = useState<StorefrontShop | null>(null)
+
+  useEffect(() => {
+    const env = import.meta.env as ImportMetaEnv & {
+      VITE_TANQORY_BACKEND?: string
+      VITE_TANQORY_STORE_ID?: string
+      VITE_TANQORY_STOREFRONT_TOKEN?: string
+    }
+    if (!env.VITE_TANQORY_BACKEND || !env.VITE_TANQORY_STORE_ID) return
+    const url = `${apiBase(env.VITE_TANQORY_BACKEND)}/api/v1/stores/${encodeURIComponent(
+      env.VITE_TANQORY_STORE_ID,
+    )}/graphql`
+    let cancelled = false
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        ...(env.VITE_TANQORY_STOREFRONT_TOKEN
+          ? { 'x-publishable-key': env.VITE_TANQORY_STOREFRONT_TOKEN }
+          : {}),
+      },
+      body: JSON.stringify({
+        query: `query Shop {
+          shop {
+            name
+            description
+            brand { logo { url altText } slogan shortDescription }
+            shippingPolicy { title url }
+            refundPolicy { title url }
+            privacyPolicy { title url }
+            termsOfService { title url }
+            subscriptionPolicy { title url }
+            cookieBanner { enabled dataSharingTitle dataSharingVisible }
+          }
+        }`,
+      }),
+    })
+      .then((r) => r.json())
+      .then(
+        (j: {
+          data?: {
+            shop?: {
+              name?: string | null
+              description?: string | null
+              brand?: StorefrontShop['brand']
+              shippingPolicy?: ShopPolicyLink | null
+              refundPolicy?: ShopPolicyLink | null
+              privacyPolicy?: ShopPolicyLink | null
+              termsOfService?: ShopPolicyLink | null
+              subscriptionPolicy?: ShopPolicyLink | null
+              cookieBanner?: StorefrontShop['cookieBanner']
+            } | null
+          }
+        }) => {
+          if (cancelled) return
+          const s = j.data?.shop
+          if (!s) return
+          const policies = [
+            s.shippingPolicy,
+            s.refundPolicy,
+            s.privacyPolicy,
+            s.termsOfService,
+            s.subscriptionPolicy,
+          ]
+            .filter((p): p is ShopPolicyLink => Boolean(p && p.url))
+            .map((p) => ({ title: p.title, url: p.url }))
+          setShop({
+            name: s.name,
+            description: s.description,
+            brand: s.brand ?? null,
+            policies,
+            cookieBanner: s.cookieBanner ?? null,
+          })
+        },
+      )
+      .catch(() => {
+        /* leave theme-default fallbacks in place */
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return shop
+}
+
 /** Layout frame (header/footer) wrapping every page's block tree. */
 export default function Layout({ children }: { children: ReactNode }): JSX.Element {
   const settings = useSettings()
@@ -509,8 +632,21 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
   usePreviewSelection(isPreview)
   const data = useData()
   const { totalQuantity } = useCart()
-  const shopName = (settings.shopName as string) ?? 'nova'
+  // Real store identity (Settings → General / Brand) wins over theme defaults;
+  // theme settings are only the offline/mock fallback.
+  const shop = useStorefrontShop()
+  const shopName = shop?.name || (settings.shopName as string) || 'nova'
+  const brandLogo = shop?.brand?.logo ?? null
+  const brandBlurb =
+    shop?.brand?.shortDescription ||
+    shop?.brand?.slogan ||
+    (settings.footerBlurb as string) ||
+    'Modern essentials, designed for everyday rituals.'
   const year = new Date().getFullYear()
+
+  // Legal footer links built from the store's real published policies
+  // (Settings → Policies). Each resolves to `/policies/<handle>`.
+  const policyLinks = shop?.policies ?? []
 
   // Languages stay theme-config until i18n lands — themes ship a working
   // picker, merchants tune labels in settings.json.
@@ -569,8 +705,16 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
               <Icon name="menu" />
             </button>
           )}
-          <a className="site-header__brand" href="/">
-            {shopName}
+          <a className="site-header__brand" href="/" aria-label={shopName}>
+            {brandLogo?.url ? (
+              <img
+                className="site-header__logo"
+                src={brandLogo.url}
+                alt={brandLogo.altText || shopName}
+              />
+            ) : (
+              shopName
+            )}
           </a>
           <nav className="site-nav" aria-label="Primary">
             {navItems.map((item) => (
@@ -670,7 +814,7 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
             <div className="site-footer__brand">
               <h2>{shopName}</h2>
               <p style={{ color: 'rgba(255,255,255,0.7)', maxWidth: '36ch' }}>
-                Modern essentials, designed for everyday rituals.
+                {brandBlurb}
               </p>
             </div>
             <div className="site-footer__col">
@@ -691,12 +835,17 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
             <div className="site-footer__col">
               <h6>Help</h6>
               <ul>
-                {(menus.footerHelp ?? [
-                  { title: 'Contact', url: '/pages/contact' },
-                  { title: 'Shipping', url: '/pages/shipping' },
-                  { title: 'Returns', url: '/pages/returns' },
-                  { title: 'FAQ', url: '/pages/faq' },
-                ]).map((item) => (
+                {(
+                  menus.footerHelp ??
+                  (policyLinks.length > 0
+                    ? [{ title: t('nav.contact') || 'Contact', url: '/pages/contact' }, ...policyLinks]
+                    : [
+                        { title: 'Contact', url: '/pages/contact' },
+                        { title: 'Shipping', url: '/pages/shipping' },
+                        { title: 'Returns', url: '/pages/returns' },
+                        { title: 'FAQ', url: '/pages/faq' },
+                      ])
+                ).map((item) => (
                   <li key={`${item.url}-${item.title}`}>
                     <a href={item.url}>{item.title}</a>
                   </li>
@@ -768,6 +917,11 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
           links={menus.main}
         />
       )}
+
+      {/* Store-driven shell surfaces: cookie-consent banner (Settings → Customer
+       *  privacy) and connected tracking pixels (Settings → Customer events). */}
+      <CookieConsent banner={shop?.cookieBanner} />
+      <PixelScripts bannerEnabled={shop?.cookieBanner?.enabled} />
     </>
   )
 }

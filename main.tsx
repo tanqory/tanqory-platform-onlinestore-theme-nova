@@ -29,6 +29,7 @@ function resolveTemplate(pathname: string): string {
   if (/^\/collections\/[^/]+$/.test(p)) return 'collection'
   if (/^\/products\/[^/]+$/.test(p)) return 'product'
   if (/^\/pages\/[^/]+$/.test(p)) return 'page'
+  if (/^\/policies\/[^/]+$/.test(p)) return 'policy'
   // Order matters: `/blogs/<blog>/<article>` must be tested BEFORE
   // `/blogs/<handle>` so blog-list doesn't shadow article-detail.
   if (/^\/blogs\/[^/]+\/[^/]+$/.test(p)) return 'article'

@@ -10,8 +10,51 @@ import { ImageResponsive } from '../components/ImageResponsive'
 import { Money } from '../components/Money'
 import { Button } from '../components/Button'
 import { openOverlay } from '../components/useOverlayChannel'
+import type { NovaProductMedia } from '../types/theme-kit-augment'
 
 const DEFAULT_VARIANT_TITLE = 'Default Title'
+
+/** Poster/thumbnail URL for any media type. */
+function mediaThumb(m: NovaProductMedia): string | undefined {
+  return m.image?.url ?? m.previewImage?.url
+}
+
+/** Renders one media node in the hero: image, playable video, embedded external
+ *  video, or a 3D model poster (with a link to the source). */
+function ProductMediaView({ media, title }: { media: NovaProductMedia; title: string }): JSX.Element {
+  const alt = media.alt ?? title
+  if (media.type === 'video' && media.sources?.length) {
+    return (
+      <video
+        className="product-details__video"
+        controls
+        playsInline
+        preload="metadata"
+        poster={media.previewImage?.url}
+        style={{ width: '100%', height: 'auto', display: 'block' }}
+      >
+        {media.sources.map((s) => (
+          <source key={s.url} src={s.url} type={s.mimeType ?? undefined} />
+        ))}
+      </video>
+    )
+  }
+  if (media.type === 'external_video' && media.embedUrl) {
+    return (
+      <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9' }}>
+        <iframe
+          src={media.embedUrl}
+          title={alt}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }}
+        />
+      </div>
+    )
+  }
+  const src = media.image?.url ?? media.previewImage?.url
+  return src ? <ImageResponsive src={src} alt={alt} /> : <></>
+}
 
 export function ProductDetails({ attributes }: SectionProps): JSX.Element {
   const { productByHandle, collectionByHandle, fetchProduct, graphql } = useData()
@@ -85,10 +128,15 @@ export function ProductDetails({ attributes }: SectionProps): JSX.Element {
 
   const displayPrice = selectedVariant?.price ?? product.price
   const variantImage = selectedVariant?.image ?? product.featuredImage
-  const images = variantImage
-    ? [variantImage, variantImage, variantImage, variantImage]
-    : []
-  const active = images[activeIdx] ?? variantImage
+  // Real media gallery (images + video + 3D) from product.media; fall back to
+  // the variant/featured image when a product has no media list yet.
+  const mediaList: NovaProductMedia[] =
+    product.media && product.media.length > 0
+      ? product.media
+      : variantImage
+        ? [{ id: 'featured', type: 'image', image: variantImage }]
+        : []
+  const active = mediaList[activeIdx] ?? mediaList[0]
 
   // Resolve the merchandise id to add. Live: a real variant id (selected →
   // default). Mock (editor/offline): a stable pseudo id keyed by handle so the
@@ -107,6 +155,12 @@ export function ProductDetails({ attributes }: SectionProps): JSX.Element {
     selectedVariant != null
       ? !selectedVariant.availableForSale
       : product.availableForSale === false
+
+  // Real stock signal (Shopify "Only N left"): prefer the selected variant's
+  // on-hand count, then the product total. Only surfaced when tracked + low.
+  const stockLeft = selectedVariant?.inventoryQuantity ?? product.totalInventory
+  const lowStock = typeof stockLeft === 'number' && stockLeft > 0 && stockLeft <= 10
+  const stockLabel = soldOut ? 'Sold out' : lowStock ? `Only ${stockLeft} left` : 'In stock'
 
   const buttonLabel = (attributes.buttonLabel as string) ?? 'Add to cart'
 
@@ -137,30 +191,50 @@ export function ProductDetails({ attributes }: SectionProps): JSX.Element {
         <div className="product-details">
           <div className="product-details__gallery">
             <div className="product-details__hero">
-              {active && (
-                <ImageResponsive src={active.url} alt={active.altText ?? product.title} />
-              )}
+              {active && <ProductMediaView media={active} title={product.title} />}
             </div>
-            {images.length > 1 && (
+            {mediaList.length > 1 && (
               <div className="product-details__thumbs">
-                {images.map((img, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    className="product-details__thumb"
-                    aria-current={i === activeIdx}
-                    onClick={() => setActiveIdx(i)}
-                  >
-                    <img src={img.url} alt="" loading="lazy" decoding="async" />
-                  </button>
-                ))}
+                {mediaList.map((m, i) => {
+                  const thumb = mediaThumb(m)
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      className="product-details__thumb"
+                      style={{ position: 'relative' }}
+                      aria-current={i === activeIdx}
+                      aria-label={m.type === 'image' ? undefined : `Play ${m.type}`}
+                      onClick={() => setActiveIdx(i)}
+                    >
+                      {thumb && <img src={thumb} alt="" loading="lazy" decoding="async" />}
+                      {m.type !== 'image' && (
+                        <span
+                          aria-hidden="true"
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            display: 'grid',
+                            placeItems: 'center',
+                            background: 'rgba(0,0,0,0.35)',
+                            color: '#fff',
+                            fontSize: m.type === 'model_3d' ? '0.7rem' : '1rem',
+                            fontWeight: 600,
+                          }}
+                        >
+                          {m.type === 'model_3d' ? '3D' : '▶'}
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
               </div>
             )}
           </div>
 
           <div className="product-details__body">
             <div className="stack stack--sm">
-              <span className="eyebrow">{soldOut ? 'Sold out' : 'In stock · Ships in 24h'}</span>
+              <span className="eyebrow">{stockLabel}</span>
               <h1 className="product-details__title">{product.title}</h1>
               <div className="product-details__price">
                 <Money value={displayPrice} />

@@ -1,13 +1,18 @@
 import { defineSection, useCart, type SectionProps } from '@tanqory/theme-kit'
+import { useEffect, useState } from 'react'
 import { ImageResponsive } from '../components/ImageResponsive'
 import { Money } from '../components/Money'
 import { Button } from '../components/Button'
 import { Link } from '../components/Link'
 
 export function CartItems({ attributes }: SectionProps): JSX.Element {
-  const { lines, subtotal, checkoutUrl, updateQuantity, remove } = useCart()
+  const { lines, subtotal, total, tax, note, checkoutUrl, updateQuantity, remove, updateNote } =
+    useCart()
+  const [draftNote, setDraftNote] = useState(note ?? '')
+  useEffect(() => setDraftNote(note ?? ''), [note])
 
   const heading = (attributes.heading as string) ?? 'Your cart'
+  const showNote = (attributes.showOrderNote as boolean) !== false
   const buttonLabel = (attributes.buttonLabel as string) ?? 'Checkout'
   const buttonLink = (attributes.buttonLink as string) ?? checkoutUrl ?? '/checkout'
 
@@ -75,14 +80,42 @@ export function CartItems({ attributes }: SectionProps): JSX.Element {
                 <span>Subtotal</span>
                 <Money value={subtotal} />
               </div>
+              {tax ? (
+                <div className="cart__row">
+                  <span>Tax</span>
+                  <Money value={tax} />
+                </div>
+              ) : (
+                <div className="cart__row u-text-muted">
+                  <span>Tax</span>
+                  <span>Calculated at checkout</span>
+                </div>
+              )}
               <div className="cart__row u-text-muted">
                 <span>Shipping</span>
                 <span>Calculated at checkout</span>
               </div>
               <div className="cart__row cart__row--total">
                 <strong>Total</strong>
-                <strong><Money value={subtotal} /></strong>
+                <strong><Money value={total ?? subtotal} /></strong>
               </div>
+              {showNote && (
+                <label className="cart__note" style={{ display: 'block', marginTop: 'var(--space-4)' }}>
+                  <span className="u-text-muted" style={{ display: 'block', marginBottom: 'var(--space-2)', fontSize: 'var(--type-step--1)' }}>
+                    Order note
+                  </span>
+                  <textarea
+                    rows={2}
+                    value={draftNote}
+                    placeholder="Add delivery instructions…"
+                    onChange={(e) => setDraftNote(e.target.value)}
+                    onBlur={() => {
+                      if (updateNote && draftNote !== (note ?? '')) void updateNote(draftNote)
+                    }}
+                    style={{ width: '100%', resize: 'vertical', padding: 'var(--space-2)', font: 'inherit' }}
+                  />
+                </label>
+              )}
               <Button label={buttonLabel} link={buttonLink} variant="primary" size="lg" fullWidth />
               <Link href="/collections/all" className="btn btn--link" style={{ alignSelf: 'center', marginTop: 'var(--space-1)' } as any}>
                 Continue shopping →
@@ -114,6 +147,7 @@ export default defineSection({
     heading: { type: 'text', default: 'Your cart', label: 'Heading' },
     buttonLabel: { type: 'text', default: 'Checkout', label: 'Checkout button' },
     buttonLink: { type: 'url', label: 'Checkout link override' },
+    showOrderNote: { type: 'boolean', default: true, label: 'Show order note field' },
   },
   component: CartItems,
 })

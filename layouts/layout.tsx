@@ -498,6 +498,13 @@ export interface StorefrontShop {
     enabled: boolean
     dataSharingTitle?: string | null
     dataSharingVisible?: boolean
+    title?: string | null
+    body?: string | null
+    acceptLabel?: string | null
+    declineLabel?: string | null
+    manageLabel?: string | null
+    position?: string | null
+    colorTheme?: string | null
   } | null
 }
 
@@ -543,7 +550,10 @@ function useStorefrontShop(): StorefrontShop | null {
             privacyPolicy { title url }
             termsOfService { title url }
             subscriptionPolicy { title url }
-            cookieBanner { enabled dataSharingTitle dataSharingVisible }
+            cookieBanner {
+              enabled dataSharingTitle dataSharingVisible
+              title body acceptLabel declineLabel manageLabel position colorTheme
+            }
           }
         }`,
       }),

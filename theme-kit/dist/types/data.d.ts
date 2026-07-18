@@ -412,6 +412,20 @@ export interface LiveDataOptions {
         topProductLimit?: number;
     };
 }
+/**
+ * Loud, observable reporting for a storefront data error that we deliberately
+ * swallow to keep the page alive. The whole point of store-api#505 (a single
+ * non-null violation blanked every PDP for days) was that the swallow was
+ * *silent* — `console.warn` that nobody reads, no telemetry. This makes such an
+ * error:
+ *   1. a `console.error` (the level people actually watch), clearly labelled as
+ *      a QUERY ERROR (a bug) — not the routine "product not found" null; and
+ *   2. a `tq:theme-error` CustomEvent on `window`, the same subscribe-bus
+ *      philosophy as `window.tqAnalytics`, so monitoring/pixels/Sentry glue can
+ *      pick it up without theme-kit taking a backend or enum dependency.
+ * SSR-safe: the `window` dispatch is guarded, `console.error` works everywhere.
+ */
+export declare function reportThemeError(source: string, detail: string, err?: unknown): void;
 export declare function createLiveData(opts: LiveDataOptions): Promise<DataApi>;
 /**
  * Build a live DataApi SYNCHRONOUSLY from a previously-fetched bootstrap

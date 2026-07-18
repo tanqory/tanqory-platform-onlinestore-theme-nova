@@ -1305,6 +1305,19 @@ function makeGraphqlRequest(opts) {
     return json.data;
   };
 }
+function reportThemeError(source, detail, err) {
+  const message = err instanceof Error ? err.message : err != null ? String(err) : detail;
+  if (typeof console !== "undefined") {
+    console.error(`[theme-kit] ${source}: ${detail}${err ? ` — ${message}` : ""}`);
+  }
+  try {
+    const w = globalThis;
+    if (typeof w.dispatchEvent === "function" && typeof w.CustomEvent === "function") {
+      w.dispatchEvent(new w.CustomEvent("tq:theme-error", { detail: { source, detail, message } }));
+    }
+  } catch {
+  }
+}
 async function createLiveData(opts) {
   const graphqlRequest = makeGraphqlRequest(opts);
   const collectionLimit = opts.prefetch?.collectionLimit ?? 10;
@@ -1321,11 +1334,11 @@ async function createLiveData(opts) {
       collectionHandle: opts.collectionHandle ?? null
     });
   } catch (err) {
-    if (typeof console !== "undefined") {
-      console.warn(
-        `[theme-kit] full bootstrap failed, retrying without optional fields: ${err.message}`
-      );
-    }
+    reportThemeError(
+      "createLiveData bootstrap",
+      "full bootstrap query errored — retrying without optional fields (localization + nested products will be degraded)",
+      err
+    );
     boot = await graphqlRequest(SAFE_COLLECTIONS_QUERY, {
       first: collectionLimit,
       productsTop: topProductLimit,
@@ -1403,9 +1416,11 @@ function buildLiveData(boot, graphqlRequest, opts) {
       });
       return res?.product ? normalizeProductDetail(res.product) : null;
     } catch (err) {
-      if (typeof console !== "undefined") {
-        console.warn(`[theme-kit] fetchProduct(${handle}) failed: ${err.message}`);
-      }
+      reportThemeError(
+        `fetchProduct("${handle}")`,
+        "product query errored — the PDP will be missing its variants/options",
+        err
+      );
       return null;
     }
   };
@@ -2054,10 +2069,11 @@ export {
   imageUrl as m,
   renderSectionPreviewHTML as n,
   renderStorefrontHTML as o,
-  useData as p,
-  useSettings as q,
+  reportThemeError as p,
+  useData as q,
   registerSections as r,
-  useT as s,
+  useSettings as s,
+  useT as t,
   useCart as u
 };
-//# sourceMappingURL=ssg-DTm1kYiW.js.map
+//# sourceMappingURL=ssg-DhwL5u3R.js.map

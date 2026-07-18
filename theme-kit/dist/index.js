@@ -1,5 +1,5 @@
-import { S as SectionTree, l as getSection, a as allSections, p as useData, r as registerSections, D as DataProvider, T as ThemeProvider, C as CartProvider } from "./ssg-DTm1kYiW.js";
-import { c, b, d, e, f, g, h, i, j, k, m, n, o, u, q, s } from "./ssg-DTm1kYiW.js";
+import { S as SectionTree, l as getSection, a as allSections, q as useData, r as registerSections, D as DataProvider, T as ThemeProvider, C as CartProvider } from "./ssg-DhwL5u3R.js";
+import { c, b, d, e, f, g, h, i, j, k, m, n, o, p, u, s, t } from "./ssg-DhwL5u3R.js";
 import { jsxs, jsx, Fragment } from "react/jsx-runtime";
 import React, { useState, useRef, useEffect, createContext, useContext, Children, isValidElement } from "react";
 import { hydrateRoot, createRoot } from "react-dom/client";
@@ -22,8 +22,8 @@ function getConsent() {
     if (!raw) return null;
     if (raw === "accepted") return { analytics: true, marketing: true };
     if (raw === "declined") return { analytics: false, marketing: false };
-    const p = JSON.parse(raw);
-    return { analytics: !!p.analytics, marketing: !!p.marketing };
+    const p2 = JSON.parse(raw);
+    return { analytics: !!p2.analytics, marketing: !!p2.marketing };
   } catch {
     return null;
   }
@@ -322,7 +322,7 @@ function Editor({ pages, initialPage = "index" }) {
     setStatus(res.ok ? `saved ${page} ✓` : "save failed");
   };
   const onDrop = (parent, to) => {
-    if (drag && drag.parent === parent.join(".")) setTree((t) => reorder(t, parent, drag.index, to));
+    if (drag && drag.parent === parent.join(".")) setTree((t2) => reorder(t2, parent, drag.index, to));
     setDrag(null);
   };
   const inserter = (parent, allow) => {
@@ -331,7 +331,7 @@ function Editor({ pages, initialPage = "index" }) {
       "button",
       {
         onClick: () => {
-          setTree((t) => insertChild(t, parent, newNode(s2.name)));
+          setTree((t2) => insertChild(t2, parent, newNode(s2.name)));
           setAddParent(null);
         },
         style: { ...btn(), display: "block", width: "100%", textAlign: "left", padding: "5px 8px", marginBottom: 2 },
@@ -365,7 +365,7 @@ function Editor({ pages, initialPage = "index" }) {
             ] }),
             sec?.allowedBlocks?.length ? /* @__PURE__ */ jsx("button", { title: "add child", onClick: () => setAddParent(path), style: { ...btn(), width: 26 }, children: "＋" }) : null,
             /* @__PURE__ */ jsx("button", { title: "remove", onClick: () => {
-              setTree((t) => removeAt(t, path));
+              setTree((t2) => removeAt(t2, path));
               setSel([0]);
             }, style: { ...btn(), width: 26, color: "#c0392b" }, children: "✕" })
           ]
@@ -380,7 +380,7 @@ function Editor({ pages, initialPage = "index" }) {
       /* @__PURE__ */ jsx("select", { value: page, onChange: (e2) => {
         setPage(e2.target.value);
         setSel([0]);
-      }, style: { width: "100%", padding: "6px 8px", marginBottom: 12 }, children: pageNames.map((p) => /* @__PURE__ */ jsx("option", { value: p, children: p }, p)) }),
+      }, style: { width: "100%", padding: "6px 8px", marginBottom: 12 }, children: pageNames.map((p2) => /* @__PURE__ */ jsx("option", { value: p2, children: p2 }, p2)) }),
       /* @__PURE__ */ jsx("strong", { style: { fontSize: 13 }, children: "SECTIONS — drag ⠿ to reorder" }),
       /* @__PURE__ */ jsx("div", { style: { margin: "8px 0" }, children: renderList(tree, []) }),
       /* @__PURE__ */ jsx("button", { onClick: () => setAddParent([]), style: { ...btn(), padding: "8px 10px", width: "100%" }, children: "+ Add section" }),
@@ -400,7 +400,7 @@ function Editor({ pages, initialPage = "index" }) {
           name: k2,
           spec,
           value: node.settings?.[k2] ?? spec.default,
-          onChange: (v) => setTree((t) => updateAt(t, sel, (nn) => ({ ...nn, settings: { ...nn.settings, [k2]: v } })))
+          onChange: (v) => setTree((t2) => updateAt(t2, sel, (nn) => ({ ...nn, settings: { ...nn.settings, [k2]: v } })))
         },
         k2
       )) })
@@ -458,16 +458,16 @@ function PreviewBridge({
           blocks = ids.filter((bid) => rawBlocks[bid]).map((bid) => ({ ...rawBlocks[bid], id: rawBlocks[bid].id ?? bid }));
         }
         setTree(
-          (t) => t.map(
+          (t2) => t2.map(
             (n2) => n2.id === id ? { ...n2, settings: { ...n2.settings, ...s2 }, ...blocks ? { blocks } : {} } : n2
           )
         );
       } else if (e2.data.type === "tanqory-preview-select") {
         const id = e2.data.sectionId;
-        setTree((t) => {
-          const i2 = t.findIndex((n2) => n2.id === id);
+        setTree((t2) => {
+          const i2 = t2.findIndex((n2) => n2.id === id);
           setSelected(i2 >= 0 ? [i2] : null);
-          return t;
+          return t2;
         });
         if (typeof document !== "undefined" && id) {
           const sel = typeof CSS !== "undefined" && CSS.escape ? CSS.escape(id) : id;
@@ -480,16 +480,16 @@ function PreviewBridge({
       } else if (e2.data.type === "tanqory-preview-reorder-sections") {
         const order = e2.data.order;
         if (Array.isArray(order)) {
-          setTree((t) => {
-            const byId = new Map(t.map((n2) => [n2.id, n2]));
+          setTree((t2) => {
+            const byId = new Map(t2.map((n2) => [n2.id, n2]));
             const next = order.map((id) => byId.get(id)).filter(Boolean);
-            for (const n2 of t) if (!order.includes(n2.id)) next.push(n2);
-            return next.length ? next : t;
+            for (const n2 of t2) if (!order.includes(n2.id)) next.push(n2);
+            return next.length ? next : t2;
           });
         }
       } else if (e2.data.type === "tanqory-preview-remove-section") {
         const id = e2.data.sectionId;
-        setTree((t) => t.filter((n2) => n2.id !== id));
+        setTree((t2) => t2.filter((n2) => n2.id !== id));
       } else if (e2.data.type === "tanqory-preview-insert-section") {
         const id = e2.data.sectionId;
         const rawBlocks = e2.data.blocks;
@@ -508,10 +508,10 @@ function PreviewBridge({
           ...blocks ? { blocks } : {}
         };
         const after = e2.data.afterSectionId;
-        setTree((t) => {
-          if (t.some((n2) => n2.id === id)) return t;
-          const idx = after ? t.findIndex((n2) => n2.id === after) : -1;
-          const next = [...t];
+        setTree((t2) => {
+          if (t2.some((n2) => n2.id === id)) return t2;
+          const idx = after ? t2.findIndex((n2) => n2.id === after) : -1;
+          const next = [...t2];
           next.splice(idx + 1, 0, node);
           return next;
         });
@@ -529,14 +529,14 @@ function PreviewBridge({
         const seen = /* @__PURE__ */ new Set();
         const products = [];
         for (const c2 of data.allCollections()) {
-          for (const p of c2.products) {
-            if (seen.has(p.handle)) continue;
-            seen.add(p.handle);
+          for (const p2 of c2.products) {
+            if (seen.has(p2.handle)) continue;
+            seen.add(p2.handle);
             products.push({
-              handle: p.handle,
-              title: p.title,
-              price: p.price?.amount ?? "",
-              image: p.featuredImage?.url ?? null
+              handle: p2.handle,
+              title: p2.title,
+              price: p2.price?.amount ?? "",
+              image: p2.featuredImage?.url ?? null
             });
           }
         }
@@ -804,6 +804,7 @@ export {
   registerSections,
   n as renderSectionPreviewHTML,
   o as renderStorefrontHTML,
+  p as reportThemeError,
   resolveBoundSource,
   setBannerRequired,
   setConsent,
@@ -814,7 +815,7 @@ export {
   u as useCart,
   useData,
   useResourceContext,
-  q as useSettings,
-  s as useT
+  s as useSettings,
+  t as useT
 };
 //# sourceMappingURL=index.js.map

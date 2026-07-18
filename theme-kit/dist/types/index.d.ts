@@ -8,7 +8,7 @@ export { renderStorefrontHTML, renderSectionPreviewHTML } from './ssg';
 export { SectionTree } from './SectionTree';
 export { Editor } from './editor';
 export { registerSections, getSection, allSections } from './registry';
-export { DataProvider, useData, createMockData, createLiveData, createLiveDataFromSnapshot, formatMoney, formatMoneyWithCurrency, formatMoneyWithoutCurrency, formatMoneyWithoutTrailingZeros, imageUrl, formatDate, formatWeight, } from './data';
+export { DataProvider, useData, createMockData, createLiveData, createLiveDataFromSnapshot, formatMoney, formatMoneyWithCurrency, formatMoneyWithoutCurrency, formatMoneyWithoutTrailingZeros, imageUrl, formatDate, formatWeight, reportThemeError, } from './data';
 export { CartProvider, useCart } from './cart';
 export { DynamicSourceProvider, useResourceContext, useBound, useBoundText, isBoundSource, resolveBoundSource, collectBoundIdentifiers, } from './dynamic-source';
 export type { Bound, BoundSource, ResourceContextValue } from './dynamic-source';

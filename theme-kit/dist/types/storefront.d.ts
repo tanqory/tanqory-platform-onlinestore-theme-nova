@@ -156,6 +156,8 @@ export interface ShopPolicy {
 export interface Shop {
     name: string;
     description?: string | null;
+    email?: string | null;
+    phone?: string | null;
     brand?: {
         logo?: Image | null;
         squareLogo?: Image | null;
@@ -183,6 +185,8 @@ export interface Shop {
         refund?: ShopPolicy | null;
         termsOfService?: ShopPolicy | null;
         shipping?: ShopPolicy | null;
+        contactInformation?: ShopPolicy | null;
+        legalNotice?: ShopPolicy | null;
         subscription?: ShopPolicy | null;
     };
     /** Cookie-consent banner config (Settings → Customer privacy). */
@@ -356,7 +360,7 @@ export interface StorefrontExtensions {
 }
 /** GraphQL selection for shop + the two standard menus, spliced into the
  *  homepage bootstrap so the layout (nav + footer + policies) renders sync. */
-export declare const BOOTSTRAP_SHOP_MENU = "\n  shop {\n    name\n    description\n    # Ask for the whole brand, not a third of it. Settings \u2192 Brand persists a\n    # logo, a square logo and brand colours; the SDL has carried them all along\n    # and this selection took only logo/slogan/shortDescription, so a merchant\n    # could upload a logo and set colours and their storefront never changed.\n    # Nullable throughout (BrandColorGroup.background/foreground are String),\n    # so an unconfigured store returns nulls rather than failing the query.\n    brand {\n      logo { url altText }\n      squareLogo { url altText }\n      coverImage { url altText }\n      slogan\n      shortDescription\n      colors {\n        primary { background foreground }\n        secondary { background foreground }\n      }\n    }\n    privacyPolicy { handle title url }\n    refundPolicy { handle title url }\n    termsOfService { handle title url }\n    shippingPolicy { handle title url }\n    subscriptionPolicy { handle title url }\n    cookieBanner { enabled dataSharingTitle dataSharingVisible title body acceptLabel declineLabel manageLabel position colorTheme }\n    primaryDomain { host url sslEnabled }\n    paymentSettings { acceptedCardBrands supportedDigitalWallets currencyCode }\n  }\n  mainMenu: menu(handle: \"main-menu\") { ...MenuFields }\n  footerMenu: menu(handle: \"footer\") { ...MenuFields }\n";
+export declare const BOOTSTRAP_SHOP_MENU = "\n  shop {\n    name\n    description\n    email\n    phone\n    # Ask for the whole brand, not a third of it. Settings \u2192 Brand persists a\n    # logo, a square logo and brand colours; the SDL has carried them all along\n    # and this selection took only logo/slogan/shortDescription, so a merchant\n    # could upload a logo and set colours and their storefront never changed.\n    # Nullable throughout (BrandColorGroup.background/foreground are String),\n    # so an unconfigured store returns nulls rather than failing the query.\n    brand {\n      logo { url altText }\n      squareLogo { url altText }\n      coverImage { url altText }\n      slogan\n      shortDescription\n      colors {\n        primary { background foreground }\n        secondary { background foreground }\n      }\n    }\n    privacyPolicy { handle title url }\n    refundPolicy { handle title url }\n    termsOfService { handle title url }\n    shippingPolicy { handle title url }\n    contactInformation { handle title url }\n    legalNotice { handle title url }\n    subscriptionPolicy { handle title url }\n    cookieBanner { enabled dataSharingTitle dataSharingVisible title body acceptLabel declineLabel manageLabel position colorTheme }\n    primaryDomain { host url sslEnabled }\n    paymentSettings { acceptedCardBrands supportedDigitalWallets currencyCode }\n  }\n  mainMenu: menu(handle: \"main-menu\") { ...MenuFields }\n  footerMenu: menu(handle: \"footer\") { ...MenuFields }\n";
 /** Fragment defs the bootstrap query must include when it uses BOOTSTRAP_SHOP_MENU. */
 export declare const BOOTSTRAP_SHOP_MENU_FRAGMENTS = "\n  fragment MenuFields on Menu {\n    id\n    handle\n    title\n    items {\n      ...MenuItemFields\n      items { ...MenuItemFields items { ...MenuItemFields } }\n    }\n  }\n  fragment MenuItemFields on MenuItem { id title url type resourceId }\n";
 /** Pull shop + the prefetched menus out of a bootstrap response. */

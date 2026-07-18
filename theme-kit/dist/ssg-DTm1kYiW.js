@@ -302,6 +302,8 @@ function normalizeShop(n) {
   return {
     name: n.name,
     description: n.description ?? null,
+    email: n.email ?? null,
+    phone: n.phone ?? null,
     brand: n.brand ? {
       logo: img(n.brand.logo),
       squareLogo: img(n.brand.squareLogo),
@@ -320,6 +322,8 @@ function normalizeShop(n) {
       refund: normalizeShopPolicy(n.refundPolicy),
       termsOfService: normalizeShopPolicy(n.termsOfService),
       shipping: normalizeShopPolicy(n.shippingPolicy),
+      contactInformation: normalizeShopPolicy(n.contactInformation),
+      legalNotice: normalizeShopPolicy(n.legalNotice),
       subscription: normalizeShopPolicy(n.subscriptionPolicy)
     },
     cookieBanner: n.cookieBanner ? {
@@ -355,6 +359,8 @@ const BOOTSTRAP_SHOP_MENU = (
   shop {
     name
     description
+    email
+    phone
     # Ask for the whole brand, not a third of it. Settings → Brand persists a
     # logo, a square logo and brand colours; the SDL has carried them all along
     # and this selection took only logo/slogan/shortDescription, so a merchant
@@ -376,6 +382,8 @@ const BOOTSTRAP_SHOP_MENU = (
     refundPolicy { handle title url }
     termsOfService { handle title url }
     shippingPolicy { handle title url }
+    contactInformation { handle title url }
+    legalNotice { handle title url }
     subscriptionPolicy { handle title url }
     cookieBanner { enabled dataSharingTitle dataSharingVisible title body acceptLabel declineLabel manageLabel position colorTheme }
     primaryDomain { host url sslEnabled }
@@ -2052,4 +2060,4 @@ export {
   useT as s,
   useCart as u
 };
-//# sourceMappingURL=ssg-BLhqpVq0.js.map
+//# sourceMappingURL=ssg-DTm1kYiW.js.map

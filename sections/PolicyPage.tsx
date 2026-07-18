@@ -11,6 +11,8 @@ const POLICY_BODIES = /* GraphQL */ `query PolicyBodies {
     refundPolicy { handle title body }
     termsOfService { handle title body }
     shippingPolicy { handle title body }
+    contactInformation { handle title body }
+    legalNotice { handle title body }
     subscriptionPolicy { handle title body }
   }
 }`

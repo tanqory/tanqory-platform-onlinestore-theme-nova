@@ -24,10 +24,29 @@ export function FooterBrand({ attributes }: SectionProps): JSX.Element {
     (data.shop?.brand?.slogan as string | undefined) ||
     (data.shop?.description as string) ||
     ''
+  // Merchant contact from Settings → General (store#513) — shown when set so the
+  // footer carries a real support email/phone, not a hardcoded one.
+  const email = (data.shop?.email as string | undefined)?.trim()
+  const phone = (data.shop?.phone as string | undefined)?.trim()
   return (
     <div className="site-footer__brand">
       <h2>{name}</h2>
       {tagline && <p style={{ color: 'rgba(255,255,255,0.7)', maxWidth: '36ch' }}>{tagline}</p>}
+      {(email || phone) && (
+        <p className="site-footer__contact" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          {email && (
+            <a href={`mailto:${email}`} style={{ color: 'inherit' }}>
+              {email}
+            </a>
+          )}
+          {email && phone && <span aria-hidden> · </span>}
+          {phone && (
+            <a href={`tel:${phone}`} style={{ color: 'inherit' }}>
+              {phone}
+            </a>
+          )}
+        </p>
+      )}
     </div>
   )
 }

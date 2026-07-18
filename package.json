@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": false,
   "type": "module",
-  "description": "Reference Tanqory Studio theme \u2014 React sections, JSON content tree, runs offline with mock data.",
+  "description": "Reference Tanqory Studio theme — React sections, JSON content tree, runs offline with mock data.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

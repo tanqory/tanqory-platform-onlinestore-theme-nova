@@ -1,12 +1,28 @@
 {
   "sections": [
     {
-      "type": "policy-body",
-      "id": "policy-body",
-      "settings": {
-        "fallbackTitle": "Policy",
-        "fallbackBody": "<p>This policy hasn't been published yet. Add it from the admin <strong>Settings → Policies</strong> to fill this in.</p>"
-      }
+      "type": "header",
+      "id": "header",
+      "settings": { "menu": "main-menu" },
+      "area": "header"
+    },
+    {
+      "type": "policy-page",
+      "id": "policy",
+      "settings": {},
+      "area": "template"
+    },
+    {
+      "type": "footer",
+      "id": "footer",
+      "settings": {},
+      "area": "footer",
+      "blocks": [
+        { "type": "footer-brand", "id": "footer-brand", "settings": {} },
+        { "type": "footer-menu", "id": "footer-menu-shop", "settings": { "menu": "main-menu" } },
+        { "type": "footer-menu", "id": "footer-menu-help", "settings": { "menu": "footer-help" } },
+        { "type": "footer-menu", "id": "footer-menu-company", "settings": { "menu": "footer-company" } }
+      ]
     }
   ]
 }

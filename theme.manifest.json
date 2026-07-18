@@ -1,0 +1,2203 @@
+{
+  "$schema": "https://tanqory.com/schemas/theme-manifest/v1",
+  "theme": {
+    "name": "@tanqory-theme/nova",
+    "version": "0.1.0"
+  },
+  "generatedFrom": [
+    "sections/*.tsx",
+    "templates/*.json",
+    "layouts/*.tsx",
+    "config/settings.json"
+  ],
+  "stats": {
+    "sections": 61,
+    "templates": 18,
+    "layouts": 1,
+    "settings": 34,
+    "categories": {
+      "block": 28,
+      "commerce": 10,
+      "layout": 7,
+      "content": 11,
+      "forms": 1,
+      "social-proof": 1,
+      "marketing": 1,
+      "system": 1,
+      "product": 1
+    }
+  },
+  "sections": [
+    {
+      "name": "accordion",
+      "title": "Accordion",
+      "category": "block",
+      "icon": "▽",
+      "attributes": {
+        "heading": {
+          "type": "text",
+          "default": "Question",
+          "label": "Heading"
+        },
+        "body": {
+          "type": "richtext",
+          "default": "Answer goes here.",
+          "label": "Body"
+        },
+        "open": {
+          "type": "boolean",
+          "default": false,
+          "label": "Open by default"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "account",
+      "title": "Account",
+      "category": "commerce",
+      "icon": "user",
+      "attributes": {},
+      "allowedBlocks": []
+    },
+    {
+      "name": "add-to-cart",
+      "title": "Add to cart",
+      "category": "block",
+      "icon": "+",
+      "attributes": {
+        "label": {
+          "type": "text",
+          "default": "Add to cart",
+          "label": "Label"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "announcement-bar",
+      "title": "Announcement bar",
+      "category": "layout",
+      "icon": "▔",
+      "attributes": {
+        "text": {
+          "type": "text",
+          "default": "Free shipping on orders over $50",
+          "label": "Text"
+        },
+        "link": {
+          "type": "url",
+          "label": "Link (optional)"
+        },
+        "bg": {
+          "type": "color",
+          "default": "#0a0a0a",
+          "label": "Background"
+        },
+        "fg": {
+          "type": "color",
+          "default": "#ffffff",
+          "label": "Text color"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "article-body",
+      "title": "Article content",
+      "category": "content",
+      "icon": "✎",
+      "attributes": {
+        "fallbackTitle": {
+          "type": "text",
+          "label": "Fallback title",
+          "default": "Article"
+        },
+        "fallbackBody": {
+          "type": "textarea",
+          "label": "Fallback body (HTML)",
+          "default": ""
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "blog-posts",
+      "title": "Blog posts",
+      "category": "content",
+      "icon": "✎",
+      "attributes": {
+        "fallbackTitle": {
+          "type": "text",
+          "label": "Fallback title",
+          "default": "Journal"
+        },
+        "fallbackEmpty": {
+          "type": "textarea",
+          "label": "Fallback (when empty)",
+          "default": ""
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "button",
+      "title": "Button",
+      "category": "block",
+      "icon": "⬚",
+      "attributes": {
+        "label": {
+          "type": "text",
+          "default": "Shop now",
+          "label": "Label"
+        },
+        "link": {
+          "type": "url",
+          "label": "Link"
+        },
+        "variant": {
+          "type": "select",
+          "default": "primary",
+          "label": "Style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Primary"
+            },
+            {
+              "value": "secondary",
+              "label": "Secondary"
+            },
+            {
+              "value": "ghost",
+              "label": "Ghost"
+            },
+            {
+              "value": "link",
+              "label": "Link"
+            }
+          ]
+        },
+        "align": {
+          "type": "select",
+          "default": "left",
+          "label": "Alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ]
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "cart-items",
+      "title": "Cart items",
+      "category": "commerce",
+      "icon": "⊞",
+      "attributes": {
+        "heading": {
+          "type": "text",
+          "default": "Your cart",
+          "label": "Heading"
+        },
+        "buttonLabel": {
+          "type": "text",
+          "default": "Checkout",
+          "label": "Checkout button"
+        },
+        "buttonLink": {
+          "type": "url",
+          "label": "Checkout link override"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "collection-item",
+      "title": "Collection",
+      "category": "block",
+      "icon": "▢",
+      "attributes": {
+        "collection": {
+          "type": "collection",
+          "label": "Collection"
+        },
+        "title": {
+          "type": "text",
+          "label": "Title override"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "collection-links",
+      "title": "Collection links",
+      "category": "content",
+      "icon": "▦",
+      "attributes": {
+        "heading": {
+          "type": "text",
+          "default": "Shop by collection",
+          "label": "Heading"
+        },
+        "columns": {
+          "type": "range",
+          "default": 3,
+          "min": 2,
+          "max": 5,
+          "step": 1,
+          "label": "Columns"
+        },
+        "limit": {
+          "type": "range",
+          "default": 6,
+          "min": 2,
+          "max": 12,
+          "step": 1,
+          "label": "Collections to show"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "collection-list",
+      "title": "Collection list",
+      "category": "commerce",
+      "icon": "☷",
+      "attributes": {
+        "heading": {
+          "type": "text",
+          "default": "Shop by collection",
+          "label": "Heading"
+        },
+        "subheading": {
+          "type": "text",
+          "label": "Subheading"
+        },
+        "limit": {
+          "type": "number",
+          "default": 6,
+          "label": "Max collections (auto mode)"
+        }
+      },
+      "allowedBlocks": [
+        "collection-item"
+      ]
+    },
+    {
+      "name": "column",
+      "title": "Column",
+      "category": "block",
+      "icon": "▥",
+      "attributes": {
+        "icon": {
+          "type": "select",
+          "default": "star",
+          "label": "Icon",
+          "options": [
+            {
+              "value": "truck",
+              "label": "Truck"
+            },
+            {
+              "value": "return",
+              "label": "Return"
+            },
+            {
+              "value": "chat",
+              "label": "Chat"
+            },
+            {
+              "value": "shield",
+              "label": "Shield"
+            },
+            {
+              "value": "star",
+              "label": "Star"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            },
+            {
+              "value": "leaf",
+              "label": "Leaf"
+            },
+            {
+              "value": "clock",
+              "label": "Clock"
+            }
+          ]
+        },
+        "heading": {
+          "type": "text",
+          "default": "Feature",
+          "label": "Heading"
+        },
+        "body": {
+          "type": "textarea",
+          "label": "Body"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "contact-form",
+      "title": "Contact form",
+      "category": "forms",
+      "icon": "✉",
+      "attributes": {
+        "heading": {
+          "type": "text",
+          "default": "Get in touch",
+          "label": "Heading"
+        },
+        "subheading": {
+          "type": "text",
+          "default": "We'll reply within one business day.",
+          "label": "Subheading"
+        },
+        "showPhone": {
+          "type": "boolean",
+          "default": false,
+          "label": "Show phone field"
+        },
+        "buttonLabel": {
+          "type": "text",
+          "default": "Send message",
+          "label": "Button label"
+        },
+        "action": {
+          "type": "url",
+          "label": "Form action URL"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "divider",
+      "title": "Divider",
+      "category": "layout",
+      "icon": "—",
+      "attributes": {
+        "height": {
+          "type": "range",
+          "default": 48,
+          "min": 8,
+          "max": 160,
+          "step": 8,
+          "label": "Height (px)"
+        },
+        "showLine": {
+          "type": "boolean",
+          "default": true,
+          "label": "Show line"
+        },
+        "color": {
+          "type": "color",
+          "default": "#e7e7e9",
+          "label": "Line color"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "faq",
+      "title": "FAQ",
+      "category": "content",
+      "icon": "?",
+      "attributes": {
+        "eyebrow": {
+          "type": "text",
+          "label": "Eyebrow"
+        },
+        "heading": {
+          "type": "text",
+          "default": "Frequently asked questions",
+          "label": "Heading"
+        },
+        "items": {
+          "type": "textarea",
+          "label": "Items JSON"
+        }
+      },
+      "allowedBlocks": [
+        "faq-item"
+      ]
+    },
+    {
+      "name": "faq-item",
+      "title": "Question",
+      "category": "block",
+      "icon": "?",
+      "attributes": {
+        "question": {
+          "type": "text",
+          "default": "Your question?",
+          "label": "Question"
+        },
+        "answer": {
+          "type": "textarea",
+          "label": "Answer"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "feature-grid-blocks",
+      "title": "Feature grid (blocks)",
+      "category": "content",
+      "icon": "star",
+      "attributes": {
+        "eyebrow": {
+          "type": "text",
+          "label": "Eyebrow",
+          "dynamic": true
+        },
+        "heading": {
+          "type": "text",
+          "default": "Why shop with us",
+          "label": "Heading",
+          "dynamic": true
+        },
+        "columns": {
+          "type": "range",
+          "default": 3,
+          "min": 2,
+          "max": 4,
+          "label": "Columns"
+        }
+      },
+      "allowedBlocks": [
+        "column",
+        "icon",
+        "heading",
+        "text"
+      ]
+    },
+    {
+      "name": "feature-highlights",
+      "title": "Feature Highlights",
+      "category": "content",
+      "icon": "star",
+      "attributes": {
+        "features": {
+          "type": "textarea",
+          "label": "Features",
+          "default": "[{\"icon\":\"truck\",\"title\":\"Free Shipping\",\"description\":\"Enjoy free shipping on all orders.\"},{\"icon\":\"shield\",\"title\":\"Secure Payment\",\"description\":\"Your payment information is safe with us.\"},{\"icon\":\"clock\",\"title\":\"Fast Delivery\",\"description\":\"Get your orders delivered quickly.\"}]"
+        },
+        "background": {
+          "type": "color",
+          "label": "Background Color"
+        },
+        "textAlign": {
+          "type": "select",
+          "label": "Text Alignment",
+          "default": "center",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            }
+          ]
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "featured-collection",
+      "title": "Featured collection",
+      "category": "commerce",
+      "icon": "▦",
+      "attributes": {
+        "eyebrow": {
+          "type": "text",
+          "label": "Eyebrow"
+        },
+        "heading": {
+          "type": "text",
+          "default": "Featured",
+          "label": "Heading"
+        },
+        "subheading": {
+          "type": "text",
+          "label": "Subheading"
+        },
+        "collection": {
+          "type": "collection",
+          "default": "all",
+          "label": "Collection"
+        },
+        "limit": {
+          "type": "number",
+          "default": 8,
+          "label": "Max products"
+        },
+        "showViewAll": {
+          "type": "boolean",
+          "default": true,
+          "label": "Show \"View all\" link"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "featured-product",
+      "title": "Featured product",
+      "category": "commerce",
+      "icon": "★",
+      "attributes": {
+        "eyebrow": {
+          "type": "text",
+          "label": "Eyebrow"
+        },
+        "product": {
+          "type": "product",
+          "label": "Product"
+        },
+        "body": {
+          "type": "textarea",
+          "label": "Description"
+        },
+        "buttonLabel": {
+          "type": "text",
+          "default": "Shop now",
+          "label": "Button label"
+        },
+        "buttonLink": {
+          "type": "url",
+          "label": "Button link (auto = product page)"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "footer",
+      "title": "Footer",
+      "category": "layout",
+      "icon": "▬",
+      "attributes": {
+        "showLocale": {
+          "type": "boolean",
+          "default": true,
+          "label": "Show language / region"
+        },
+        "showPoweredBy": {
+          "type": "boolean",
+          "default": true,
+          "label": "Show footer credit"
+        },
+        "poweredByLabel": {
+          "type": "text",
+          "default": "Made with Tanqory",
+          "label": "Footer credit text"
+        },
+        "bg": {
+          "type": "color",
+          "label": "Background"
+        },
+        "fg": {
+          "type": "color",
+          "label": "Text color"
+        }
+      },
+      "allowedBlocks": [
+        "footer-brand",
+        "footer-menu",
+        "footer-text",
+        "social-links",
+        "newsletter",
+        "payment-icons"
+      ]
+    },
+    {
+      "name": "footer-brand",
+      "title": "Brand information",
+      "category": "block",
+      "icon": "◈",
+      "attributes": {
+        "title": {
+          "type": "text",
+          "label": "Brand name (blank = store name)",
+          "dynamic": true
+        },
+        "tagline": {
+          "type": "textarea",
+          "label": "Tagline (blank = store description)",
+          "dynamic": true
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "footer-menu",
+      "title": "Menu",
+      "category": "block",
+      "icon": "chat",
+      "attributes": {
+        "menu": {
+          "type": "link_list",
+          "label": "Menu"
+        },
+        "heading": {
+          "type": "text",
+          "label": "Heading (blank = menu name)"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "footer-text",
+      "title": "Text",
+      "category": "block",
+      "icon": "¶",
+      "attributes": {
+        "heading": {
+          "type": "text",
+          "label": "Heading",
+          "dynamic": true
+        },
+        "body": {
+          "type": "textarea",
+          "label": "Text",
+          "dynamic": true
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "group",
+      "title": "Group",
+      "category": "layout",
+      "icon": "▤",
+      "attributes": {
+        "gap": {
+          "type": "number",
+          "default": 16,
+          "label": "Gap (px)"
+        }
+      },
+      "allowedBlocks": [
+        "text",
+        "heading",
+        "button",
+        "image",
+        "icon",
+        "spacer",
+        "video",
+        "accordion",
+        "jumbo-text",
+        "social-links",
+        "payment-icons",
+        "cart-items",
+        "collection-list",
+        "contact-form",
+        "faq",
+        "featured-collection",
+        "featured-product",
+        "group",
+        "hero",
+        "image-with-text",
+        "logo-list",
+        "multicolumn",
+        "newsletter",
+        "not-found",
+        "product-details",
+        "product-grid",
+        "rich-text",
+        "search-results",
+        "slideshow"
+      ]
+    },
+    {
+      "name": "header",
+      "title": "Header",
+      "category": "layout",
+      "icon": "▭",
+      "attributes": {
+        "menu": {
+          "type": "select",
+          "default": "main-menu",
+          "label": "Navigation menu",
+          "options": [
+            {
+              "value": "main-menu",
+              "label": "Main menu"
+            },
+            {
+              "value": "footer",
+              "label": "Footer"
+            },
+            {
+              "value": "footer-shop",
+              "label": "Footer · Shop"
+            },
+            {
+              "value": "footer-help",
+              "label": "Footer · Help"
+            },
+            {
+              "value": "footer-company",
+              "label": "Footer · Company"
+            }
+          ]
+        },
+        "logo": {
+          "type": "text",
+          "label": "Logo text (blank = shop name)"
+        },
+        "showSearch": {
+          "type": "boolean",
+          "default": true,
+          "label": "Show search"
+        },
+        "showCart": {
+          "type": "boolean",
+          "default": true,
+          "label": "Show cart"
+        },
+        "showAccount": {
+          "type": "boolean",
+          "default": true,
+          "label": "Show account"
+        },
+        "showLocale": {
+          "type": "boolean",
+          "default": true,
+          "label": "Show language / region"
+        },
+        "bg": {
+          "type": "color",
+          "label": "Background"
+        },
+        "fg": {
+          "type": "color",
+          "label": "Text color"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "heading",
+      "title": "Heading",
+      "category": "block",
+      "icon": "H",
+      "attributes": {
+        "text": {
+          "type": "text",
+          "default": "Heading",
+          "label": "Text"
+        },
+        "level": {
+          "type": "select",
+          "default": "h2",
+          "label": "Level",
+          "options": [
+            {
+              "value": "h1",
+              "label": "H1"
+            },
+            {
+              "value": "h2",
+              "label": "H2"
+            },
+            {
+              "value": "h3",
+              "label": "H3"
+            },
+            {
+              "value": "h4",
+              "label": "H4"
+            }
+          ]
+        },
+        "align": {
+          "type": "select",
+          "default": "left",
+          "label": "Alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ]
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "hero",
+      "title": "Hero",
+      "category": "layout",
+      "icon": "✦",
+      "attributes": {
+        "eyebrow": {
+          "type": "text",
+          "label": "Eyebrow"
+        },
+        "heading": {
+          "type": "text",
+          "default": "Modern essentials",
+          "label": "Heading"
+        },
+        "subtext": {
+          "type": "textarea",
+          "label": "Subtext",
+          "default": "Designed for everyday rituals — built to last beyond the season."
+        },
+        "buttonLabel": {
+          "type": "text",
+          "default": "Shop the collection",
+          "label": "Primary button"
+        },
+        "buttonLink": {
+          "type": "url",
+          "default": "/collections/all",
+          "label": "Primary button link"
+        },
+        "secondaryLabel": {
+          "type": "text",
+          "label": "Secondary button"
+        },
+        "secondaryLink": {
+          "type": "url",
+          "label": "Secondary button link"
+        },
+        "backgroundImage": {
+          "type": "image",
+          "label": "Background image"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "icon",
+      "title": "Icon",
+      "category": "block",
+      "icon": "✶",
+      "attributes": {
+        "icon": {
+          "type": "select",
+          "default": "star",
+          "label": "Icon",
+          "options": [
+            {
+              "value": "truck",
+              "label": "Truck"
+            },
+            {
+              "value": "return",
+              "label": "Return"
+            },
+            {
+              "value": "chat",
+              "label": "Chat"
+            },
+            {
+              "value": "shield",
+              "label": "Shield"
+            },
+            {
+              "value": "star",
+              "label": "Star"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            },
+            {
+              "value": "leaf",
+              "label": "Leaf"
+            },
+            {
+              "value": "clock",
+              "label": "Clock"
+            }
+          ]
+        },
+        "size": {
+          "type": "range",
+          "default": 32,
+          "min": 16,
+          "max": 80,
+          "step": 4,
+          "label": "Size (px)"
+        },
+        "align": {
+          "type": "select",
+          "default": "left",
+          "label": "Alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ]
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "image",
+      "title": "Image",
+      "category": "block",
+      "icon": "▥",
+      "attributes": {
+        "image": {
+          "type": "image",
+          "label": "Image"
+        },
+        "alt": {
+          "type": "text",
+          "label": "Alt text"
+        },
+        "link": {
+          "type": "url",
+          "label": "Link"
+        },
+        "rounded": {
+          "type": "boolean",
+          "default": true,
+          "label": "Rounded corners"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "image-with-text",
+      "title": "Image with text",
+      "category": "content",
+      "icon": "◧",
+      "attributes": {
+        "image": {
+          "type": "image",
+          "label": "Image",
+          "default": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%271400%27%20height%3D%271000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23374a40%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%235e7d6a%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3C/svg%3E"
+        },
+        "imageAlt": {
+          "type": "text",
+          "label": "Image alt text"
+        },
+        "imageRight": {
+          "type": "boolean",
+          "default": false,
+          "label": "Image on right"
+        },
+        "eyebrow": {
+          "type": "text",
+          "label": "Eyebrow"
+        },
+        "heading": {
+          "type": "text",
+          "default": "A story worth telling",
+          "label": "Heading"
+        },
+        "body": {
+          "type": "textarea",
+          "label": "Body",
+          "default": "Crafted in small batches with materials that age well. Every piece earns its place in your routine."
+        },
+        "buttonLabel": {
+          "type": "text",
+          "label": "Button label"
+        },
+        "buttonLink": {
+          "type": "url",
+          "label": "Button link"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "jumbo-text",
+      "title": "Jumbo text",
+      "category": "block",
+      "icon": "A",
+      "attributes": {
+        "text": {
+          "type": "text",
+          "default": "Made to last.",
+          "label": "Text"
+        },
+        "align": {
+          "type": "select",
+          "default": "center",
+          "label": "Alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ]
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "logo",
+      "title": "Logo",
+      "category": "block",
+      "icon": "◍",
+      "attributes": {
+        "src": {
+          "type": "image",
+          "label": "Image"
+        },
+        "alt": {
+          "type": "text",
+          "label": "Brand name (alt text)"
+        },
+        "href": {
+          "type": "url",
+          "label": "Link (optional)"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "logo-list",
+      "title": "Logo list",
+      "category": "social-proof",
+      "icon": "◍",
+      "attributes": {
+        "heading": {
+          "type": "text",
+          "default": "As seen in",
+          "label": "Heading"
+        },
+        "logos": {
+          "type": "textarea",
+          "label": "Logos JSON (legacy — prefer Add block)",
+          "default": "[]"
+        }
+      },
+      "allowedBlocks": [
+        "logo"
+      ]
+    },
+    {
+      "name": "marquee",
+      "title": "Marquee",
+      "category": "content",
+      "icon": "↔",
+      "attributes": {
+        "text": {
+          "type": "text",
+          "default": "New season just dropped",
+          "label": "Text"
+        },
+        "speed": {
+          "type": "range",
+          "default": 24,
+          "min": 8,
+          "max": 60,
+          "step": 2,
+          "label": "Scroll duration (s)"
+        },
+        "bg": {
+          "type": "color",
+          "default": "#0a0a0a",
+          "label": "Background"
+        },
+        "fg": {
+          "type": "color",
+          "default": "#ffffff",
+          "label": "Text color"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "multicolumn",
+      "title": "Multicolumn",
+      "category": "content",
+      "icon": "⫴",
+      "attributes": {
+        "eyebrow": {
+          "type": "text",
+          "label": "Eyebrow"
+        },
+        "heading": {
+          "type": "text",
+          "default": "Why shop with us",
+          "label": "Heading"
+        },
+        "subheading": {
+          "type": "text",
+          "label": "Subheading"
+        },
+        "items": {
+          "type": "textarea",
+          "label": "Items JSON (legacy — prefer Add block)"
+        }
+      },
+      "allowedBlocks": [
+        "column"
+      ]
+    },
+    {
+      "name": "newsletter",
+      "title": "Newsletter",
+      "category": "marketing",
+      "icon": "✉",
+      "attributes": {
+        "eyebrow": {
+          "type": "text",
+          "label": "Eyebrow"
+        },
+        "heading": {
+          "type": "text",
+          "default": "Join the newsletter",
+          "label": "Heading"
+        },
+        "body": {
+          "type": "textarea",
+          "default": "Be the first to hear about new arrivals and member-only sales — and get 10% off your first order.",
+          "label": "Body"
+        },
+        "placeholder": {
+          "type": "text",
+          "default": "you@example.com",
+          "label": "Placeholder"
+        },
+        "buttonLabel": {
+          "type": "text",
+          "default": "Subscribe",
+          "label": "Button label"
+        },
+        "note": {
+          "type": "text",
+          "default": "No spam. Unsubscribe anytime.",
+          "label": "Footnote"
+        },
+        "action": {
+          "type": "url",
+          "label": "Form action URL"
+        },
+        "inverse": {
+          "type": "boolean",
+          "default": false,
+          "label": "Dark background"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "not-found",
+      "title": "404",
+      "category": "system",
+      "icon": "⚠",
+      "attributes": {
+        "heading": {
+          "type": "text",
+          "default": "Page not found",
+          "label": "Heading"
+        },
+        "body": {
+          "type": "textarea",
+          "default": "The page you're looking for doesn't exist or may have moved.",
+          "label": "Body"
+        },
+        "buttonLabel": {
+          "type": "text",
+          "default": "Back to home",
+          "label": "Button label"
+        },
+        "buttonLink": {
+          "type": "url",
+          "default": "/",
+          "label": "Button link"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "page-body",
+      "title": "Page content",
+      "category": "content",
+      "icon": "¶",
+      "attributes": {
+        "fallbackTitle": {
+          "type": "text",
+          "label": "Fallback title",
+          "default": "Page"
+        },
+        "fallbackBody": {
+          "type": "textarea",
+          "label": "Fallback body (HTML)",
+          "default": ""
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "payment-icons",
+      "title": "Payment icons",
+      "category": "block",
+      "icon": "▭",
+      "attributes": {
+        "methods": {
+          "type": "text",
+          "label": "Methods (comma-separated — blank = what the store accepts)"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "policy-page",
+      "title": "Policy",
+      "category": "commerce",
+      "icon": "doc",
+      "attributes": {
+        "policy": {
+          "type": "text",
+          "label": "Policy handle (blank = from URL)"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "product-description",
+      "title": "Product description",
+      "category": "block",
+      "icon": "¶",
+      "attributes": {},
+      "allowedBlocks": []
+    },
+    {
+      "name": "product-details",
+      "title": "Product details",
+      "category": "commerce",
+      "icon": "◉",
+      "attributes": {
+        "product": {
+          "type": "product",
+          "label": "Product (preview only — URL :handle is canonical)"
+        },
+        "buttonLabel": {
+          "type": "text",
+          "default": "Add to cart",
+          "label": "Add to cart label"
+        },
+        "buttonLink": {
+          "type": "url",
+          "label": "Add to cart link override"
+        }
+      },
+      "allowedBlocks": [
+        "product-title",
+        "product-price",
+        "variant-picker",
+        "swatches",
+        "quantity",
+        "add-to-cart",
+        "product-description",
+        "product-sku",
+        "product-inventory",
+        "text",
+        "heading",
+        "button",
+        "image",
+        "icon",
+        "spacer",
+        "accordion",
+        "social-links",
+        "payment-icons"
+      ]
+    },
+    {
+      "name": "product-grid",
+      "title": "Product grid",
+      "category": "commerce",
+      "icon": "▦",
+      "attributes": {
+        "heading": {
+          "type": "text",
+          "default": "Shop the collection",
+          "label": "Heading"
+        },
+        "subheading": {
+          "type": "text",
+          "label": "Subheading"
+        },
+        "collection": {
+          "type": "collection",
+          "default": "all",
+          "label": "Collection"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "product-inventory",
+      "title": "Product inventory",
+      "category": "block",
+      "icon": "◔",
+      "attributes": {
+        "inStockLabel": {
+          "type": "text",
+          "default": "In stock",
+          "label": "In-stock label"
+        },
+        "soldOutLabel": {
+          "type": "text",
+          "default": "Sold out",
+          "label": "Sold-out label"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "product-price",
+      "title": "Product price",
+      "category": "block",
+      "icon": "$",
+      "attributes": {},
+      "allowedBlocks": []
+    },
+    {
+      "name": "product-recommendations",
+      "title": "Product recommendations",
+      "category": "product",
+      "icon": "✧",
+      "attributes": {
+        "heading": {
+          "type": "text",
+          "default": "You may also like",
+          "label": "Heading"
+        },
+        "limit": {
+          "type": "range",
+          "default": 4,
+          "min": 2,
+          "max": 8,
+          "step": 1,
+          "label": "Products to show"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "product-sku",
+      "title": "Product SKU",
+      "category": "block",
+      "icon": "⌗",
+      "attributes": {},
+      "allowedBlocks": []
+    },
+    {
+      "name": "product-title",
+      "title": "Product title",
+      "category": "block",
+      "icon": "T",
+      "attributes": {},
+      "allowedBlocks": []
+    },
+    {
+      "name": "quantity",
+      "title": "Quantity",
+      "category": "block",
+      "icon": "#",
+      "attributes": {},
+      "allowedBlocks": []
+    },
+    {
+      "name": "rich-text",
+      "title": "Rich text",
+      "category": "content",
+      "icon": "¶",
+      "attributes": {
+        "eyebrow": {
+          "type": "text",
+          "label": "Eyebrow"
+        },
+        "heading": {
+          "type": "text",
+          "default": "About our store",
+          "label": "Heading"
+        },
+        "body": {
+          "type": "textarea",
+          "default": "Tell your story here. A short paragraph about who you are, what you make, and why it matters — three or four sentences is plenty.",
+          "label": "Body"
+        },
+        "buttonLabel": {
+          "type": "text",
+          "label": "Button label"
+        },
+        "buttonLink": {
+          "type": "url",
+          "label": "Button link"
+        },
+        "align": {
+          "type": "select",
+          "default": "center",
+          "label": "Alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            }
+          ]
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "search-results",
+      "title": "Search results",
+      "category": "commerce",
+      "icon": "⌕",
+      "attributes": {
+        "emptyHeading": {
+          "type": "text",
+          "default": "Find what you love",
+          "label": "Empty-state heading"
+        },
+        "emptySub": {
+          "type": "text",
+          "default": "Type a query above to find products.",
+          "label": "Empty-state subtext"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "slide",
+      "title": "Slide",
+      "category": "block",
+      "icon": "▭",
+      "attributes": {
+        "image": {
+          "type": "image",
+          "label": "Image"
+        },
+        "eyebrow": {
+          "type": "text",
+          "label": "Eyebrow"
+        },
+        "heading": {
+          "type": "text",
+          "default": "New slide",
+          "label": "Heading"
+        },
+        "body": {
+          "type": "textarea",
+          "label": "Body"
+        },
+        "buttonLabel": {
+          "type": "text",
+          "label": "Button label"
+        },
+        "buttonLink": {
+          "type": "url",
+          "label": "Button link"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "slideshow",
+      "title": "Slideshow",
+      "category": "layout",
+      "icon": "▷",
+      "attributes": {
+        "intervalMs": {
+          "type": "number",
+          "default": 6000,
+          "label": "Auto-advance interval (ms)"
+        },
+        "slides": {
+          "type": "textarea",
+          "label": "Slides JSON",
+          "default": "[]"
+        }
+      },
+      "allowedBlocks": [
+        "slide"
+      ]
+    },
+    {
+      "name": "social-links",
+      "title": "Social links",
+      "category": "block",
+      "icon": "@",
+      "attributes": {
+        "instagram": {
+          "type": "url",
+          "label": "Instagram URL"
+        },
+        "facebook": {
+          "type": "url",
+          "label": "Facebook URL"
+        },
+        "x": {
+          "type": "url",
+          "label": "X (Twitter) URL"
+        },
+        "tiktok": {
+          "type": "url",
+          "label": "TikTok URL"
+        },
+        "youtube": {
+          "type": "url",
+          "label": "YouTube URL"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "spacer",
+      "title": "Spacer",
+      "category": "block",
+      "icon": "↕",
+      "attributes": {
+        "height": {
+          "type": "range",
+          "default": 24,
+          "min": 4,
+          "max": 120,
+          "step": 4,
+          "label": "Height (px)"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "store-locator",
+      "title": "Store locator",
+      "category": "commerce",
+      "icon": "pin",
+      "attributes": {
+        "heading": {
+          "type": "text",
+          "label": "Heading",
+          "default": "Visit us"
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "swatches",
+      "title": "Swatches",
+      "category": "block",
+      "icon": "●",
+      "attributes": {},
+      "allowedBlocks": []
+    },
+    {
+      "name": "text",
+      "title": "Text",
+      "category": "block",
+      "icon": "¶",
+      "attributes": {
+        "text": {
+          "type": "textarea",
+          "default": "Add your text here.",
+          "label": "Text"
+        },
+        "align": {
+          "type": "select",
+          "default": "left",
+          "label": "Alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ]
+        }
+      },
+      "allowedBlocks": []
+    },
+    {
+      "name": "variant-picker",
+      "title": "Variant picker",
+      "category": "block",
+      "icon": "◧",
+      "attributes": {},
+      "allowedBlocks": []
+    },
+    {
+      "name": "video",
+      "title": "Video",
+      "category": "block",
+      "icon": "▷",
+      "attributes": {
+        "url": {
+          "type": "url",
+          "label": "Video URL (YouTube / Vimeo / file)"
+        },
+        "poster": {
+          "type": "image",
+          "label": "Poster image (file only)"
+        },
+        "autoplay": {
+          "type": "boolean",
+          "default": false,
+          "label": "Autoplay (muted)"
+        },
+        "loop": {
+          "type": "boolean",
+          "default": false,
+          "label": "Loop"
+        },
+        "controls": {
+          "type": "boolean",
+          "default": true,
+          "label": "Show controls"
+        }
+      },
+      "allowedBlocks": []
+    }
+  ],
+  "templates": [
+    {
+      "name": "404",
+      "sectionCount": 4,
+      "sectionTypes": [
+        "featured-collection",
+        "footer",
+        "header",
+        "not-found"
+      ]
+    },
+    {
+      "name": "account",
+      "sectionCount": 3,
+      "sectionTypes": [
+        "account",
+        "footer",
+        "header"
+      ]
+    },
+    {
+      "name": "article",
+      "sectionCount": 3,
+      "sectionTypes": [
+        "article-body",
+        "footer",
+        "header"
+      ]
+    },
+    {
+      "name": "article.longform",
+      "sectionCount": 4,
+      "sectionTypes": [
+        "article-body",
+        "footer",
+        "header",
+        "rich-text"
+      ]
+    },
+    {
+      "name": "blog",
+      "sectionCount": 3,
+      "sectionTypes": [
+        "blog-posts",
+        "footer",
+        "header"
+      ]
+    },
+    {
+      "name": "blog.featured",
+      "sectionCount": 4,
+      "sectionTypes": [
+        "blog-posts",
+        "footer",
+        "header",
+        "rich-text"
+      ]
+    },
+    {
+      "name": "cart",
+      "sectionCount": 4,
+      "sectionTypes": [
+        "cart-items",
+        "featured-collection",
+        "footer",
+        "header"
+      ]
+    },
+    {
+      "name": "collection",
+      "sectionCount": 3,
+      "sectionTypes": [
+        "featured-collection",
+        "footer",
+        "header"
+      ]
+    },
+    {
+      "name": "collection.featured",
+      "sectionCount": 4,
+      "sectionTypes": [
+        "featured-collection",
+        "footer",
+        "header",
+        "rich-text"
+      ]
+    },
+    {
+      "name": "contact",
+      "sectionCount": 4,
+      "sectionTypes": [
+        "contact-form",
+        "footer",
+        "header",
+        "rich-text"
+      ]
+    },
+    {
+      "name": "index",
+      "sectionCount": 9,
+      "sectionTypes": [
+        "collection-list",
+        "featured-collection",
+        "featured-product",
+        "footer",
+        "header",
+        "image-with-text",
+        "logo-list",
+        "multicolumn",
+        "slideshow"
+      ]
+    },
+    {
+      "name": "list-collections",
+      "sectionCount": 3,
+      "sectionTypes": [
+        "collection-list",
+        "footer",
+        "header"
+      ]
+    },
+    {
+      "name": "page",
+      "sectionCount": 3,
+      "sectionTypes": [
+        "footer",
+        "header",
+        "page-body"
+      ]
+    },
+    {
+      "name": "page.contact",
+      "sectionCount": 2,
+      "sectionTypes": [
+        "contact-form",
+        "page-body"
+      ]
+    },
+    {
+      "name": "policy",
+      "sectionCount": 3,
+      "sectionTypes": [
+        "footer",
+        "header",
+        "policy-page"
+      ]
+    },
+    {
+      "name": "product",
+      "sectionCount": 4,
+      "sectionTypes": [
+        "featured-collection",
+        "footer",
+        "header",
+        "product-details"
+      ]
+    },
+    {
+      "name": "product.bundle",
+      "sectionCount": 5,
+      "sectionTypes": [
+        "featured-collection",
+        "footer",
+        "header",
+        "product-details",
+        "rich-text"
+      ]
+    },
+    {
+      "name": "search",
+      "sectionCount": 3,
+      "sectionTypes": [
+        "footer",
+        "header",
+        "search-results"
+      ]
+    }
+  ],
+  "layouts": [
+    "layout"
+  ],
+  "settingsSchema": [
+    {
+      "group": "Account",
+      "items": [
+        {
+          "key": "accountLoggedIn",
+          "type": "boolean",
+          "group": "Account",
+          "label": "Preview signed-in state",
+          "default": false,
+          "info": "Editor preview only — the live storefront reflects the real session."
+        },
+        {
+          "key": "accountHeading",
+          "type": "text",
+          "group": "Account",
+          "label": "Account menu heading",
+          "default": "",
+          "placeholder": "My account / Welcome"
+        },
+        {
+          "key": "accountSubtext",
+          "type": "text",
+          "group": "Account",
+          "label": "Account menu subtext",
+          "default": ""
+        },
+        {
+          "key": "accountPrimaryLabel",
+          "type": "text",
+          "group": "Account",
+          "label": "Primary action label",
+          "default": "",
+          "placeholder": "View orders / Sign in"
+        },
+        {
+          "key": "accountPrimaryHref",
+          "type": "url",
+          "group": "Account",
+          "label": "Primary action link",
+          "default": ""
+        },
+        {
+          "key": "accountSecondaryLabel",
+          "type": "text",
+          "group": "Account",
+          "label": "Secondary action label",
+          "default": ""
+        },
+        {
+          "key": "accountSecondaryHref",
+          "type": "url",
+          "group": "Account",
+          "label": "Secondary action link",
+          "default": ""
+        },
+        {
+          "key": "accountExtraLinks",
+          "type": "textarea",
+          "group": "Account",
+          "label": "Extra account links",
+          "default": "Orders|/account/orders\nAddresses|/account/addresses",
+          "info": "One per line, \"Label|/path\"."
+        }
+      ]
+    },
+    {
+      "group": "Brand",
+      "items": [
+        {
+          "key": "shopName",
+          "type": "text",
+          "group": "Brand",
+          "label": "Shop name",
+          "default": "",
+          "info": "Shown in the header when no logo is set. Leave empty to use the store brand logo/name from Settings → Brand."
+        },
+        {
+          "key": "accent",
+          "type": "color",
+          "group": "Brand",
+          "label": "Accent color",
+          "default": "#0a0a0a"
+        }
+      ]
+    },
+    {
+      "group": "Cart",
+      "items": [
+        {
+          "key": "enableCartDrawer",
+          "type": "boolean",
+          "group": "Cart",
+          "label": "Enable cart drawer",
+          "default": true
+        },
+        {
+          "key": "cartDrawerWidth",
+          "type": "text",
+          "group": "Cart",
+          "label": "Cart drawer width",
+          "default": "420px"
+        },
+        {
+          "key": "cartEmptyHeading",
+          "type": "text",
+          "group": "Cart",
+          "label": "Empty-cart heading",
+          "default": "Your cart is empty"
+        },
+        {
+          "key": "cartEmptySubtext",
+          "type": "text",
+          "group": "Cart",
+          "label": "Empty-cart subtext",
+          "default": "Add a few things to get started."
+        },
+        {
+          "key": "cartCheckoutLabel",
+          "type": "text",
+          "group": "Cart",
+          "label": "Checkout button label",
+          "default": "Checkout"
+        },
+        {
+          "key": "cartViewLabel",
+          "type": "text",
+          "group": "Cart",
+          "label": "View-full-cart label",
+          "default": "View full cart"
+        }
+      ]
+    },
+    {
+      "group": "Footer",
+      "items": [
+        {
+          "key": "footerShopMenuHandle",
+          "type": "menu",
+          "group": "Footer",
+          "label": "Footer — Shop menu",
+          "default": "footer-shop"
+        },
+        {
+          "key": "footerHelpMenuHandle",
+          "type": "menu",
+          "group": "Footer",
+          "label": "Footer — Help menu",
+          "default": "footer-help"
+        },
+        {
+          "key": "footerCompanyMenuHandle",
+          "type": "menu",
+          "group": "Footer",
+          "label": "Footer — Company menu",
+          "default": "footer-company"
+        },
+        {
+          "key": "footerTagline",
+          "type": "textarea",
+          "group": "Footer",
+          "label": "Footer tagline",
+          "default": "",
+          "info": "Leave empty to use the store description."
+        },
+        {
+          "key": "showPoweredBy",
+          "type": "boolean",
+          "group": "Footer",
+          "label": "Show \"Made with Tanqory\"",
+          "default": true
+        },
+        {
+          "key": "poweredByLabel",
+          "type": "text",
+          "group": "Footer",
+          "label": "\"Powered by\" label",
+          "default": "Made with Tanqory"
+        }
+      ]
+    },
+    {
+      "group": "Header",
+      "items": [
+        {
+          "key": "headerMenuHandle",
+          "type": "menu",
+          "group": "Header",
+          "label": "Header menu",
+          "default": "main-menu"
+        },
+        {
+          "key": "enableSpaNavigation",
+          "type": "boolean",
+          "group": "Header",
+          "label": "Instant page transitions (SPA)",
+          "default": true
+        },
+        {
+          "key": "enableAccountDropdown",
+          "type": "boolean",
+          "group": "Header",
+          "label": "Show account dropdown",
+          "default": true
+        },
+        {
+          "key": "enableMobileNavDrawer",
+          "type": "boolean",
+          "group": "Header",
+          "label": "Mobile navigation drawer",
+          "default": true
+        },
+        {
+          "key": "mobileNavHeading",
+          "type": "text",
+          "group": "Header",
+          "label": "Mobile menu heading",
+          "default": "Menu"
+        },
+        {
+          "key": "mobileNavWidth",
+          "type": "text",
+          "group": "Header",
+          "label": "Mobile drawer width",
+          "default": "320px"
+        }
+      ]
+    },
+    {
+      "group": "Search",
+      "items": [
+        {
+          "key": "enableSearchModal",
+          "type": "boolean",
+          "group": "Search",
+          "label": "Enable search modal",
+          "default": true
+        },
+        {
+          "key": "searchPlaceholder",
+          "type": "text",
+          "group": "Search",
+          "label": "Search placeholder",
+          "default": "Search products…"
+        },
+        {
+          "key": "searchCtaLabel",
+          "type": "text",
+          "group": "Search",
+          "label": "See-all-results label",
+          "default": "See all results →"
+        },
+        {
+          "key": "searchModalWidth",
+          "type": "text",
+          "group": "Search",
+          "label": "Search modal width",
+          "default": "640px"
+        },
+        {
+          "key": "searchDebounceMs",
+          "type": "number",
+          "group": "Search",
+          "label": "Search debounce (ms)",
+          "default": 250
+        },
+        {
+          "key": "searchMaxResults",
+          "type": "number",
+          "group": "Search",
+          "label": "Max quick results",
+          "default": 6
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "accent": "#0a0a0a",
+    "accountExtraLinks": "Orders|/account/orders\nAddresses|/account/addresses",
+    "accountHeading": "",
+    "accountLoggedIn": false,
+    "accountPrimaryHref": "",
+    "accountPrimaryLabel": "",
+    "accountSecondaryHref": "",
+    "accountSecondaryLabel": "",
+    "accountSubtext": "",
+    "cartCheckoutLabel": "Checkout",
+    "cartDrawerWidth": "420px",
+    "cartEmptyHeading": "Your cart is empty",
+    "cartEmptySubtext": "Add a few things to get started.",
+    "cartViewLabel": "View full cart",
+    "enableAccountDropdown": true,
+    "enableCartDrawer": true,
+    "enableMobileNavDrawer": true,
+    "enableSearchModal": true,
+    "enableSpaNavigation": true,
+    "footerCompanyMenuHandle": "footer-company",
+    "footerHelpMenuHandle": "footer-help",
+    "footerShopMenuHandle": "footer-shop",
+    "footerTagline": "",
+    "headerMenuHandle": "main-menu",
+    "mobileNavHeading": "Menu",
+    "mobileNavWidth": "320px",
+    "poweredByLabel": "Made with Tanqory",
+    "searchCtaLabel": "See all results →",
+    "searchDebounceMs": 250,
+    "searchMaxResults": 6,
+    "searchModalWidth": "640px",
+    "searchPlaceholder": "Search products…",
+    "shopName": "",
+    "showPoweredBy": true
+  },
+  "warnings": {
+    "danglingTemplateRefs": [],
+    "settingsUndeclared": [],
+    "settingsMissingValue": []
+  }
+}

@@ -64,5 +64,14 @@ export default defineSection({
     limit: { type: 'number', default: 6, label: 'Max collections (auto mode)' },
   },
   allowedBlocks: ['collection-item'],
+  presets: [
+    {
+      blocks: [
+        { type: 'collection-item', settings: {} },
+        { type: 'collection-item', settings: {} },
+        { type: 'collection-item', settings: {} },
+      ],
+    },
+  ],
   component: CollectionList,
 })

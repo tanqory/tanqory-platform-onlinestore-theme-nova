@@ -76,5 +76,15 @@ export default defineSection({
     },
   },
   allowedBlocks: ['logo'],
+  presets: [
+    {
+      blocks: [
+        { type: 'logo', settings: { alt: 'Brand 1' } },
+        { type: 'logo', settings: { alt: 'Brand 2' } },
+        { type: 'logo', settings: { alt: 'Brand 3' } },
+        { type: 'logo', settings: { alt: 'Brand 4' } },
+      ],
+    },
+  ],
   component: LogoList,
 })

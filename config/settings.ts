@@ -5,8 +5,13 @@ import { defineSettings } from '@tanqory/theme-kit'
  * editor shows under "Theme settings". The chosen VALUES live in settings.json.
  */
 export default defineSettings({
-  shopName: { type: 'text', default: 'nova', label: 'Shop name' },
+  // NOTE: store NAME, languages, and countries are STORE data (Dashboard →
+  // Settings → General / Markets), read via data.shop / data.localization — NOT
+  // theme config. Only theme DESIGN choices live here.
   accent: { type: 'color', default: '#0a0a0a', label: 'Accent color' },
+  footerTagline: { type: 'text', label: 'Footer tagline (blank = store description)' },
+  showPoweredBy: { type: 'boolean', default: true, label: 'Show footer credit' },
+  poweredByLabel: { type: 'text', default: 'Made with Tanqory', label: 'Footer credit text' },
 
   // Menu wiring — each slot points at a Menu handle the merchant has created
   // in admin (Online store → Navigation). The storefront looks the handle up

@@ -88,17 +88,17 @@
             "heading": "Why shop nova",
             "items": [
               {
-                "icon": "🚚",
+                "icon": "truck",
                 "title": "Free shipping",
                 "body": "On orders over $50."
               },
               {
-                "icon": "↩️",
+                "icon": "return",
                 "title": "Easy returns",
                 "body": "30 days, no questions asked."
               },
               {
-                "icon": "💬",
+                "icon": "chat",
                 "title": "Real support",
                 "body": "Chat with us 24/7."
               }

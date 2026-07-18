@@ -32,9 +32,23 @@ async function bootData(): Promise<DataApi> {
   return createMockData(collections)
 }
 
-export async function render(page = 'index'): Promise<string> {
+/**
+ * Returns the SSG HTML plus the serializable data snapshot it was rendered
+ * with. The prerender step embeds `state` into the page as
+ * `window.__TQ_STATE__`, and main.tsx rebuilds the identical DataApi from it
+ * synchronously at hydration — SSR markup and the client's first render match
+ * by construction (no React #418/#425). `state` is null when SSG fell back to
+ * mocks (no backend at build time) — the client then does a plain CSR boot.
+ */
+export async function render(
+  page = 'index',
+): Promise<{
+  html: string
+  state: unknown | null
+  head: { title: string; description: string; keywords: string[] }
+}> {
   const data = await bootData()
-  return renderStorefrontHTML({
+  const html = renderStorefrontHTML({
     sections: import.meta.glob('./sections/*.tsx', { eager: true }),
     pages: import.meta.glob('./templates/*.json', { eager: true }),
     shell: import.meta.glob('./layouts/*.tsx', { eager: true }),
@@ -43,4 +57,14 @@ export async function render(page = 'index'): Promise<string> {
     locale,
     page,
   })
+  const bootstrap = data.getSnapshot?.() ?? null
+  // The SSG only prerenders the home page, so its head is the shop's — the
+  // client sets per-route heads for everything else (see main.tsx computeHead).
+  const shop = (data as { shop?: { name?: string; description?: string } }).shop
+  const head = {
+    title: (shop?.name || (settings as { shopName?: string }).shopName || 'Store').trim(),
+    description: (shop?.description || '').trim(),
+    keywords: [] as string[],
+  }
+  return { html, state: bootstrap ? { page, bootstrap } : null, head }
 }

@@ -39,7 +39,7 @@ export default defineSection({
   name: 'slide',
   title: 'Slide',
   category: 'block',
-  icon: '🖼',
+  icon: '▭',
   attributes: {
     image: { type: 'image', label: 'Image' },
     eyebrow: { type: 'text', label: 'Eyebrow' },

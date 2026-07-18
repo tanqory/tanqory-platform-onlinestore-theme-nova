@@ -1,69 +1,31 @@
 import {
   defineSection,
+  getAnalytics,
   useCart,
   useData,
+  useT,
   type Product,
   type SectionProps,
 } from '@tanqory/theme-kit'
-import { useEffect, useMemo, useState } from 'react'
+import { decodeHandle } from '../lib/handle'
+import { Children, useEffect, useMemo, useState } from 'react'
 import { ImageResponsive } from '../components/ImageResponsive'
 import { Money } from '../components/Money'
 import { Button } from '../components/Button'
 import { openOverlay } from '../components/useOverlayChannel'
-import type { NovaProductMedia } from '../types/theme-kit-augment'
+import { ProductProvider, type ProductContextValue } from '../components/product-context'
 
 const DEFAULT_VARIANT_TITLE = 'Default Title'
 
-/** Poster/thumbnail URL for any media type. */
-function mediaThumb(m: NovaProductMedia): string | undefined {
-  return m.image?.url ?? m.previewImage?.url
-}
-
-/** Renders one media node in the hero: image, playable video, embedded external
- *  video, or a 3D model poster (with a link to the source). */
-function ProductMediaView({ media, title }: { media: NovaProductMedia; title: string }): JSX.Element {
-  const alt = media.alt ?? title
-  if (media.type === 'video' && media.sources?.length) {
-    return (
-      <video
-        className="product-details__video"
-        controls
-        playsInline
-        preload="metadata"
-        poster={media.previewImage?.url}
-        style={{ width: '100%', height: 'auto', display: 'block' }}
-      >
-        {media.sources.map((s) => (
-          <source key={s.url} src={s.url} type={s.mimeType ?? undefined} />
-        ))}
-      </video>
-    )
-  }
-  if (media.type === 'external_video' && media.embedUrl) {
-    return (
-      <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9' }}>
-        <iframe
-          src={media.embedUrl}
-          title={alt}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }}
-        />
-      </div>
-    )
-  }
-  const src = media.image?.url ?? media.previewImage?.url
-  return src ? <ImageResponsive src={src} alt={alt} /> : <></>
-}
-
-export function ProductDetails({ attributes }: SectionProps): JSX.Element {
+export function ProductDetails({ attributes, children }: SectionProps): JSX.Element {
   const { productByHandle, collectionByHandle, fetchProduct, graphql } = useData()
   const cart = useCart()
+  const t = useT()
   const isLive = typeof graphql === 'function'
 
   const handleFromUrl =
     typeof window !== 'undefined'
-      ? window.location.pathname.match(/\/products\/([^/]+)/)?.[1]
+      ? decodeHandle(window.location.pathname.match(/\/products\/([^/]+)/)?.[1])
       : undefined
   const handle = (attributes.product as string | undefined) || handleFromUrl
   const baseProduct =
@@ -111,15 +73,16 @@ export function ProductDetails({ attributes }: SectionProps): JSX.Element {
 
   const [activeIdx, setActiveIdx] = useState(0)
   const [adding, setAdding] = useState(false)
+  const [quantity, setQuantity] = useState(1)
 
   if (!product) {
     return (
       <section className="section">
         <div className="container">
           <div className="not-found">
-            <h2>Product not found</h2>
-            <p className="u-text-muted">This product may have moved or sold out.</p>
-            <Button label="Shop the collection" link="/collections/all" variant="primary" />
+            <h2>{t('product.notFound.title')}</h2>
+            <p className="u-text-muted">{t('product.notFound.sub')}</p>
+            <Button label={t('common.shopCollection')} link="/collections/all" variant="primary" />
           </div>
         </div>
       </section>
@@ -128,15 +91,10 @@ export function ProductDetails({ attributes }: SectionProps): JSX.Element {
 
   const displayPrice = selectedVariant?.price ?? product.price
   const variantImage = selectedVariant?.image ?? product.featuredImage
-  // Real media gallery (images + video + 3D) from product.media; fall back to
-  // the variant/featured image when a product has no media list yet.
-  const mediaList: NovaProductMedia[] =
-    product.media && product.media.length > 0
-      ? product.media
-      : variantImage
-        ? [{ id: 'featured', type: 'image', image: variantImage }]
-        : []
-  const active = mediaList[activeIdx] ?? mediaList[0]
+  const images = variantImage
+    ? [variantImage, variantImage, variantImage, variantImage]
+    : []
+  const active = images[activeIdx] ?? variantImage
 
   // Resolve the merchandise id to add. Live: a real variant id (selected →
   // default). Mock (editor/offline): a stable pseudo id keyed by handle so the
@@ -156,13 +114,7 @@ export function ProductDetails({ attributes }: SectionProps): JSX.Element {
       ? !selectedVariant.availableForSale
       : product.availableForSale === false
 
-  // Real stock signal (Shopify "Only N left"): prefer the selected variant's
-  // on-hand count, then the product total. Only surfaced when tracked + low.
-  const stockLeft = selectedVariant?.inventoryQuantity ?? product.totalInventory
-  const lowStock = typeof stockLeft === 'number' && stockLeft > 0 && stockLeft <= 10
-  const stockLabel = soldOut ? 'Sold out' : lowStock ? `Only ${stockLeft} left` : 'In stock'
-
-  const buttonLabel = (attributes.buttonLabel as string) ?? 'Add to cart'
+  const buttonLabel = (attributes.buttonLabel as string) ?? t('product.addToCart')
 
   async function handleAdd(): Promise<void> {
     if (!variantId || adding) return
@@ -170,7 +122,7 @@ export function ProductDetails({ attributes }: SectionProps): JSX.Element {
     try {
       await cart.add({
         variantId,
-        quantity: 1,
+        quantity,
         product: {
           title: product.title,
           price: displayPrice,
@@ -179,62 +131,71 @@ export function ProductDetails({ attributes }: SectionProps): JSX.Element {
           ...(variantTitle ? { variantTitle } : {}),
         },
       })
+      getAnalytics().track('PRODUCT_ADDED_TO_CART', {
+        productId: product.id,
+        variantId,
+        title: product.title,
+        handle: product.handle,
+        price: displayPrice,
+        quantity,
+        ...(variantTitle ? { variantTitle } : {}),
+      })
       openOverlay('cart')
     } finally {
       setAdding(false)
     }
   }
 
+  const hasBlocks = Children.count(children) > 0
+  const ctx: ProductContextValue = {
+    product,
+    options,
+    variants,
+    selected,
+    setOption: (name, value) => setSelected((s) => ({ ...s, [name]: value })),
+    selectedVariant,
+    displayPrice,
+    variantImage,
+    soldOut,
+    quantity,
+    setQuantity,
+    adding,
+    add: handleAdd,
+  }
+
   return (
+    <ProductProvider value={ctx}>
     <section className="section">
       <div className="container">
         <div className="product-details">
           <div className="product-details__gallery">
             <div className="product-details__hero">
-              {active && <ProductMediaView media={active} title={product.title} />}
+              {active && (
+                <ImageResponsive src={active.url} alt={active.altText ?? product.title} />
+              )}
             </div>
-            {mediaList.length > 1 && (
+            {images.length > 1 && (
               <div className="product-details__thumbs">
-                {mediaList.map((m, i) => {
-                  const thumb = mediaThumb(m)
-                  return (
-                    <button
-                      key={m.id}
-                      type="button"
-                      className="product-details__thumb"
-                      style={{ position: 'relative' }}
-                      aria-current={i === activeIdx}
-                      aria-label={m.type === 'image' ? undefined : `Play ${m.type}`}
-                      onClick={() => setActiveIdx(i)}
-                    >
-                      {thumb && <img src={thumb} alt="" loading="lazy" decoding="async" />}
-                      {m.type !== 'image' && (
-                        <span
-                          aria-hidden="true"
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                            display: 'grid',
-                            placeItems: 'center',
-                            background: 'rgba(0,0,0,0.35)',
-                            color: '#fff',
-                            fontSize: m.type === 'model_3d' ? '0.7rem' : '1rem',
-                            fontWeight: 600,
-                          }}
-                        >
-                          {m.type === 'model_3d' ? '3D' : '▶'}
-                        </span>
-                      )}
-                    </button>
-                  )
-                })}
+                {images.map((img, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className="product-details__thumb"
+                    aria-current={i === activeIdx}
+                    onClick={() => setActiveIdx(i)}
+                  >
+                    <img src={img.url} alt="" loading="lazy" decoding="async" />
+                  </button>
+                ))}
               </div>
             )}
           </div>
 
           <div className="product-details__body">
+            {hasBlocks ? children : (
+            <>
             <div className="stack stack--sm">
-              <span className="eyebrow">{stockLabel}</span>
+              <span className="eyebrow">{soldOut ? t('product.soldOut') : 'In stock · Ships in 24h'}</span>
               <h1 className="product-details__title">{product.title}</h1>
               <div className="product-details__price">
                 <Money value={displayPrice} />
@@ -274,7 +235,7 @@ export function ProductDetails({ attributes }: SectionProps): JSX.Element {
 
             <div className="cluster" style={{ marginTop: 'var(--space-3)' }}>
               <Button
-                label={soldOut ? 'Sold out' : adding ? 'Adding…' : buttonLabel}
+                label={soldOut ? t('product.soldOut') : adding ? t('product.adding') : buttonLabel}
                 onClick={() => void handleAdd()}
                 disabled={soldOut || adding || !variantId}
                 variant="primary"
@@ -293,7 +254,7 @@ export function ProductDetails({ attributes }: SectionProps): JSX.Element {
                   fontWeight: 500,
                 }}
               >
-                Materials & care
+                {t('product.materials')}
                 <span aria-hidden>+</span>
               </summary>
               <p className="u-text-muted" style={{ marginTop: 'var(--space-3)', lineHeight: 'var(--leading-loose)' }}>
@@ -311,17 +272,20 @@ export function ProductDetails({ attributes }: SectionProps): JSX.Element {
                   fontWeight: 500,
                 }}
               >
-                Shipping & returns
+                {t('product.shipping')}
                 <span aria-hidden>+</span>
               </summary>
               <p className="u-text-muted" style={{ marginTop: 'var(--space-3)', lineHeight: 'var(--leading-loose)' }}>
                 Free shipping on orders over $50. 30-day returns on unworn items.
               </p>
             </details>
+            </>
+            )}
           </div>
         </div>
       </div>
     </section>
+    </ProductProvider>
   )
 }
 
@@ -335,5 +299,24 @@ export default defineSection({
     buttonLabel: { type: 'text', default: 'Add to cart', label: 'Add to cart label' },
     buttonLink: { type: 'url', label: 'Add to cart link override' },
   },
+  // Block-composed PDP (Horizon-style): add blocks into the info column to build
+  // the product page from parts. With no blocks, the default layout renders.
+  allowedBlocks: [
+    'product-title', 'product-price', 'variant-picker', 'swatches', 'quantity',
+    'add-to-cart', 'product-description', 'product-sku', 'product-inventory',
+    'text', 'heading', 'button', 'image', 'icon', 'spacer', 'accordion', 'social-links', 'payment-icons',
+  ],
+  presets: [
+    {
+      blocks: [
+        { type: 'product-title', settings: {} },
+        { type: 'product-price', settings: {} },
+        { type: 'variant-picker', settings: {} },
+        { type: 'quantity', settings: {} },
+        { type: 'add-to-cart', settings: {} },
+        { type: 'product-description', settings: {} },
+      ],
+    },
+  ],
   component: ProductDetails,
 })

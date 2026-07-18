@@ -165,5 +165,13 @@ export default defineSection({
     },
   },
   allowedBlocks: ['slide'],
+  presets: [
+    {
+      blocks: [
+        { type: 'slide', settings: { heading: 'Modern essentials', body: 'A clean starter storefront powered by Tanqory sections.', buttonLabel: 'Shop the collection', buttonLink: '/collections/all' } },
+        { type: 'slide', settings: { heading: 'New season, new staples', body: 'Limited-run pieces drop weekly.', buttonLabel: 'Browse new', buttonLink: '/collections/all' } },
+      ],
+    },
+  ],
   component: Slideshow,
 })

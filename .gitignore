@@ -5,3 +5,7 @@ dist-ssr/
 .env
 *.local
 .DS_Store
+
+# Local build output (the theme is built in the studio runtime); keep the
+# vendored framework in theme-kit/ which the starter needs to build on clone.
+!theme-kit/dist/

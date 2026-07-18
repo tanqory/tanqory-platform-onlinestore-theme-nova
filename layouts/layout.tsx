@@ -1,5 +1,16 @@
-import { useEffect, useState, type ReactNode } from 'react'
-import { SectionTree, useCart, useData, useSettings, useT, type ContentNode, type PageDoc } from '@tanqory/theme-kit'
+import { Children, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import {
+  collectBoundIdentifiers,
+  DynamicSourceProvider,
+  SectionTree,
+  useCart,
+  useData,
+  useSettings,
+  useT,
+  type ContentNode,
+  type PageDoc,
+  type ResourceContextValue,
+} from '@tanqory/theme-kit'
 import { apiBase } from '../lib/api-base'
 import { CartDrawer } from '../overlays/CartDrawer'
 import { SearchModal } from '../overlays/SearchModal'
@@ -7,7 +18,7 @@ import { AccountMenu } from '../overlays/AccountMenu'
 import { MobileNavDrawer } from '../overlays/MobileNavDrawer'
 import { openOverlay, closeOverlay } from '../components/useOverlayChannel'
 import { CookieConsent } from '../components/CookieConsent'
-import { PixelScripts } from '../components/PixelScripts'
+import { TrackingPixels } from '../components/TrackingPixels'
 
 /**
  * Templates are bundled into the layout so the SPA router can swap them in
@@ -19,29 +30,6 @@ const TEMPLATES = import.meta.glob('../templates/*.json', { eager: true }) as Re
   string,
   { default?: PageDoc }
 >
-
-/**
- * The store's public storefront URL, injected in local dev / preview via
- * VITE_TANQORY_STORE_URL (the CLI sets it). On the real storefront it's unset
- * (same-origin) so checkout/account/orders links are relative and the edge
- * router forwards them to the central microservices. In local dev there's no
- * edge router, so we redirect those links to the real store instead of hitting
- * a dead localhost path.
- */
-const STORE_URL =
-  (import.meta.env?.VITE_TANQORY_STORE_URL as string | undefined)?.replace(/\/+$/, '') || ''
-
-/** Paths owned by the centralized checkout / account / orders microservices. */
-function isCentralServicePath(p: string): boolean {
-  return (
-    p === '/checkout' ||
-    p.startsWith('/checkout/') ||
-    p === '/account' ||
-    p.startsWith('/account/') ||
-    p === '/orders' ||
-    p.startsWith('/orders/')
-  )
-}
 
 function lookupTemplate(name: string): ContentNode[] {
   for (const [key, mod] of Object.entries(TEMPLATES)) {
@@ -62,7 +50,10 @@ function resolveTemplate(pathname: string): string {
   if (/^\/collections\/[^/]+$/.test(p)) return 'collection'
   if (/^\/products\/[^/]+$/.test(p)) return 'product'
   if (/^\/pages\/[^/]+$/.test(p)) return 'page'
+  // Keep in lockstep with main.tsx's resolveTemplate — this copy drives SPA
+  // soft-routing; a route missing HERE renders 404 even when the entry maps it.
   if (/^\/policies\/[^/]+$/.test(p)) return 'policy'
+  if (p === '/account' || /^\/account\/[^/]+/.test(p)) return 'account'
   if (/^\/blogs\/[^/]+\/[^/]+$/.test(p)) return 'article'
   if (/^\/blogs\/[^/]+$/.test(p)) return 'blog'
   return '404'
@@ -129,22 +120,16 @@ function useSoftRoute(enabled: boolean): string {
       if (url.pathname === window.location.pathname && url.hash) return
       // Centralized checkout / account / orders microservices are intercepted
       // by the storefront router at the edge — they're NOT routes the theme
-      // SPA owns. On the real storefront, skipping SPA nav forces a real HTTP
-      // navigation the edge router forwards to studio-checkouts / studio-accounts.
-      // In local dev / preview (STORE_URL set to a different origin) there's no
-      // edge router here, so redirect to the real storefront domain instead of
-      // a dead localhost path.
-      if (isCentralServicePath(url.pathname)) {
-        if (STORE_URL) {
-          try {
-            if (new URL(STORE_URL).origin !== window.location.origin) {
-              e.preventDefault()
-              window.location.href = STORE_URL + url.pathname + url.search
-            }
-          } catch {
-            /* ignore a malformed STORE_URL and fall back to a normal nav */
-          }
-        }
+      // SPA owns. Skipping SPA nav forces a real HTTP navigation that the
+      // router can intercept and forward to studio-checkouts / studio-accounts.
+      if (
+        url.pathname === '/checkout' ||
+        url.pathname.startsWith('/checkout/') ||
+        url.pathname === '/account' ||
+        url.pathname.startsWith('/account/') ||
+        url.pathname === '/orders' ||
+        url.pathname.startsWith('/orders/')
+      ) {
         return
       }
       e.preventDefault()
@@ -183,10 +168,11 @@ function usePersistedChoice(
   fallback: string,
   /**
    * When true, changing the value triggers a full page reload instead of an
-   * in-place URL replace. Needed for `country` because the storefront's price
-   * data is baked into the bundle at build/SSG time — only a fresh fetch
-   * (which carries the new X-Tanqory-Country header) returns the right
-   * currency. Locale stays in-place: it's a pure-UI swap.
+   * in-place URL replace. Needed for `country` (prices are baked at fetch time,
+   * so only a fresh fetch with the new X-Tanqory-Country header shows the right
+   * currency) AND for `locale` (the UI-string map is selected at boot from
+   * ?locale=, and the SSG bakes the default locale — a reload re-selects the
+   * chosen locale's strings).
    */
   reloadOnChange = false,
 ): [string, (next: string) => void] {
@@ -399,6 +385,7 @@ function useStorefrontMenus(handles: {
     footerHelp: MenuLink[] | null
     footerCompany: MenuLink[] | null
   }>({ main: null, footerShop: null, footerHelp: null, footerCompany: null })
+  const prevHandlesRef = useRef({ header: '', shop: '', help: '', company: '' })
 
   // GraphQL aliases need to be stable strings, so we resolve handle changes
   // into the dep array — the effect re-fires whenever the merchant picks a
@@ -407,6 +394,37 @@ function useStorefrontMenus(handles: {
   const shopHandle = handles.footerShop
   const helpHandle = handles.footerHelp
   const companyHandle = handles.footerCompany
+
+  // Seed every slot from the data source's prefetched/mock menus (`data.menu`
+  // sync) — this works in BOTH mock preview and live (no network, no env gate),
+  // so the header/footer render REAL menu data instead of the hardcoded fallback
+  // even in the editor. The GraphQL effect below still upgrades a live store
+  // with on-demand menus; the hardcoded list is only the last resort.
+  const data = useData()
+  useEffect(() => {
+    const toLinks = (handle: string): MenuLink[] | null => {
+      const m = handle ? data.menu?.(handle) : null
+      if (!m?.items?.length) return null
+      const links = m.items
+        .filter((it) => Boolean(it.url))
+        .map((it) => ({ title: it.title, url: it.url as string }))
+      return links.length ? links : null
+    }
+    // When a handle CHANGES (merchant picks a different menu in the editor)
+    // RE-RESOLVE that slot fresh — otherwise `prev ?? …` would keep the old
+    // menu and the picker would appear to do nothing. When the handle is
+    // unchanged (some other re-render) keep the existing value so a live
+    // GraphQL-fetched menu isn't clobbered by the sync seed.
+    const ph = prevHandlesRef.current
+    setMenus((prev) => ({
+      main: headerHandle !== ph.header ? toLinks(headerHandle) : prev.main ?? toLinks(headerHandle),
+      footerShop: shopHandle !== ph.shop ? toLinks(shopHandle) : prev.footerShop ?? toLinks(shopHandle),
+      footerHelp: helpHandle !== ph.help ? toLinks(helpHandle) : prev.footerHelp ?? toLinks(helpHandle),
+      footerCompany:
+        companyHandle !== ph.company ? toLinks(companyHandle) : prev.footerCompany ?? toLinks(companyHandle),
+    }))
+    prevHandlesRef.current = { header: headerHandle, shop: shopHandle, help: helpHandle, company: companyHandle }
+  }, [data, headerHandle, shopHandle, helpHandle, companyHandle])
 
   useEffect(() => {
     const env = import.meta.env as ImportMetaEnv & {
@@ -477,202 +495,56 @@ function useStorefrontMenus(handles: {
   return menus
 }
 
-interface ShopLogo {
-  url: string
-  altText?: string | null
-}
-interface ShopPolicyLink {
-  title: string
-  url: string
-}
-export interface StorefrontShop {
-  name?: string | null
-  description?: string | null
-  brand?: {
-    logo?: ShopLogo | null
-    slogan?: string | null
-    shortDescription?: string | null
-  } | null
-  policies: ShopPolicyLink[]
-  cookieBanner?: {
-    enabled: boolean
-    dataSharingTitle?: string | null
-    dataSharingVisible?: boolean
-    title?: string | null
-    body?: string | null
-    acceptLabel?: string | null
-    declineLabel?: string | null
-    manageLabel?: string | null
-    position?: string | null
-    colorTheme?: string | null
-  } | null
-}
-
-/**
- * Self-fetch the store's identity, legal policies, and cookie-banner config.
- *
- * Mirrors `useStorefrontMenus` and follows the same reasoning as PageBody: the
- * theme-runtime image bakes its own (older) copy of `@tanqory/theme-kit`, so
- * relying on `data.shop` wouldn't reach prod until the runtime image is rebuilt.
- * Fetching directly keeps the wire-up to this one hot-PUT-able theme file. When
- * the baked theme-kit catches up this can be swapped for `useData().shop`.
- */
-function useStorefrontShop(): StorefrontShop | null {
-  const [shop, setShop] = useState<StorefrontShop | null>(null)
-
-  useEffect(() => {
-    const env = import.meta.env as ImportMetaEnv & {
-      VITE_TANQORY_BACKEND?: string
-      VITE_TANQORY_STORE_ID?: string
-      VITE_TANQORY_STOREFRONT_TOKEN?: string
-    }
-    if (!env.VITE_TANQORY_BACKEND || !env.VITE_TANQORY_STORE_ID) return
-    const url = `${apiBase(env.VITE_TANQORY_BACKEND)}/api/v1/stores/${encodeURIComponent(
-      env.VITE_TANQORY_STORE_ID,
-    )}/graphql`
-    let cancelled = false
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        ...(env.VITE_TANQORY_STOREFRONT_TOKEN
-          ? { 'x-publishable-key': env.VITE_TANQORY_STOREFRONT_TOKEN }
-          : {}),
-      },
-      body: JSON.stringify({
-        query: `query Shop {
-          shop {
-            name
-            description
-            brand { logo { url altText } slogan shortDescription }
-            shippingPolicy { title url }
-            refundPolicy { title url }
-            privacyPolicy { title url }
-            termsOfService { title url }
-            subscriptionPolicy { title url }
-            cookieBanner {
-              enabled dataSharingTitle dataSharingVisible
-              title body acceptLabel declineLabel manageLabel position colorTheme
-            }
-          }
-        }`,
-      }),
-    })
-      .then((r) => r.json())
-      .then(
-        (j: {
-          data?: {
-            shop?: {
-              name?: string | null
-              description?: string | null
-              brand?: StorefrontShop['brand']
-              shippingPolicy?: ShopPolicyLink | null
-              refundPolicy?: ShopPolicyLink | null
-              privacyPolicy?: ShopPolicyLink | null
-              termsOfService?: ShopPolicyLink | null
-              subscriptionPolicy?: ShopPolicyLink | null
-              cookieBanner?: StorefrontShop['cookieBanner']
-            } | null
-          }
-        }) => {
-          if (cancelled) return
-          const s = j.data?.shop
-          if (!s) return
-          const policies = [
-            s.shippingPolicy,
-            s.refundPolicy,
-            s.privacyPolicy,
-            s.termsOfService,
-            s.subscriptionPolicy,
-          ]
-            .filter((p): p is ShopPolicyLink => Boolean(p && p.url))
-            .map((p) => ({ title: p.title, url: p.url }))
-          setShop({
-            name: s.name,
-            description: s.description,
-            brand: s.brand ?? null,
-            policies,
-            cookieBanner: s.cookieBanner ?? null,
-          })
-        },
-      )
-      .catch(() => {
-        /* leave theme-default fallbacks in place */
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  return shop
-}
-
 /** Layout frame (header/footer) wrapping every page's block tree. */
-export default function Layout({ children }: { children: ReactNode }): JSX.Element {
+/**
+ * Shared header/footer chrome state — derived once, consumed by SiteHeader,
+ * SiteFooter, and the Layout's global overlays. Header/footer are EDITABLE
+ * SECTIONS now (sections/Header.tsx, Footer.tsx) so they appear in the editor's
+ * section tree; the layout only renders the page body + the global overlays.
+ */
+function useChrome(opts?: Record<string, unknown>) {
   const settings = useSettings()
   const t = useT()
+  // A section setting (Header/Footer section attributes) OVERRIDES the global
+  // Theme setting; falling back to the global keeps brand-new templates working.
+  const a = opts ?? {}
+  const headerMenu = (a.menu as string) || (settings.headerMenuHandle as string) || ''
+  const footerShopMenu = (a.shopMenu as string) || (settings.footerShopMenuHandle as string) || ''
+  const footerHelpMenu = (a.helpMenu as string) || (settings.footerHelpMenuHandle as string) || ''
+  const footerCompanyMenu = (a.companyMenu as string) || (settings.footerCompanyMenuHandle as string) || ''
   const menus = useStorefrontMenus({
-    header: (settings.headerMenuHandle as string) ?? '',
-    footerShop: (settings.footerShopMenuHandle as string) ?? '',
-    footerHelp: (settings.footerHelpMenuHandle as string) ?? '',
-    footerCompany: (settings.footerCompanyMenuHandle as string) ?? '',
+    header: headerMenu,
+    footerShop: footerShopMenu,
+    footerHelp: footerHelpMenu,
+    footerCompany: footerCompanyMenu,
   })
-
-  // SPA routing — when enabled, internal link clicks update React state
-  // instead of triggering a full page load. Falls back to native nav when
-  // off (or in SSG / no-JS).
-  //
-  // Disable in preview mode (the editor's iframe): the editor pushes live
-  // section/setting updates via `tanqory-preview-update-section` into the
-  // bridge's tree state, and the bridge re-renders its own `<SectionTree>`
-  // as `children`. If softRoute is on, the layout would overwrite that
-  // child render with its own template lookup and every edit would silently
-  // get lost. Same logic for the click-to-navigate interceptor — clicking a
-  // CTA in preview mode should select the section, not navigate away.
-  const isPreview =
-    typeof window !== 'undefined' &&
-    (/^preview-/.test(window.location.hostname) ||
-      new URLSearchParams(window.location.search).has('preview'))
-
-  const enableSpa = !isPreview && settings.enableSpaNavigation !== false
-  const softPathname = useSoftRoute(enableSpa)
-  const softTree = enableSpa ? lookupTemplate(resolveTemplate(softPathname)) : null
-
-  useUrlRedirect(softPathname)
-  usePreviewSelection(isPreview)
   const data = useData()
   const { totalQuantity } = useCart()
-  // Real store identity (Settings → General / Brand) wins over theme defaults;
-  // theme settings are only the offline/mock fallback.
-  const shop = useStorefrontShop()
-  const shopName = shop?.name || (settings.shopName as string) || 'nova'
-  const brandLogo = shop?.brand?.logo ?? null
-  const brandBlurb =
-    shop?.brand?.shortDescription ||
-    shop?.brand?.slogan ||
-    (settings.footerBlurb as string) ||
-    'Modern essentials, designed for everyday rituals.'
+  const shopName =
+    ((a.logo as string) || (settings.shopName as string) || '').trim() ||
+    data.shop?.name?.trim() ||
+    'Your store'
+  // Settings → Brand. Only used when the merchant hasn't overridden the brand
+  // with theme text (`a.logo` / settings.shopName) — an explicit theme choice
+  // still wins. Until now a merchant could upload a logo and the storefront
+  // never showed it: theme-kit didn't even request the field.
+  const brandLogo =
+    !((a.logo as string) || (settings.shopName as string) || '').trim() && data.shop?.brand?.logo
+      ? data.shop.brand.logo
+      : null
+  // Brand colours as CSS custom properties on the shell, so any section that
+  // uses var(--color-brand) follows Settings → Brand without new plumbing.
+  const brandColors = data.shop?.brand?.colors?.primary?.[0]
+  const brandVars: Record<string, string> = {
+    ...(brandColors?.background ? { '--color-brand': brandColors.background } : {}),
+    ...(brandColors?.foreground ? { '--color-brand-contrast': brandColors.foreground } : {}),
+  }
   const year = new Date().getFullYear()
-
-  // Legal footer links built from the store's real published policies
-  // (Settings → Policies). Each resolves to `/policies/<handle>`.
-  const policyLinks = shop?.policies ?? []
-
-  // Languages stay theme-config until i18n lands — themes ship a working
-  // picker, merchants tune labels in settings.json.
-  const locales =
-    (settings.locales as Array<{ code: string; label: string }>) ?? [
-      { code: 'en', label: 'English' },
-      { code: 'th', label: 'ไทย' },
-      { code: 'ja', label: '日本語' },
-      { code: 'zh', label: '中文' },
-    ]
-  const activeLocale = (settings.activeLocale as string) ?? 'en'
-
-  // Countries come from the live `localization` query. Empty when the
-  // merchant hasn't configured any active Markets yet — in that case we
-  // suppress the country picker (no fake options) and the rest of the
-  // storefront just uses the store's base currency.
+  const locales = (data.localization?.availableLanguages ?? []).map((l) => ({
+    code: l.isoCode,
+    label: l.name,
+  }))
+  const activeLocale = data.localization?.language?.isoCode ?? locales[0]?.code ?? 'en'
   const liveCountries = data.localization?.availableCountries ?? []
   const countries = liveCountries.map((c) => ({
     code: c.isoCode,
@@ -682,28 +554,65 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
   const activeCountry = data.localization?.country.isoCode ?? null
   const showCountrySwitch = countries.length > 0
   const showLocaleSwitch = locales.length > 0
-  const showSwitchers = showCountrySwitch || showLocaleSwitch
-
-  // Behaviour toggles — merchant flips these in Theme settings to switch
-  // each icon between "open overlay" (pro UX) and "navigate to page"
-  // (progressive enhancement fallback).
-  const enableSearchModal = settings.enableSearchModal !== false
-  const enableCartDrawer = settings.enableCartDrawer !== false
-  const enableAccountDropdown = settings.enableAccountDropdown !== false
+  const showSwitchers = a.showLocale === false ? false : showCountrySwitch || showLocaleSwitch
+  const footerTagline =
+    (a.tagline as string) ||
+    (data.shop?.description as string | undefined) ||
+    (settings.footerTagline as string | undefined) ||
+    ''
+  const footerColumns = [
+    { handle: footerShopMenu, links: menus.footerShop },
+    { handle: footerHelpMenu, links: menus.footerHelp },
+    { handle: footerCompanyMenu, links: menus.footerCompany },
+  ]
+    .map((c) => ({ title: (c.handle && data.menu?.(c.handle)?.title) || '', links: c.links ?? [] }))
+    .filter((c) => c.links.length > 0)
+  const flag = (k: string, g: string) => (a[k] !== undefined ? a[k] !== false : settings[g] !== false)
+  const enableSearchModal = flag('showSearch', 'enableSearchModal')
+  const enableCartDrawer = flag('showCart', 'enableCartDrawer')
+  const enableAccountDropdown = flag('showAccount', 'enableAccountDropdown')
   const enableMobileNavDrawer = settings.enableMobileNavDrawer !== false
-
+  // Brand colours ride along on the chrome style that already exists, so
+  // Settings → Brand reaches the header without a second mechanism. Section
+  // attributes (a.bg/a.fg) still win — an explicit theme choice beats the
+  // brand default.
+  const chromeStyle =
+    a.bg || a.fg || Object.keys(brandVars).length
+      ? ({
+          ...brandVars,
+          ...(a.bg ? { background: a.bg as string } : {}),
+          ...(a.fg ? { color: a.fg as string } : {}),
+        } as React.CSSProperties)
+      : undefined
+  const showPoweredBy = a.showPoweredBy !== undefined ? a.showPoweredBy !== false : settings.showPoweredBy !== false
+  const poweredByLabel = (a.poweredByLabel as string) || (settings.poweredByLabel as string) || 'Made with Tanqory'
   const navItems: Array<{ title: string; url: string }> =
-    menus.main ??
-    [
+    menus.main ?? [
       { title: t('nav.shop') || 'Shop', url: '/collections/all' },
       { title: 'Collections', url: '/collections' },
       { title: 'About', url: '/pages/about' },
       { title: 'Journal', url: '/pages/journal' },
     ]
+  return {
+    settings, t, menus, data, totalQuantity, shopName, year, brandLogo, brandVars,
+    locales, activeLocale, countries, activeCountry,
+    showCountrySwitch, showLocaleSwitch, showSwitchers,
+    footerTagline, footerColumns, chromeStyle, showPoweredBy, poweredByLabel,
+    enableSearchModal, enableCartDrawer, enableAccountDropdown, enableMobileNavDrawer,
+    navItems,
+  }
+}
 
+/** Site header — rendered by sections/Header.tsx (an editable section). */
+export function SiteHeader({ attributes }: { attributes?: Record<string, unknown> } = {}): JSX.Element {
+  const {
+    enableMobileNavDrawer, shopName, navItems, showSwitchers, locales,
+    showLocaleSwitch, activeLocale, countries, showCountrySwitch, activeCountry,
+    enableSearchModal, enableAccountDropdown, settings, totalQuantity, enableCartDrawer, chromeStyle,
+    brandLogo,
+  } = useChrome(attributes)
   return (
-    <>
-      <header className="site-header">
+      <header className="site-header" style={chromeStyle}>
         <div className="container site-header__inner">
           {enableMobileNavDrawer && (
             <button
@@ -715,8 +624,8 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
               <Icon name="menu" />
             </button>
           )}
-          <a className="site-header__brand" href="/" aria-label={shopName}>
-            {brandLogo?.url ? (
+          <a className="site-header__brand" href="/">
+            {brandLogo ? (
               <img
                 className="site-header__logo"
                 src={brandLogo.url}
@@ -766,7 +675,6 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
                   aria-haspopup="dialog"
                   data-overlay-trigger="account"
                   onClick={() => {
-                    // Toggle: clicking the trigger while open should close.
                     const isOpen = document
                       .querySelector('.account-menu')
                       ?.classList.contains('account-menu--open')
@@ -815,68 +723,49 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
           </div>
         </div>
       </header>
+  )
+}
 
-      <main>{softTree ? <SectionTree tree={softTree} /> : children}</main>
-
-      <footer className="site-footer">
+/** Site footer — rendered by sections/Footer.tsx (an editable section). */
+export function SiteFooter({
+  attributes,
+  children,
+}: { attributes?: Record<string, unknown>; children?: ReactNode } = {}): JSX.Element {
+  const {
+    shopName, footerTagline, footerColumns, showSwitchers, locales,
+    showLocaleSwitch, activeLocale, countries, showCountrySwitch, activeCountry,
+    year, t, chromeStyle, showPoweredBy, poweredByLabel,
+  } = useChrome(attributes)
+  // Block-composed footer (Shopify Horizon-style): when the section has blocks
+  // (Brand / Menu / Text), render them in the grid. With no blocks, fall back
+  // to the data-driven default (brand + the three menu columns).
+  const hasBlocks = Children.count(children) > 0
+  return (
+      <footer className="site-footer" style={chromeStyle}>
         <div className="container">
           <div className="site-footer__grid">
-            <div className="site-footer__brand">
-              <h2>{shopName}</h2>
-              <p style={{ color: 'rgba(255,255,255,0.7)', maxWidth: '36ch' }}>
-                {brandBlurb}
-              </p>
-            </div>
-            <div className="site-footer__col">
-              <h6>Shop</h6>
-              <ul>
-                {(menus.footerShop ?? [
-                  { title: 'All products', url: '/collections/all' },
-                  { title: 'New arrivals', url: '/collections/new' },
-                  { title: 'Sale', url: '/collections/sale' },
-                  { title: 'Gift cards', url: '/pages/gift-cards' },
-                ]).map((item) => (
-                  <li key={`${item.url}-${item.title}`}>
-                    <a href={item.url}>{item.title}</a>
-                  </li>
+            {hasBlocks ? children : (
+              <>
+                <div className="site-footer__brand">
+                  <h2>{shopName}</h2>
+                  {footerTagline && (
+                    <p style={{ color: 'rgba(255,255,255,0.7)', maxWidth: '36ch' }}>{footerTagline}</p>
+                  )}
+                </div>
+                {footerColumns.map((col, i) => (
+                  <div className="site-footer__col" key={i}>
+                    {col.title && <h6>{col.title}</h6>}
+                    <ul>
+                      {col.links.map((item) => (
+                        <li key={`${item.url}-${item.title}`}>
+                          <a href={item.url}>{item.title}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
-            </div>
-            <div className="site-footer__col">
-              <h6>Help</h6>
-              <ul>
-                {(
-                  menus.footerHelp ??
-                  (policyLinks.length > 0
-                    ? [{ title: t('nav.contact') || 'Contact', url: '/pages/contact' }, ...policyLinks]
-                    : [
-                        { title: 'Contact', url: '/pages/contact' },
-                        { title: 'Shipping', url: '/pages/shipping' },
-                        { title: 'Returns', url: '/pages/returns' },
-                        { title: 'FAQ', url: '/pages/faq' },
-                      ])
-                ).map((item) => (
-                  <li key={`${item.url}-${item.title}`}>
-                    <a href={item.url}>{item.title}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="site-footer__col">
-              <h6>Company</h6>
-              <ul>
-                {(menus.footerCompany ?? [
-                  { title: 'About', url: '/pages/about' },
-                  { title: 'Journal', url: '/pages/journal' },
-                  { title: 'Sustainability', url: '/pages/sustainability' },
-                  { title: 'Press', url: '/pages/press' },
-                ]).map((item) => (
-                  <li key={`${item.url}-${item.title}`}>
-                    <a href={item.url}>{item.title}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+              </>
+            )}
           </div>
 
           {showSwitchers && (
@@ -892,10 +781,90 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
 
           <div className="site-footer__bottom">
             <small>© {year} {shopName}. {t('footer.rights')}</small>
-            <small>Made with Tanqory</small>
+            {showPoweredBy && (
+              <small>{poweredByLabel}</small>
+            )}
           </div>
         </div>
       </footer>
+  )
+}
+
+export default function Layout({ children }: { children: ReactNode }): JSX.Element {
+  const { settings, menus, enableSearchModal, enableCartDrawer, enableMobileNavDrawer } = useChrome()
+
+  // SPA routing — when enabled, internal link clicks update React state
+  // instead of triggering a full page load. Falls back to native nav when
+  // off (or in SSG / no-JS).
+  //
+  // Disable in preview mode (the editor's iframe): the editor pushes live
+  // section/setting updates via `tanqory-preview-update-section` into the
+  // bridge's tree state, and the bridge re-renders its own `<SectionTree>`
+  // as `children`. If softRoute is on, the layout would overwrite that
+  // child render with its own template lookup and every edit would silently
+  // get lost. Same logic for the click-to-navigate interceptor — clicking a
+  // CTA in preview mode should select the section, not navigate away.
+  const isPreview =
+    typeof window !== 'undefined' &&
+    (/^preview-/.test(window.location.hostname) ||
+      new URLSearchParams(window.location.search).has('preview'))
+
+  const enableSpa = !isPreview && settings.enableSpaNavigation !== false
+  const softPathname = useSoftRoute(enableSpa)
+  const softTree = enableSpa ? lookupTemplate(resolveTemplate(softPathname)) : null
+
+  useUrlRedirect(softPathname)
+  usePreviewSelection(isPreview)
+
+  // Resource context for dynamic sources — bind any block to `product.*` /
+  // `collection.*` / `shop.*`. We collect the bound metafield identifiers from
+  // the current page's content (collectBoundIdentifiers) and fetch exactly
+  // those from the live storefront (`metafields(identifiers)`), then expose the
+  // resolved resources. Shop bindings work on every page; product/collection
+  // only on their own templates.
+  const data = useData()
+  const currentPath =
+    (enableSpa ? softPathname : null) ??
+    (typeof window !== 'undefined' ? window.location.pathname : '/')
+  const pageTree = (softTree ?? lookupTemplate(resolveTemplate(currentPath)) ?? []) as ContentNode[]
+  const boundIds = useMemo(() => collectBoundIdentifiers(pageTree), [pageTree])
+  const [resourceValue, setResourceValue] = useState<ResourceContextValue>({})
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      const next: ResourceContextValue = {}
+      if (boundIds.shop.length && data.fetchShopMetafields && data.shop) {
+        const mf = await data.fetchShopMetafields(boundIds.shop)
+        next.shop = { ...data.shop, metafields: mf }
+      }
+      const productHandle = currentPath.match(/\/products\/([^/?#]+)/)?.[1]
+      if (productHandle) {
+        next.product = data.fetchProduct
+          ? await data.fetchProduct(productHandle, { metafields: boundIds.product })
+          : data.productByHandle?.(productHandle) ?? null
+      }
+      const collectionHandle = currentPath.match(/\/collections\/([^/?#]+)/)?.[1]
+      if (collectionHandle) {
+        const base = data.collectionByHandle?.(collectionHandle) ?? null
+        const cmf =
+          boundIds.collection.length && data.fetchCollectionMetafields
+            ? await data.fetchCollectionMetafields(collectionHandle, boundIds.collection)
+            : {}
+        next.collection = base ? { ...base, metafields: cmf } : null
+      }
+      if (!cancelled) setResourceValue(next)
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [data, currentPath, boundIds])
+
+  return (
+    <DynamicSourceProvider value={resourceValue}>
+      <main>{softTree ? <SectionTree tree={softTree} /> : children}</main>
+
+      <CookieConsent />
+      <TrackingPixels />
 
       {/* Overlay surfaces — render once per shell. Each is a no-op when its
        *  matching overlay isn't the active one (driven by useOverlayChannel),
@@ -927,12 +896,7 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
           links={menus.main}
         />
       )}
-
-      {/* Store-driven shell surfaces: cookie-consent banner (Settings → Customer
-       *  privacy) and connected tracking pixels (Settings → Customer events). */}
-      <CookieConsent banner={shop?.cookieBanner} />
-      <PixelScripts bannerEnabled={shop?.cookieBanner?.enabled} />
-    </>
+    </DynamicSourceProvider>
   )
 }
 
@@ -967,10 +931,18 @@ function LocaleSwitch({
   activeCountry,
   compact,
 }: LocaleSwitchProps): JSX.Element {
-  const [locale, setLocale] = usePersistedChoice('locale', LOCALE_KEY, activeLocale)
+  // Locale change reloads too: the theme's UI-string map is chosen at boot from
+  // ?locale= (main.tsx resolveLocale), and the SSG bakes the default locale, so
+  // an in-place swap can't re-render translated chrome — a reload re-selects the
+  // right locale map (and refetches, ready for translated CONTENT in Phase 2).
+  const [locale, setLocale] = usePersistedChoice('locale', LOCALE_KEY, activeLocale, true)
   // Country change reloads — bound prices are baked at fetch time, not derived.
   const [country, setCountry] = usePersistedChoice('country', COUNTRY_KEY, activeCountry, true)
   const activeCountryRow = countries.find((c) => c.code === country) ?? countries[0]
+  // Chrome labels are locale strings (editable via locales/<lang>.json) — never
+  // hardcoded English in the markup.
+  const t = useT()
+  const label = { language: t('footer.language') || 'Language', region: t('footer.region') || 'Country / region' }
 
   if (compact) {
     return (
@@ -981,7 +953,7 @@ function LocaleSwitch({
         <div className="locale-switch__panel" role="dialog" aria-label="Region and language">
           {locales.length > 0 && (
             <div className="locale-switch__group">
-              <span className="locale-switch__label">Language</span>
+              <span className="locale-switch__label">{label.language}</span>
               <select
                 className="locale-switch__select"
                 value={locale}
@@ -998,7 +970,7 @@ function LocaleSwitch({
           )}
           {countries.length > 0 && (
             <div className="locale-switch__group">
-              <span className="locale-switch__label">Country / region</span>
+              <span className="locale-switch__label">{label.region}</span>
               <select
                 className="locale-switch__select"
                 value={country}
@@ -1023,7 +995,7 @@ function LocaleSwitch({
       {countries.length > 0 && (
         <div className="locale-switch__group">
           <label className="locale-switch__label" htmlFor="market-country">
-            Country / region
+            {label.region}
           </label>
           <select
             id="market-country"
@@ -1042,7 +1014,7 @@ function LocaleSwitch({
       {locales.length > 0 && (
         <div className="locale-switch__group">
           <label className="locale-switch__label" htmlFor="market-locale">
-            Language
+            {label.language}
           </label>
           <select
             id="market-locale"
@@ -1060,8 +1032,8 @@ function LocaleSwitch({
       )}
       {activeCountryRow && (
         <p className="locale-switch__hint">
-          Shipping to <strong>{activeCountryRow.label}</strong>. Prices in{' '}
-          <strong>{activeCountryRow.currency}</strong>.
+          {t('footer.shippingTo') || 'Shipping to'} <strong>{activeCountryRow.label}</strong>.{' '}
+          {t('footer.pricesIn') || 'Prices in'} <strong>{activeCountryRow.currency}</strong>.
         </p>
       )}
     </div>

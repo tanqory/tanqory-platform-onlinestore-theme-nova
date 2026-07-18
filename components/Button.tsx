@@ -38,7 +38,9 @@ export function Button({
   const style = fullWidth ? { width: '100%' } : undefined
 
   // An action button (add to cart, etc.) renders a <button>; a navigation
-  // button renders an <a>. onClick takes precedence over link.
+  // button renders an <a>. With BOTH onClick + link (e.g. checkout: fire an
+  // analytics event, then navigate), the handler runs on the anchor before the
+  // browser follows the href — analytics uses sendBeacon, so it survives the nav.
   if (onClick && !link) {
     return (
       <button type="button" className={classes} style={style} onClick={onClick} disabled={disabled}>
@@ -48,7 +50,7 @@ export function Button({
   }
 
   return (
-    <a className={classes} href={link ?? '#'} style={style}>
+    <a className={classes} href={link ?? '#'} style={style} onClick={onClick}>
       {label ?? 'Button'}
     </a>
   )

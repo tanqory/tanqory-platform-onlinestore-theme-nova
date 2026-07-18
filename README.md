@@ -1,36 +1,15 @@
-# nova — the default Tanqory storefront theme
+# nova — Tanqory React theme
 
-The **default theme** every new Tanqory store starts from. A fully standalone
-React theme with the complete storefront — home, **product, collection, cart,
-search, blog, contact, 404** — plus **SSR** (`entry-server.tsx`). The model:
-**React component = block**, **content = JSON tree** (not HTML), edited by the
-visual editor.
-
-Depends only on [`@tanqory/theme-kit`](https://github.com/tanqory/tanqory-platform-studio-new/tree/main/packages/theme-kit)
-(published to GitHub Packages).
+A standalone Tanqory theme. Runs **offline** with mock data; depends on
+`@tanqory/theme-kit` for the framework. The model: **React component = block**,
+**content = JSON tree** (not HTML), edited by the visual editor.
 
 ```bash
-# @tanqory/theme-kit is on GitHub Packages → set a token with read:packages once.
-export NODE_AUTH_TOKEN=<your-github-token>      # e.g. `gh auth token`
-
 npm install
-npm run dev        # → http://localhost:4321  (offline, mock data — no store needed)
+npm run dev        # → http://localhost:4321  (offline, mock data)
 npm run build
 npm run typecheck
 ```
-
-## Data: mock (default) or live — the theme is store-agnostic
-
-Data is injected at runtime, never hardcoded, so one theme serves every store:
-
-| mode | data source | how |
-| --- | --- | --- |
-| **mock** (default) | `lib/collections.json` | just `npm run dev` — fully offline |
-| **live** | a store's Storefront API | `cp .env.example .env`, set `VITE_TANQORY_BACKEND` + `VITE_TANQORY_STORE_ID` |
-| **production** | resolved by hostname | `<slug>.mytanqory.com` → the edge storefront worker injects the right store |
-
-`main.tsx` (CSR) and `entry-server.tsx` (SSG) both pick `createLiveData` vs
-`createMockData` automatically from those env vars, with graceful fallback to mock.
 
 ## One rule to read the whole repo
 
@@ -48,7 +27,7 @@ layouts/layout.tsx    site shell: header / footer              [.tsx]  code
 templates/            per-page composition                      [.json] editor data
   index.json
 config/
-  settings.ts         global settings — schema (typed)          [.ts]   code
+  settings.schema.ts  global settings — schema (typed)          [.ts]   code
   settings.json       global settings — values                  [.json] editor data
 locales/en.json       storefront translations                   [.json] translator data
 tanqory.config.ts     project config (data mode/endpoint)       [.ts]   dev
@@ -65,7 +44,7 @@ package.json          manifest + deps
 | reusable piece (price, stars…) | `components/*.tsx` |
 | arrange a page (order / section settings) | `templates/*.json` |
 | header / footer | `layouts/layout.tsx` |
-| colors / fonts / shop name (site-wide) | `config/settings.json` (schema in `settings.ts`) |
+| colors / fonts / shop name (site-wide) | `config/settings.json` (schema in `settings.schema.ts`) |
 | text / translations | `locales/*.json` |
 | styling | `assets/styles.css` |
 | data source / mode | `tanqory.config.ts` |
@@ -77,3 +56,60 @@ package.json          manifest + deps
 - `@tanqory/theme-kit` auto-discovers `sections/`, `templates/`, `layouts/` and mounts.
 - vs Shopify: Liquid → typed React; reusable bits are plain **components/** (not a
   separate `snippets/`); schema/values split by file extension (`.ts` vs `.json`).
+
+## Catalog
+
+Everything this theme contains is described, machine-readably, in
+[`theme.manifest.json`](./theme.manifest.json) — every section (with its editor
+attributes), every template, and the theme settings. The editor inserter, the AI
+generator, and the dashboard↔storefront conformance test all read it, so it is
+the one place that can never disagree with the code.
+
+The list below is generated from that manifest — **do not edit by hand**; run
+`npm run manifest` (it also refreshes this block).
+
+<!-- BEGIN GENERATED CATALOG -->
+**61 sections · 18 templates · 34 settings**
+
+### Sections by category
+- **block** (28): accordion, add-to-cart, button, collection-item, column, faq-item, footer-brand, footer-menu, footer-text, heading, icon, image, jumbo-text, logo, payment-icons, product-description, product-inventory, product-price, product-sku, product-title, quantity, slide, social-links, spacer, swatches, text, variant-picker, video
+- **commerce** (10): account, cart-items, collection-list, featured-collection, featured-product, policy-page, product-details, product-grid, search-results, store-locator
+- **content** (11): article-body, blog-posts, collection-links, faq, feature-grid-blocks, feature-highlights, image-with-text, marquee, multicolumn, page-body, rich-text
+- **forms** (1): contact-form
+- **layout** (7): announcement-bar, divider, footer, group, header, hero, slideshow
+- **marketing** (1): newsletter
+- **product** (1): product-recommendations
+- **social-proof** (1): logo-list
+- **system** (1): not-found
+
+### Templates
+| template | sections |
+| --- | --- |
+| `404` | featured-collection, footer, header, not-found |
+| `account` | account, footer, header |
+| `article` | article-body, footer, header |
+| `article.longform` | article-body, footer, header, rich-text |
+| `blog` | blog-posts, footer, header |
+| `blog.featured` | blog-posts, footer, header, rich-text |
+| `cart` | cart-items, featured-collection, footer, header |
+| `collection` | featured-collection, footer, header |
+| `collection.featured` | featured-collection, footer, header, rich-text |
+| `contact` | contact-form, footer, header, rich-text |
+| `index` | collection-list, featured-collection, featured-product, footer, header, image-with-text, logo-list, multicolumn, slideshow |
+| `list-collections` | collection-list, footer, header |
+| `page` | footer, header, page-body |
+| `page.contact` | contact-form, page-body |
+| `policy` | footer, header, policy-page |
+| `product` | featured-collection, footer, header, product-details |
+| `product.bundle` | featured-collection, footer, header, product-details, rich-text |
+| `search` | footer, header, search-results |
+
+### Theme settings
+- **Account**: accountLoggedIn, accountHeading, accountSubtext, accountPrimaryLabel, accountPrimaryHref, accountSecondaryLabel, accountSecondaryHref, accountExtraLinks
+- **Brand**: shopName, accent
+- **Cart**: enableCartDrawer, cartDrawerWidth, cartEmptyHeading, cartEmptySubtext, cartCheckoutLabel, cartViewLabel
+- **Footer**: footerShopMenuHandle, footerHelpMenuHandle, footerCompanyMenuHandle, footerTagline, showPoweredBy, poweredByLabel
+- **Header**: headerMenuHandle, enableSpaNavigation, enableAccountDropdown, enableMobileNavDrawer, mobileNavHeading, mobileNavWidth
+- **Search**: enableSearchModal, searchPlaceholder, searchCtaLabel, searchModalWidth, searchDebounceMs, searchMaxResults
+<!-- END GENERATED CATALOG -->
+

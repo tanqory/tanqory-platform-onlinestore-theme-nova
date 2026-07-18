@@ -1,0 +1,22 @@
+{
+  "sections": [
+    {
+      "type": "page-body",
+      "id": "page-body",
+      "settings": {
+        "fallbackTitle": "Contact us",
+        "fallbackBody": "<p>We'd love to hear from you. Send us a message and we'll reply within one business day.</p>"
+      }
+    },
+    {
+      "type": "contact-form",
+      "id": "form",
+      "settings": {
+        "heading": "Send us a message",
+        "subheading": "We read every note.",
+        "showPhone": false,
+        "buttonLabel": "Send message"
+      }
+    }
+  ]
+}

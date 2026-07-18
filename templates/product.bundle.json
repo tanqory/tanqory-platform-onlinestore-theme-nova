@@ -1,0 +1,46 @@
+{
+  "sections": [
+    { "type": "header", "id": "header", "settings": {}, "area": "header" },
+    {
+      "type": "rich-text",
+      "id": "bundle-note",
+      "settings": {
+        "heading": "Bundle & save",
+        "body": "Buy this set together and save. Everything you need in one purchase.",
+        "align": "center"
+      }
+    },
+    {
+      "type": "product-details",
+      "id": "main",
+      "settings": { "buttonLabel": "Add bundle to cart" }
+    },
+    {
+      "type": "featured-collection",
+      "id": "in-this-bundle",
+      "settings": {
+        "heading": "Also in this bundle",
+        "collection": "all",
+        "columns": 3,
+        "limit": 3,
+        "showViewAll": false
+      }
+    },
+    {
+      "type": "footer",
+      "id": "footer",
+      "settings": {},
+      "area": "footer",
+      "blocks": [
+        { "type": "footer-brand", "id": "footer-brand", "settings": {} },
+        { "type": "footer-menu", "id": "footer-menu-shop", "settings": { "menu": "footer-shop" } },
+        { "type": "footer-menu", "id": "footer-menu-help", "settings": { "menu": "footer-help" } },
+        {
+          "type": "footer-menu",
+          "id": "footer-menu-company",
+          "settings": { "menu": "footer-company" }
+        }
+      ]
+    }
+  ]
+}

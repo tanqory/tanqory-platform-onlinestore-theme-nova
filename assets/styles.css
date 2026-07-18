@@ -1,4 +1,8 @@
 @import './tokens.css';
+/* AI brand tokens (--tq-*) — written by the AI theme generator; empty stub on
+ * non-AI themes. Separate file so the generator NEVER touches tokens.css (the
+ * framework's own variables every base section depends on). */
+@import './ai-tokens.css';
 
 /* ============================================================================
  * RESET — minimal, modern (Andy Bell-style)
@@ -658,8 +662,9 @@ p { max-width: var(--container-prose); text-wrap: pretty; }
   display: grid; place-items: center;
   background: var(--color-bg-muted);
   border-radius: var(--radius-md);
-  font-size: var(--type-step-2);
+  color: var(--color-fg, currentColor);
 }
+.multicolumn__icon svg { width: 28px; height: 28px; }
 .multicolumn__item h3 { font-family: var(--font-body); font-size: var(--type-step-1); font-weight: 500; letter-spacing: var(--tracking-snug); }
 
 /* Rich Text */
@@ -1329,3 +1334,98 @@ body.tq-preview [data-tq-section-id].tq-preview-selected::before {
   padding: 4px 8px;
   pointer-events: none;
 }
+
+/* ── Announcement bar ───────────────────────────────────────────── */
+.announcement-bar { padding: 0.5rem 0; text-align: center; font-size: 0.85rem; }
+.announcement-bar__text { margin: 0; text-decoration: none; }
+
+/* ── Marquee ────────────────────────────────────────────────────── */
+.marquee { overflow: hidden; padding: 0.8rem 0; }
+.marquee__track { display: flex; width: max-content; animation: tq-marquee linear infinite; }
+.marquee__half { display: flex; }
+.marquee__item { padding: 0 2rem; white-space: nowrap; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+@keyframes tq-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .marquee__track { animation: none; } }
+
+/* ── Divider ────────────────────────────────────────────────────── */
+.divider__line { border: 0; border-top: 1px solid var(--color-border, #e7e7e9); margin: 0; }
+
+/* ── Collection links ───────────────────────────────────────────── */
+.collection-links__grid { display: grid; gap: 1.5rem; }
+.collection-link { text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 0.6rem; }
+.collection-link__media { aspect-ratio: 4 / 5; border-radius: var(--radius-md, 10px); overflow: hidden; background: var(--color-bg-muted, #f4f4f5); }
+.collection-link__media img { width: 100%; height: 100%; object-fit: cover; }
+.collection-link__title { font-weight: 500; }
+
+/* ── Generic content blocks (compose inside a Group) ─────────────── */
+.block-text { margin: 0; max-width: 65ch; }
+.block-heading { margin: 0; }
+.block-button { margin: 0; }
+.block-image-wrap { margin: 0; }
+.block-image { display: block; width: 100%; height: auto; }
+.block-icon { line-height: 0; }
+.block-spacer { width: 100%; }
+
+/* ── PDP blocks (quantity, sku) ──────────────────────────────────── */
+.quantity { display: inline-flex; align-items: center; gap: 0.75rem; border: 1px solid var(--color-border, #e7e7e9); border-radius: var(--radius-md, 10px); padding: 0.25rem 0.6rem; }
+.quantity button { border: none; background: none; cursor: pointer; font-size: 1.2rem; width: 28px; height: 28px; line-height: 1; }
+.quantity__value { min-width: 1.5ch; text-align: center; }
+.product-details__sku { margin: 0; font-size: 0.85rem; }
+
+/* ── Wave 4 blocks (video / accordion / jumbo / swatches / social / payment) ── */
+.block-video { position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-md, 10px); overflow: hidden; background: #000; }
+.block-video iframe, .block-video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; }
+.block-accordion { border-bottom: 1px solid var(--color-border, #e7e7e9); }
+.block-accordion__summary { display: flex; justify-content: space-between; align-items: center; cursor: pointer; list-style: none; font-weight: 500; padding: 0.9rem 0; }
+.block-accordion__summary::-webkit-details-marker { display: none; }
+.block-accordion[open] .block-accordion__icon { transform: rotate(45deg); }
+.block-accordion__icon { transition: transform 0.2s ease; }
+.block-accordion__body { padding-bottom: 1rem; color: var(--color-fg-muted, #6b7280); }
+.block-jumbo { margin: 0; font-size: clamp(2.5rem, 8vw, 6rem); line-height: 1.05; font-weight: 600; }
+.swatches { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.swatch { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); cursor: pointer; padding: 0; }
+.swatch--active { outline: 2px solid var(--color-fg, #0a0a0a); outline-offset: 2px; }
+.social-links { display: flex; gap: 0.5rem; }
+.social-link { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--color-border, #e7e7e9); color: inherit; }
+.social-link:hover { background: var(--color-bg-muted, #f4f4f5); }
+.payment-icons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.payment-icon { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.03em; padding: 0.3rem 0.55rem; border: 1px solid var(--color-border, #e7e7e9); border-radius: 6px; color: var(--color-fg-muted, #6b7280); }
+
+/* ── Cookie-consent banner (Settings → Customer privacy) ───────────────── */
+.cookie-consent {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  padding: 0.9rem 1.1rem;
+  background: var(--color-bg, #fff);
+  border-top: 1px solid var(--color-border, #e7e7e9);
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.08);
+}
+.cookie-consent--bottom { bottom: 0; }
+.cookie-consent--top { top: 0; border-top: 0; border-bottom: 1px solid var(--color-border, #e7e7e9); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08); }
+.cookie-consent--dark { background: #18181b; color: #fafafa; border-color: #27272a; }
+.cookie-consent--dark a { color: #fafafa; }
+.cookie-consent__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+.cookie-consent__copy { flex: 1 1 340px; min-width: 260px; }
+.cookie-consent__title { display: block; font-weight: 600; margin-bottom: 0.2rem; }
+.cookie-consent__text { margin: 0; font-size: 0.85rem; line-height: 1.45; }
+.cookie-consent__actions,
+.cookie-consent__manage { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.cookie-consent__toggle { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; }
+.cookie-consent .btn { padding: 0.5rem 0.95rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; border: 1px solid var(--color-border, #e7e7e9); }
+.cookie-consent .btn--ghost { background: transparent; }
+.cookie-consent .btn--primary { background: var(--color-fg, #111); color: var(--color-bg, #fff); border-color: var(--color-fg, #111); }
+.cookie-consent--dark .btn--primary { background: #fafafa; color: #18181b; border-color: #fafafa; }
+
+/* Merchant logo from Settings → Brand. Height-capped, width auto: logos arrive
+   at any aspect ratio and the header must not reflow around them. */
+.site-header__logo { height: 30px; width: auto; max-width: 200px; object-fit: contain; display: block; }

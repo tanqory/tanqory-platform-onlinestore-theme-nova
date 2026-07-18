@@ -75,9 +75,17 @@ export default defineSection({
     items: {
       type: 'textarea',
       label: 'Items JSON',
-      default: JSON.stringify(DEFAULT_FAQ, null, 2),
     },
   },
   allowedBlocks: ['faq-item'],
+  presets: [
+    {
+      blocks: [
+        { type: 'faq-item', settings: { question: 'What is your return policy?', answer: 'Returns are accepted within 30 days of delivery — no questions asked.' } },
+        { type: 'faq-item', settings: { question: 'How long does shipping take?', answer: 'Most orders arrive within 3–5 business days.' } },
+        { type: 'faq-item', settings: { question: 'Do you ship internationally?', answer: 'Yes — we ship to most countries worldwide.' } },
+      ],
+    },
+  ],
   component: FAQ,
 })

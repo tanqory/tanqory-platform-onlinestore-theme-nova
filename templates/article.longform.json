@@ -1,0 +1,8 @@
+{
+  "sections": [
+    { "type": "header", "id": "header", "settings": {}, "area": "header" },
+    { "type": "article-body", "id": "article-body", "settings": { "fallbackTitle": "Article" } },
+    { "type": "rich-text", "id": "outro", "settings": { "heading": "Thanks for reading", "body": "Share this article or browse more from the journal.", "align": "center" } },
+    { "type": "footer", "id": "footer", "settings": {}, "area": "footer", "blocks": [ { "type": "footer-brand", "id": "footer-brand", "settings": {} }, { "type": "footer-menu", "id": "footer-menu-shop", "settings": { "menu": "footer-shop" } }, { "type": "footer-menu", "id": "footer-menu-help", "settings": { "menu": "footer-help" } }, { "type": "footer-menu", "id": "footer-menu-company", "settings": { "menu": "footer-company" } } ] }
+  ]
+}

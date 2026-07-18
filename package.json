@@ -1,22 +1,20 @@
 {
   "name": "@tanqory-theme/nova",
-  "version": "1.0.0",
-  "private": true,
+  "version": "0.1.0",
+  "private": false,
   "type": "module",
-  "description": "Nova — the default Tanqory storefront theme. Standalone React theme: component = block, JSON tree = content; full storefront (product, collection, cart, search, blog) with SSR. Runs offline (mock) or live against a store.",
-  "license": "UNLICENSED",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tanqory/tanqory-theme-nova.git"
-  },
+  "description": "Reference Tanqory Studio theme \u2014 React sections, JSON content tree, runs offline with mock data.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "manifest": "node scripts/gen-manifest.mjs",
+    "manifest:check": "node scripts/gen-manifest.mjs --check",
+    "prebuild": "node scripts/gen-manifest.mjs"
   },
   "dependencies": {
-    "@tanqory/theme-kit": "^0.1.0",
+    "@tanqory/theme-kit": "file:./theme-kit",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -25,6 +23,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5.6.3",
-    "vite": "^5.4.10"
+    "vite": "^5.4.10",
+    "@types/node": "^20.0.0"
   }
 }

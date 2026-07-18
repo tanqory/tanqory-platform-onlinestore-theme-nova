@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { decodeHandle } from '../lib/handle'
 import { defineSection, type SectionProps } from '@tanqory/theme-kit'
 import { apiBase } from '../lib/api-base'
 import { Container } from '../components/Container'
@@ -22,7 +23,7 @@ export function BlogPosts({ attributes }: SectionProps): JSX.Element {
 
   const blogHandle =
     typeof window !== 'undefined'
-      ? window.location.pathname.match(/^\/blogs\/([^/]+)\/?$/)?.[1]
+      ? decodeHandle(window.location.pathname.match(/^\/blogs\/([^/]+)\/?$/)?.[1])
       : undefined
 
   const [blog, setBlog] = useState<{ title: string; articles: ArticleCard[] } | null>(null)

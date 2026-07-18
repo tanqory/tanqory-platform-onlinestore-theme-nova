@@ -1,10 +1,11 @@
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useData, useT, type SectionProps } from '@tanqory/theme-kit'
 import { Money } from '../components/Money'
 import { Link } from '../components/Link'
 import { ImageResponsive } from '../components/ImageResponsive'
 
 export function SearchResults({ attributes }: SectionProps): JSX.Element {
   const { collectionByHandle } = useData()
+  const t = useT()
   const query =
     typeof window !== 'undefined'
       ? new URLSearchParams(window.location.search).get('q') ?? ''
@@ -12,7 +13,7 @@ export function SearchResults({ attributes }: SectionProps): JSX.Element {
   const q = query.trim().toLowerCase()
   const all = collectionByHandle('all')?.products ?? []
   const results = q ? all.filter((p) => p.title.toLowerCase().includes(q)) : []
-  const emptyHeading = (attributes.emptyHeading as string) ?? 'Search'
+  const emptyHeading = (attributes.emptyHeading as string) ?? t('search.empty.title')
 
   return (
     <section className="section">
@@ -30,28 +31,28 @@ export function SearchResults({ attributes }: SectionProps): JSX.Element {
               type="search"
               name="q"
               defaultValue={query}
-              placeholder="Search products…"
-              aria-label="Search"
+              placeholder={t('search.placeholder')}
+              aria-label={t('search.button')}
             />
             <button className="btn btn--primary" type="submit">
-              Search
+              {t('search.button')}
             </button>
           </form>
 
           {!q ? (
             <div className="search__empty">
               <h2>{emptyHeading}</h2>
-              <p>{(attributes.emptySub as string) ?? 'Type a query above to find products.'}</p>
+              <p>{(attributes.emptySub as string) ?? t('search.empty.sub')}</p>
             </div>
           ) : results.length === 0 ? (
             <div className="search__empty">
-              <h2>No matches for “{query}”</h2>
+              <h2>{t('search.noResults')} “{query}”</h2>
               <p>Try a different search term, or browse the full collection.</p>
             </div>
           ) : (
             <>
               <p className="search__count">
-                {results.length} {results.length === 1 ? 'result' : 'results'} for “{query}”
+                {results.length} {results.length === 1 ? t('search.resultFor') : t('search.resultsFor')} “{query}”
               </p>
               <div className="product-grid__grid">
                 {results.map((p) => (

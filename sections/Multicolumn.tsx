@@ -1,5 +1,6 @@
 import { Children } from 'react'
 import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { Icon } from '../components/Icon'
 
 type Item = { icon?: string; heading?: string; body?: string }
 
@@ -16,10 +17,10 @@ function parseItems(raw: unknown): Item[] {
 }
 
 const DEFAULT_ITEMS: Item[] = [
-  { icon: '✦', heading: 'Free shipping', body: 'On orders over $50.' },
-  { icon: '↺', heading: 'Easy returns', body: '30 days, no questions asked.' },
-  { icon: '◆', heading: 'Real support', body: 'Chat with us 24/7.' },
-  { icon: '✶', heading: 'Made to last', body: 'Built with materials that age well.' },
+  { icon: 'truck', heading: 'Free shipping', body: 'On orders over $50.' },
+  { icon: 'return', heading: 'Easy returns', body: '30 days, no questions asked.' },
+  { icon: 'chat', heading: 'Real support', body: 'Chat with us 24/7.' },
+  { icon: 'shield', heading: 'Made to last', body: 'Built with materials that age well.' },
 ]
 
 export function Multicolumn({ attributes, children }: SectionProps): JSX.Element {
@@ -45,7 +46,7 @@ export function Multicolumn({ attributes, children }: SectionProps): JSX.Element
         <div className="multicolumn__grid">
           {hasBlocks ? children : list.map((item, i) => (
             <div key={i} className="multicolumn__item">
-              {item.icon && <div className="multicolumn__icon" aria-hidden>{item.icon}</div>}
+              {item.icon && <div className="multicolumn__icon"><Icon name={item.icon} /></div>}
               {item.heading && <h3>{item.heading}</h3>}
               {item.body && <p className="u-text-muted">{item.body}</p>}
             </div>
@@ -68,9 +69,17 @@ export default defineSection({
     items: {
       type: 'textarea',
       label: 'Items JSON (legacy — prefer Add block)',
-      default: JSON.stringify(DEFAULT_ITEMS, null, 2),
     },
   },
   allowedBlocks: ['column'],
+  presets: [
+    {
+      blocks: [
+        { type: 'column', settings: { icon: 'truck', heading: 'Free shipping', body: 'On orders over $50.' } },
+        { type: 'column', settings: { icon: 'return', heading: 'Easy returns', body: '30 days, no questions asked.' } },
+        { type: 'column', settings: { icon: 'chat', heading: 'Real support', body: 'Chat with us 24/7.' } },
+      ],
+    },
+  ],
   component: Multicolumn,
 })

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { decodeHandle } from '../lib/handle'
 import { defineSection, type SectionProps } from '@tanqory/theme-kit'
 import { apiBase } from '../lib/api-base'
 import { Container } from '../components/Container'
@@ -23,7 +24,7 @@ export function PageBody({ attributes }: SectionProps): JSX.Element {
 
   const handle =
     typeof window !== 'undefined'
-      ? window.location.pathname.match(/^\/pages\/([^/]+)\/?$/)?.[1]
+      ? decodeHandle(window.location.pathname.match(/^\/pages\/([^/]+)\/?$/)?.[1])
       : undefined
 
   const [page, setPage] = useState<{ title: string; body: string } | null>(null)

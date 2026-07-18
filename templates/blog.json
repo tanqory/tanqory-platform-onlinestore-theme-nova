@@ -1,12 +1,52 @@
 {
   "sections": [
     {
+      "type": "header",
+      "id": "header",
+      "settings": {},
+      "area": "header"
+    },
+    {
       "type": "blog-posts",
       "id": "blog-posts",
       "settings": {
         "fallbackTitle": "Journal",
         "fallbackEmpty": "<p>No articles published yet. Add an article from the admin <strong>Online store → Blog posts</strong> to fill this in.</p>"
       }
+    },
+    {
+      "type": "footer",
+      "id": "footer",
+      "settings": {},
+      "area": "footer",
+      "blocks": [
+        {
+          "type": "footer-brand",
+          "id": "footer-brand",
+          "settings": {}
+        },
+        {
+          "type": "footer-menu",
+          "id": "footer-menu-shop",
+          "settings": {
+            "menu": "footer-shop"
+          }
+        },
+        {
+          "type": "footer-menu",
+          "id": "footer-menu-help",
+          "settings": {
+            "menu": "footer-help"
+          }
+        },
+        {
+          "type": "footer-menu",
+          "id": "footer-menu-company",
+          "settings": {
+            "menu": "footer-company"
+          }
+        }
+      ]
     }
   ]
 }

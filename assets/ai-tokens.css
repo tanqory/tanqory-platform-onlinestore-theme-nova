@@ -1,0 +1,6 @@
+/* AI brand tokens — OWNED BY THE AI THEME GENERATOR (theme-gen writes this
+ * file on install; see ai-api dna-storefront). The framework's own tokens live
+ * in tokens.css and must never be overwritten — AI sections consume the
+ * `--tq-*` custom properties defined here, base sections consume the
+ * framework's `--color-*` / `--space-*` / `--z-*` set from tokens.css.
+ * Empty by default (non-AI themes). */

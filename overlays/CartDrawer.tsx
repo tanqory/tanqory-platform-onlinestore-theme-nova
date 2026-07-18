@@ -1,4 +1,5 @@
-import { useCart } from '@tanqory/theme-kit'
+import { getAnalytics, useCart, useT } from '@tanqory/theme-kit'
+import { useEffect } from 'react'
 import { Drawer } from '../components/Drawer'
 import { ImageResponsive } from '../components/ImageResponsive'
 import { Money } from '../components/Money'
@@ -27,11 +28,19 @@ export function CartDrawer(props: CartDrawerProps): JSX.Element {
   const open = useOverlay('cart')
   const { width: widthAttr, emptyHeading, emptySubtext, checkoutLabel, viewCartLabel } = props
   const { lines, subtotal, checkoutUrl, updateQuantity, remove } = useCart()
+  const t = useT()
+
+  // The mini-cart is nova's primary cart surface (auto-opens after add-to-cart),
+  // so opening it is a cart_viewed for the merchant's funnel.
+  useEffect(() => {
+    if (open) getAnalytics().track('CART_VIEWED', { lineCount: lines.length })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
 
   return (
     <Drawer open={open} side="right" width={widthAttr} ariaLabel="Cart">
       <header className="drawer__head">
-        <h2 className="drawer__title">Your cart</h2>
+        <h2 className="drawer__title">{t('cart.title')}</h2>
         <button
           type="button"
           className="drawer__close"
@@ -46,7 +55,7 @@ export function CartDrawer(props: CartDrawerProps): JSX.Element {
         <div className="drawer__empty">
           <h3>{emptyHeading}</h3>
           <p className="u-text-muted">{emptySubtext}</p>
-          <Button label="Shop the collection" link="/collections/all" variant="primary" size="lg" />
+          <Button label={t('common.shopCollection')} link="/collections/all" variant="primary" size="lg" />
         </div>
       ) : (
         <>
@@ -84,10 +93,18 @@ export function CartDrawer(props: CartDrawerProps): JSX.Element {
                   <button
                     type="button"
                     className="drawer__remove"
-                    aria-label={`Remove ${l.title}`}
-                    onClick={() => void remove(l.id)}
+                    aria-label={`${t('cart.remove')} ${l.title}`}
+                    onClick={() => {
+                      getAnalytics().track('PRODUCT_REMOVED_FROM_CART', {
+                        lineId: l.id,
+                        title: l.title,
+                        quantity: l.quantity,
+                        ...(l.productHandle ? { handle: l.productHandle } : {}),
+                      })
+                      void remove(l.id)
+                    }}
                   >
-                    Remove
+                    {t('cart.remove')}
                   </button>
                 </div>
               </li>
@@ -96,11 +113,11 @@ export function CartDrawer(props: CartDrawerProps): JSX.Element {
 
           <footer className="drawer__foot">
             <div className="drawer__row">
-              <span>Subtotal</span>
+              <span>{t('cart.subtotal')}</span>
               <strong><Money value={subtotal} /></strong>
             </div>
             <p className="u-text-muted drawer__shipping-note">
-              Shipping &amp; taxes calculated at checkout.
+              {t('cart.shippingNote')}
             </p>
             <Button
               label={checkoutLabel}
@@ -108,6 +125,11 @@ export function CartDrawer(props: CartDrawerProps): JSX.Element {
               variant="primary"
               size="lg"
               fullWidth
+              onClick={() => {
+                const a = getAnalytics()
+                a.track('CHECKOUT_STARTED', { value: subtotal, lineCount: lines.length })
+                a.flush()
+              }}
             />
             <a href="/cart" className="drawer__view-cart" onClick={() => closeOverlay()}>
               {viewCartLabel} →

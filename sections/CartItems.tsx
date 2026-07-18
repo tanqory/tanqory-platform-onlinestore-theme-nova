@@ -1,19 +1,15 @@
-import { defineSection, useCart, type SectionProps } from '@tanqory/theme-kit'
-import { useEffect, useState } from 'react'
+import { defineSection, getAnalytics, useCart, useT, type SectionProps } from '@tanqory/theme-kit'
 import { ImageResponsive } from '../components/ImageResponsive'
 import { Money } from '../components/Money'
 import { Button } from '../components/Button'
 import { Link } from '../components/Link'
 
 export function CartItems({ attributes }: SectionProps): JSX.Element {
-  const { lines, subtotal, total, tax, note, checkoutUrl, updateQuantity, remove, updateNote } =
-    useCart()
-  const [draftNote, setDraftNote] = useState(note ?? '')
-  useEffect(() => setDraftNote(note ?? ''), [note])
+  const { lines, subtotal, checkoutUrl, updateQuantity, remove } = useCart()
+  const t = useT()
 
-  const heading = (attributes.heading as string) ?? 'Your cart'
-  const showNote = (attributes.showOrderNote as boolean) !== false
-  const buttonLabel = (attributes.buttonLabel as string) ?? 'Checkout'
+  const heading = (attributes.heading as string) ?? t('cart.title')
+  const buttonLabel = (attributes.buttonLabel as string) ?? t('cart.checkout')
   const buttonLink = (attributes.buttonLink as string) ?? checkoutUrl ?? '/checkout'
 
   return (
@@ -59,11 +55,19 @@ export function CartItems({ attributes }: SectionProps): JSX.Element {
                       <button
                         type="button"
                         className="cart__remove"
-                        aria-label={`Remove ${l.title}`}
+                        aria-label={`${t('cart.remove')} ${l.title}`}
                         style={{ marginLeft: 'var(--space-3)' }}
-                        onClick={() => void remove(l.id)}
+                        onClick={() => {
+                          getAnalytics().track('PRODUCT_REMOVED_FROM_CART', {
+                            lineId: l.id,
+                            title: l.title,
+                            quantity: l.quantity,
+                            ...(l.productHandle ? { handle: l.productHandle } : {}),
+                          })
+                          void remove(l.id)
+                        }}
                       >
-                        Remove
+                        {t('cart.remove')}
                       </button>
                     </div>
                   </div>
@@ -74,51 +78,34 @@ export function CartItems({ attributes }: SectionProps): JSX.Element {
 
             <aside className="cart__summary">
               <h3 style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--type-step-1)', fontWeight: 500, letterSpacing: 0 }}>
-                Order summary
+                {t('cart.orderSummary')}
               </h3>
               <div className="cart__row">
-                <span>Subtotal</span>
+                <span>{t('cart.subtotal')}</span>
                 <Money value={subtotal} />
               </div>
-              {tax ? (
-                <div className="cart__row">
-                  <span>Tax</span>
-                  <Money value={tax} />
-                </div>
-              ) : (
-                <div className="cart__row u-text-muted">
-                  <span>Tax</span>
-                  <span>Calculated at checkout</span>
-                </div>
-              )}
               <div className="cart__row u-text-muted">
-                <span>Shipping</span>
-                <span>Calculated at checkout</span>
+                <span>{t('cart.shipping')}</span>
+                <span>{t('cart.calculatedAtCheckout')}</span>
               </div>
               <div className="cart__row cart__row--total">
-                <strong>Total</strong>
-                <strong><Money value={total ?? subtotal} /></strong>
+                <strong>{t('cart.total')}</strong>
+                <strong><Money value={subtotal} /></strong>
               </div>
-              {showNote && (
-                <label className="cart__note" style={{ display: 'block', marginTop: 'var(--space-4)' }}>
-                  <span className="u-text-muted" style={{ display: 'block', marginBottom: 'var(--space-2)', fontSize: 'var(--type-step--1)' }}>
-                    Order note
-                  </span>
-                  <textarea
-                    rows={2}
-                    value={draftNote}
-                    placeholder="Add delivery instructions…"
-                    onChange={(e) => setDraftNote(e.target.value)}
-                    onBlur={() => {
-                      if (updateNote && draftNote !== (note ?? '')) void updateNote(draftNote)
-                    }}
-                    style={{ width: '100%', resize: 'vertical', padding: 'var(--space-2)', font: 'inherit' }}
-                  />
-                </label>
-              )}
-              <Button label={buttonLabel} link={buttonLink} variant="primary" size="lg" fullWidth />
+              <Button
+                label={buttonLabel}
+                link={buttonLink}
+                variant="primary"
+                size="lg"
+                fullWidth
+                onClick={() => {
+                  const a = getAnalytics()
+                  a.track('CHECKOUT_STARTED', { value: subtotal, lineCount: lines.length })
+                  a.flush()
+                }}
+              />
               <Link href="/collections/all" className="btn btn--link" style={{ alignSelf: 'center', marginTop: 'var(--space-1)' } as any}>
-                Continue shopping →
+                {t('common.continueShopping')} →
               </Link>
             </aside>
           </div>
@@ -129,11 +116,12 @@ export function CartItems({ attributes }: SectionProps): JSX.Element {
 }
 
 function EmptyCart(): JSX.Element {
+  const t = useT()
   return (
     <div className="not-found">
-      <h3>Your cart is empty</h3>
-      <p className="u-text-muted">Add a few things from the collection to get started.</p>
-      <Button label="Shop the collection" link="/collections/all" variant="primary" size="lg" />
+      <h3>{t('cart.empty.title')}</h3>
+      <p className="u-text-muted">{t('cart.empty.sub')}</p>
+      <Button label={t('common.shopCollection')} link="/collections/all" variant="primary" size="lg" />
     </div>
   )
 }
@@ -147,7 +135,6 @@ export default defineSection({
     heading: { type: 'text', default: 'Your cart', label: 'Heading' },
     buttonLabel: { type: 'text', default: 'Checkout', label: 'Checkout button' },
     buttonLink: { type: 'url', label: 'Checkout link override' },
-    showOrderNote: { type: 'boolean', default: true, label: 'Show order note field' },
   },
   component: CartItems,
 })

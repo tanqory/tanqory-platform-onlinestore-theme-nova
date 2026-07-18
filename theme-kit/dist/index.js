@@ -620,7 +620,29 @@ function mount(opts) {
     const name = key.replace(/^.*\//, "").replace(/\.json$/, "");
     pagesByName[name] = mod.default?.sections ?? [];
   }
-  const content = previewMode ? /* @__PURE__ */ jsx(PreviewBridge, { pages: pagesByName, initialPage: opts.page ?? "index", Shell }) : editMode ? /* @__PURE__ */ jsx(Editor, { pages: pagesByName, initialPage: opts.page ?? "index" }) : /* @__PURE__ */ jsx(Shell, { children: /* @__PURE__ */ jsx(SectionTree, { tree: pageDoc.sections }) });
+  const previewSectionType = params.get("__tq_section");
+  const decodeParam = (key) => {
+    const raw = params.get(key);
+    if (!raw) return void 0;
+    try {
+      return JSON.parse(decodeURIComponent(escape(atob(raw))));
+    } catch {
+      return void 0;
+    }
+  };
+  const content = previewSectionType ? /* @__PURE__ */ jsx(
+    SectionTree,
+    {
+      tree: [
+        {
+          type: previewSectionType,
+          id: "preview",
+          settings: decodeParam("__tq_settings") ?? {},
+          blocks: decodeParam("__tq_blocks")
+        }
+      ]
+    }
+  ) : previewMode ? /* @__PURE__ */ jsx(PreviewBridge, { pages: pagesByName, initialPage: opts.page ?? "index", Shell }) : editMode ? /* @__PURE__ */ jsx(Editor, { pages: pagesByName, initialPage: opts.page ?? "index" }) : /* @__PURE__ */ jsx(Shell, { children: /* @__PURE__ */ jsx(SectionTree, { tree: pageDoc.sections }) });
   const Root = () => {
     const [data, setData] = React.useState(opts.data);
     React.useEffect(() => {
@@ -637,7 +659,7 @@ function mount(opts) {
     return /* @__PURE__ */ jsx(DataProvider, { value: data, children: /* @__PURE__ */ jsx(ThemeProvider, { settings: opts.settings, locale: opts.locale, children: /* @__PURE__ */ jsx(CartProvider, { children: content }) }) });
   };
   const app = /* @__PURE__ */ jsx(React.StrictMode, { children: /* @__PURE__ */ jsx(Root, {}) });
-  const isStorefront = !previewMode && !editMode;
+  const isStorefront = !previewMode && !editMode && !previewSectionType;
   const hasSSG = rootEl.firstChild != null;
   if (isStorefront && hasSSG && !opts.forceClientRender) {
     hydrateRoot(rootEl, app);

@@ -315,7 +315,10 @@ function normalizeShop(n) {
       colors: n.brand.colors ? {
         primary: n.brand.colors.primary ?? [],
         secondary: n.brand.colors.secondary ?? []
-      } : null
+      } : null,
+      // Brand fonts (family names, priority order) → the theme sets
+      // --font-display/--font-body and loads them (store#510).
+      fonts: Array.isArray(n.brand.fonts) ? n.brand.fonts : []
     } : null,
     policies: {
       privacy: normalizeShopPolicy(n.privacyPolicy),
@@ -377,6 +380,7 @@ const BOOTSTRAP_SHOP_MENU = (
         primary { background foreground }
         secondary { background foreground }
       }
+      fonts
     }
     privacyPolicy { handle title url }
     refundPolicy { handle title url }
@@ -2076,4 +2080,4 @@ export {
   useT as t,
   useCart as u
 };
-//# sourceMappingURL=ssg-DhwL5u3R.js.map
+//# sourceMappingURL=ssg-BVAdm6WQ.js.map

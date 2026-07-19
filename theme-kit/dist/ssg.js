@@ -1,6 +1,6 @@
 import "react/jsx-runtime";
 import "react-dom/server";
-import { n, o } from "./ssg-DhwL5u3R.js";
+import { n, o } from "./ssg-BVAdm6WQ.js";
 export {
   n as renderSectionPreviewHTML,
   o as renderStorefrontHTML

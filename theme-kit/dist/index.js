@@ -1,5 +1,5 @@
-import { S as SectionTree, l as getSection, a as allSections, q as useData, r as registerSections, D as DataProvider, T as ThemeProvider, C as CartProvider } from "./ssg-DhwL5u3R.js";
-import { c, b, d, e, f, g, h, i, j, k, m, n, o, p, u, s, t } from "./ssg-DhwL5u3R.js";
+import { S as SectionTree, l as getSection, a as allSections, q as useData, r as registerSections, D as DataProvider, T as ThemeProvider, C as CartProvider } from "./ssg-BVAdm6WQ.js";
+import { c, b, d, e, f, g, h, i, j, k, m, n, o, p, u, s, t } from "./ssg-BVAdm6WQ.js";
 import { jsxs, jsx, Fragment } from "react/jsx-runtime";
 import React, { useState, useRef, useEffect, createContext, useContext, Children, isValidElement } from "react";
 import { hydrateRoot, createRoot } from "react-dom/client";

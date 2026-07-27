@@ -1,5 +1,5 @@
 /**
- * Reusable UI primitive (= a Shopify "snippet") — NOT an editor section.
+ * Reusable UI primitive (= a commerce-standard "snippet") — NOT an editor section.
  * Sections import it; merchants configure it via the parent section's settings.
  */
 

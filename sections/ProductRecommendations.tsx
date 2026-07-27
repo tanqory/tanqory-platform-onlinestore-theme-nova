@@ -5,7 +5,7 @@ import { Price } from '../components/Price'
 
 /**
  * Product recommendations — "You may also like" on the product page. Uses the
- * storefront's `productRecommendations(productId)` (Shopify-parity). Falls back
+ * storefront's `productRecommendations(productId)` (standard). Falls back
  * to a few catalogue products so the section still previews in the editor.
  */
 export function ProductRecommendations({ attributes }: SectionProps): JSX.Element {

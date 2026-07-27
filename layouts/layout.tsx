@@ -736,7 +736,7 @@ export function SiteFooter({
     showLocaleSwitch, activeLocale, countries, showCountrySwitch, activeCountry,
     year, t, chromeStyle, showPoweredBy, poweredByLabel,
   } = useChrome(attributes)
-  // Block-composed footer (Shopify Horizon-style): when the section has blocks
+  // Block-composed footer (commerce-standard standard): when the section has blocks
   // (Brand / Menu / Text), render them in the grid. With no blocks, fall back
   // to the data-driven default (brand + the three menu columns).
   const hasBlocks = Children.count(children) > 0
@@ -906,7 +906,7 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
  * Compact (header) — single icon button that opens a small grouped panel.
  * Full (footer)   — two side-by-side dropdowns with labels.
  *
- * Both wrap native <form>/<select> so they work without client JS (Shopify
+ * Both wrap native <form>/<select> so they work without client JS (commerce-standard
  * convention). The storefront is served statically by `vite preview` — there
  * is no API server inside the runtime pod — so the forms GET back to `/` with
  * the selected value as a query param (e.g. `/?locale=th`, `/?country=TH`).

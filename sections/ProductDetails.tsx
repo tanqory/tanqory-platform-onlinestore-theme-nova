@@ -299,7 +299,7 @@ export default defineSection({
     buttonLabel: { type: 'text', default: 'Add to cart', label: 'Add to cart label' },
     buttonLink: { type: 'url', label: 'Add to cart link override' },
   },
-  // Block-composed PDP (Horizon-style): add blocks into the info column to build
+  // Block-composed PDP (standard): add blocks into the info column to build
   // the product page from parts. With no blocks, the default layout renders.
   allowedBlocks: [
     'product-title', 'product-price', 'variant-picker', 'swatches', 'quantity',

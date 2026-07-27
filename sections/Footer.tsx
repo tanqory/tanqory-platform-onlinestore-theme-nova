@@ -2,7 +2,7 @@ import { defineSection, type SectionProps } from '@tanqory/theme-kit'
 import { SiteFooter } from '../layouts/layout'
 
 /**
- * Footer SECTION — block-composed (Shopify Horizon-style). The columns are
+ * Footer SECTION — block-composed (commerce-standard standard). The columns are
  * BLOCKS (Brand information / Menu / Text / Social / Newsletter) the merchant
  * adds, reorders and configures. The SECTION keeps only frame-level settings
  * (colours, language switcher, credit). With no blocks, SiteFooter renders the

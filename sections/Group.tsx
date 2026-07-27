@@ -20,7 +20,7 @@ export default defineSection({
     gap: { type: 'number', default: 16, label: 'Gap (px)' },
   },
   allowedBlocks: [
-    // Generic content blocks (Horizon-style) — compose a custom layout.
+    // Generic content blocks (standard) — compose a custom layout.
     'text', 'heading', 'button', 'image', 'icon', 'spacer',
     'video', 'accordion', 'jumbo-text', 'social-links', 'payment-icons',
     // Whole sections can also nest inside a group.

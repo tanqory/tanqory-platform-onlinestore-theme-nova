@@ -54,7 +54,7 @@ package.json          manifest + deps
   the React component + `attributes` schema; the editor auto-builds settings UI from
   the schema; the storefront renders it. Content stays a **JSON tree** the editor edits.
 - `@tanqory/theme-kit` auto-discovers `sections/`, `templates/`, `layouts/` and mounts.
-- vs Shopify: Liquid → typed React; reusable bits are plain **components/** (not a
+- typed React sections (no proprietary templating); reusable bits are plain **components/** (not a
   separate `snippets/`); schema/values split by file extension (`.ts` vs `.json`).
 
 ## Catalog

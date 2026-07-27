@@ -13,7 +13,6 @@ const LABELS: Record<string, string> = {
   APPLE_PAY: 'Apple Pay',
   GOOGLE_PAY: 'Google Pay',
   ANDROID_PAY: 'Google Pay',
-  SHOPIFY_PAY: 'Shop Pay',
 }
 
 /**

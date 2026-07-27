@@ -2,7 +2,7 @@
 // `ssrLoadModule` from the /__editor/preview-section middleware (see
 // vite.config.ts). Renders ONE section to an HTML string — no Shell, no page
 // routing, no client SPA — using synchronous MOCK data so the markup is instant
-// (the Shopify-style fast preview). The live storefront still uses main.tsx.
+// (the standard fast preview). The live storefront still uses main.tsx.
 
 import { renderSectionPreviewHTML, createMockData } from '@tanqory/theme-kit'
 import mockCollections from './lib/collections.json'

@@ -5,7 +5,7 @@ import type { Product, ProductOption, ProductVariant, Money, ImageRef } from '@t
  * Shared product + selected-variant state for PDP BLOCKS. The ProductDetails
  * section resolves the product, owns the option/quantity state, and exposes it
  * here so each block (title, price, variant-picker, add-to-cart…) reads/writes
- * the SAME state — exactly how Shopify Horizon composes a product page from
+ * the SAME state — how the theme composes a product page from
  * blocks instead of one monolithic section.
  */
 export interface ProductContextValue {

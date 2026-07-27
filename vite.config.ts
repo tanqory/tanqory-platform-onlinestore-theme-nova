@@ -43,7 +43,7 @@ function studioSave(): Plugin {
 }
 
 // Editor "Add section" preview — server-render ONE section to instant HTML
-// (Shopify-style). The picker iframe hits /__editor/preview-section?type=<name>
+// (standard). The picker iframe hits /__editor/preview-section?type=<name>
 // &settings=<base64>; we SSR just that section (no Shell, no routing, no SPA
 // boot) via preview-render.tsx + ssrLoadModule, then inject the theme CSS so it
 // looks real. Fast because it skips the whole client app + live data fetch.

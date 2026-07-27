@@ -118,7 +118,7 @@ function detailHandles(pathname: string) {
 }
 
 /**
- * Upgrade a page/product/collection render to its Shopify-style template variant.
+ * Upgrade a page/product/collection render to its standard template variant.
  * The merchant assigns a template to the resource; it arrives as `templateSuffix`
  * on the fetched record, so we render `templates/<type>.<suffix>.json` when that
  * file exists — otherwise keep the default `<type>` template so a stale or removed

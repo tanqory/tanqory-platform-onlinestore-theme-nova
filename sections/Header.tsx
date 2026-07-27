@@ -5,7 +5,7 @@ import { SiteHeader } from '../layouts/layout'
  * Header SECTION — wraps the shared SiteHeader. Appears in the editor's Header
  * group with its own editable settings (which menu, logo override, icon
  * toggles, colours). Content still comes from data (menu items, shop name);
- * these settings choose WHICH data + how it looks — like Shopify's header.
+ * these settings choose WHICH data + how it looks — a standard commerce header.
  */
 export function Header({ attributes }: SectionProps): JSX.Element {
   return <SiteHeader attributes={attributes} />

@@ -69,11 +69,6 @@ export default defineSection({
   icon: '◍',
   attributes: {
     heading: { type: 'text', default: 'As seen in', label: 'Heading' },
-    logos: {
-      type: 'textarea',
-      label: 'Logos JSON (legacy — prefer Add block)',
-      default: '[]',
-    },
   },
   allowedBlocks: ['logo'],
   presets: [

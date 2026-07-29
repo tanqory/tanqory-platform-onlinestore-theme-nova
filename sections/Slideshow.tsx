@@ -158,11 +158,6 @@ export default defineSection({
   icon: '▷',
   attributes: {
     intervalMs: { type: 'number', default: 6000, label: 'Auto-advance interval (ms)' },
-    slides: {
-      type: 'textarea',
-      label: 'Slides JSON',
-      default: '[]',
-    },
   },
   allowedBlocks: ['slide'],
   presets: [

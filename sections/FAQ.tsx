@@ -72,10 +72,6 @@ export default defineSection({
   attributes: {
     eyebrow: { type: 'text', label: 'Eyebrow' },
     heading: { type: 'text', default: 'Frequently asked questions', label: 'Heading' },
-    items: {
-      type: 'textarea',
-      label: 'Items JSON',
-    },
   },
   allowedBlocks: ['faq-item'],
   presets: [

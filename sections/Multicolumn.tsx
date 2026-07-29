@@ -66,10 +66,6 @@ export default defineSection({
     eyebrow: { type: 'text', label: 'Eyebrow' },
     heading: { type: 'text', default: 'Why shop with us', label: 'Heading' },
     subheading: { type: 'text', label: 'Subheading' },
-    items: {
-      type: 'textarea',
-      label: 'Items JSON (legacy — prefer Add block)',
-    },
   },
   allowedBlocks: ['column'],
   presets: [

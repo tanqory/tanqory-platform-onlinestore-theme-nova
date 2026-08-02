@@ -1,4 +1,4 @@
-@import './tokens.css';
+@import '@tanqory/theme-kit/tokens.css';
 /* AI brand tokens (--tq-*) — written by the AI theme generator; empty stub on
  * non-AI themes. Separate file so the generator NEVER touches tokens.css (the
  * framework's own variables every base section depends on). */

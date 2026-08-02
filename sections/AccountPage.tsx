@@ -1,70 +1,48 @@
-import { useEffect, useState } from 'react'
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { useCustomerAccount } from '@tanqory/theme-kit/app'
 import { Container } from '../components/Container'
 import { Link } from '../components/Link'
 
-interface Order {
-  id: string
-  name?: string
-  financialStatus?: string
-  processedAt?: string
-}
-interface Me {
-  firstName?: string
-  email?: string
-}
-
 /**
- * Customer account — shows the signed-in customer + their orders, or a sign-in
- * prompt when logged out. A menu item of type "Customer account" links here
- * (/account). Customer data comes from the storefront customer API (live);
- * mock mode shows the signed-out state.
+ * Customer account — MARKUP ONLY.
+ *
+ * `useCustomerAccount()` (@tanqory/theme-kit/app) reads the storefront access
+ * token from `customerTokenStore` and passes it to `customer.get(token)` /
+ * `customer.orders(token)` — the storefront customer API is token-scoped, and
+ * calling it without one always returned null, which is why no theme's account
+ * page ever showed an order. "No token" resolves to signed-out with no request
+ * and no error, so mock/editor mode paints the sign-in prompt as before.
  */
 export function AccountPage(_props: SectionProps): JSX.Element {
-  const { customer } = useData()
-  const [loading, setLoading] = useState(true)
-  const [me, setMe] = useState<Me | null>(null)
-  const [orders, setOrders] = useState<Order[]>([])
-
-  useEffect(() => {
-    let alive = true
-    void (async () => {
-      const who = (await customer?.get?.().catch(() => null)) as Me | null
-      const list = who ? ((await customer?.orders?.().catch(() => [])) as Order[]) : []
-      if (alive) {
-        setMe(who)
-        setOrders(Array.isArray(list) ? list : [])
-        setLoading(false)
-      }
-    })()
-    return () => {
-      alive = false
-    }
-  }, [customer])
+  const account = useCustomerAccount()
 
   return (
     <section className="section account">
       <Container className="account__inner">
-        {loading ? (
+        {account.loading ? (
           <p className="u-text-muted">Loading your account…</p>
-        ) : !me ? (
+        ) : !account.signedIn ? (
           <div className="stack stack--sm">
             <h1>Account</h1>
-            <p className="lede u-text-muted">Sign in to see your orders and saved addresses.</p>
-            <Link href="/account/login" className="btn btn--primary">
+            <p className="lede u-text-muted">
+              {account.status === 'error'
+                ? 'We couldn’t load your account. Please sign in again.'
+                : 'Sign in to see your orders and saved addresses.'}
+            </p>
+            <Link href={account.loginHref} className="btn btn--primary">
               Sign in
             </Link>
           </div>
         ) : (
           <div className="stack">
-            <h1>Hi {me.firstName ?? 'there'}</h1>
+            <h1>Hi {account.customer?.firstName ?? 'there'}</h1>
             <section className="account__orders stack stack--sm">
               <h2>Orders</h2>
-              {orders.length === 0 ? (
+              {account.orders.length === 0 ? (
                 <p className="u-text-muted">You haven’t placed any orders yet.</p>
               ) : (
                 <ul className="account__order-list">
-                  {orders.map((o) => (
+                  {account.orders.map((o) => (
                     <li key={o.id} className="account__order">
                       <span>{o.name ?? o.id}</span>
                       {o.financialStatus && (

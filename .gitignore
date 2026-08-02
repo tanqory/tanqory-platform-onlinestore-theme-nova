@@ -9,3 +9,7 @@ dist-ssr/
 # Local build output (the theme is built in the studio runtime); keep the
 # vendored framework in theme-kit/ which the starter needs to build on clone.
 !theme-kit/dist/
+
+# local kit link used during the storefront-app extraction (Phase 1);
+# replaced by the published @tanqory/theme-kit once 0.2.0 ships
+tanqory-theme-kit-*.tgz

@@ -1,17 +1,4 @@
-/**
- * Money — formats a `Money` value using the locale/currency the storefront is
- * running in. Wraps theme-kit's `formatMoney`, so sections can drop a `<Money>`
- * anywhere instead of pulling the helper themselves.
- */
-import { formatMoney, type Money as MoneyValue } from '@tanqory/theme-kit'
-
-export function Money({
-  value,
-  className = 'tq-money',
-}: {
-  value?: MoneyValue | null
-  className?: string
-}): JSX.Element | null {
-  if (!value) return null
-  return <span className={className}>{formatMoney(value)}</span>
-}
+// Moved to @tanqory/theme-kit/app (shared by every Tanqory theme).
+// Kept as a re-export so this theme's sections keep their local import path;
+// there is only ONE implementation and it lives in the kit.
+export { Money } from '@tanqory/theme-kit/app'

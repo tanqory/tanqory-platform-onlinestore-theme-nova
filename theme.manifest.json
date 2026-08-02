@@ -426,10 +426,6 @@
           "type": "text",
           "default": "Frequently asked questions",
           "label": "Heading"
-        },
-        "items": {
-          "type": "textarea",
-          "label": "Items JSON"
         }
       },
       "allowedBlocks": [
@@ -651,7 +647,7 @@
       "icon": "chat",
       "attributes": {
         "menu": {
-          "type": "link_list",
+          "type": "menu",
           "label": "Menu"
         },
         "heading": {
@@ -1103,11 +1099,6 @@
           "type": "text",
           "default": "As seen in",
           "label": "Heading"
-        },
-        "logos": {
-          "type": "textarea",
-          "label": "Logos JSON (legacy — prefer Add block)",
-          "default": "[]"
         }
       },
       "allowedBlocks": [
@@ -1164,10 +1155,6 @@
         "subheading": {
           "type": "text",
           "label": "Subheading"
-        },
-        "items": {
-          "type": "textarea",
-          "label": "Items JSON (legacy — prefer Add block)"
         }
       },
       "allowedBlocks": [
@@ -1549,11 +1536,6 @@
           "type": "number",
           "default": 6000,
           "label": "Auto-advance interval (ms)"
-        },
-        "slides": {
-          "type": "textarea",
-          "label": "Slides JSON",
-          "default": "[]"
         }
       },
       "allowedBlocks": [
@@ -2199,5 +2181,21 @@
     "danglingTemplateRefs": [],
     "settingsUndeclared": [],
     "settingsMissingValue": []
+  },
+  "ai": {
+    "$schema": "https://schemas.tanqory.com/theme-ai-guidance/v1",
+    "identity": "Nova — the clean, neutral Tanqory starter. Near-black ink on white, restrained blue accent, serif display over Inter body, balanced spacing. Deliberately unopinionated so any brand can be applied on top.",
+    "voice": "Clear, neutral, modern commerce. No slang, no hype.",
+    "invariants": [
+      "stay legible and neutral — personality comes from the merchant brand, not the theme",
+      "never remove the framework token structure",
+      "keep balanced spacing — neither dense nor editorial-airy"
+    ],
+    "safeToChange": [
+      "all colors and fonts via brand tokens",
+      "copy",
+      "imagery",
+      "section order"
+    ]
   }
 }

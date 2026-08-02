@@ -1,81 +1,27 @@
-import {
-  defineSection,
-  getAnalytics,
-  useCart,
-  useData,
-  useT,
-  type Product,
-  type SectionProps,
-} from '@tanqory/theme-kit'
-import { decodeHandle } from '../lib/handle'
-import { Children, useEffect, useMemo, useState } from 'react'
+import { defineSection, useT, type SectionProps } from '@tanqory/theme-kit'
+import { useProductPage } from '@tanqory/theme-kit/app'
+import { Children, useState } from 'react'
 import { ImageResponsive } from '../components/ImageResponsive'
 import { Money } from '../components/Money'
 import { Button } from '../components/Button'
-import { openOverlay } from '../components/useOverlayChannel'
-import { ProductProvider, type ProductContextValue } from '../components/product-context'
+import { ProductProvider } from '../components/product-context'
 
-const DEFAULT_VARIANT_TITLE = 'Default Title'
-
+/**
+ * Nova's product page — MARKUP ONLY.
+ *
+ * The whole state machine (handle from the URL, the lazy full-product upgrade,
+ * option→variant matching, quantity, sold-out, the variant's price and image,
+ * and `add()` with its `PRODUCT_ADDED_TO_CART` + open-cart sequence) lives in
+ * `useProductPage()` in @tanqory/theme-kit/app, shared by every theme. The
+ * value it returns IS the `ProductContextValue` the PDP blocks read, so this
+ * section just hands it to the provider and draws.
+ */
 export function ProductDetails({ attributes, children }: SectionProps): JSX.Element {
-  const { productByHandle, collectionByHandle, fetchProduct, graphql } = useData()
-  const cart = useCart()
+  const ctx = useProductPage(attributes)
   const t = useT()
-  const isLive = typeof graphql === 'function'
-
-  const handleFromUrl =
-    typeof window !== 'undefined'
-      ? decodeHandle(window.location.pathname.match(/\/products\/([^/]+)/)?.[1])
-      : undefined
-  const handle = (attributes.product as string | undefined) || handleFromUrl
-  const baseProduct =
-    (handle ? productByHandle(handle) : null) ??
-    collectionByHandle('all')?.products?.[0] ??
-    null
-
-  // Lazily upgrade to the full product (options + variants) for the picker.
-  // The bootstrap only carries a default variant id; the full variant list is
-  // fetched on demand here (keeps the homepage bootstrap cheap).
-  const [detail, setDetail] = useState<Product | null>(null)
-  useEffect(() => {
-    let cancelled = false
-    const h = baseProduct?.handle
-    if (!h || !fetchProduct) return
-    void fetchProduct(h).then((p) => {
-      if (!cancelled && p) setDetail(p)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [baseProduct?.handle, fetchProduct])
-
-  const product = detail ?? baseProduct
-  const options = product?.options ?? []
-  const variants = product?.variants ?? []
-
-  // Selected option values (Size → "M", Color → "Black"). Seeded from the
-  // first available variant once the full product loads.
-  const [selected, setSelected] = useState<Record<string, string>>({})
-  useEffect(() => {
-    const seed = variants.find((v) => v.availableForSale) ?? variants[0]
-    if (seed?.selectedOptions?.length) {
-      setSelected(Object.fromEntries(seed.selectedOptions.map((o) => [o.name, o.value])))
-    }
-  }, [variants])
-
-  const selectedVariant = useMemo(() => {
-    if (!variants.length) return undefined
-    if (!options.length) return variants[0]
-    return variants.find((v) =>
-      (v.selectedOptions ?? []).every((o) => selected[o.name] === o.value),
-    )
-  }, [variants, options, selected])
-
   const [activeIdx, setActiveIdx] = useState(0)
-  const [adding, setAdding] = useState(false)
-  const [quantity, setQuantity] = useState(1)
 
-  if (!product) {
+  if (!ctx) {
     return (
       <section className="section">
         <div className="container">
@@ -89,79 +35,15 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
     )
   }
 
-  const displayPrice = selectedVariant?.price ?? product.price
-  const variantImage = selectedVariant?.image ?? product.featuredImage
+  const { product, options, selected, setOption, displayPrice, variantImage, soldOut, adding } = ctx
+
   const images = variantImage
     ? [variantImage, variantImage, variantImage, variantImage]
     : []
   const active = images[activeIdx] ?? variantImage
 
-  // Resolve the merchandise id to add. Live: a real variant id (selected →
-  // default). Mock (editor/offline): a stable pseudo id keyed by handle so the
-  // in-memory cart still works without a backend.
-  const variantId =
-    selectedVariant?.id ??
-    product.variantId ??
-    (!isLive ? `mock:${product.handle}` : undefined)
-
-  const variantTitle =
-    selectedVariant?.title && selectedVariant.title !== DEFAULT_VARIANT_TITLE
-      ? selectedVariant.title
-      : undefined
-
-  const soldOut =
-    selectedVariant != null
-      ? !selectedVariant.availableForSale
-      : product.availableForSale === false
-
   const buttonLabel = (attributes.buttonLabel as string) ?? t('product.addToCart')
-
-  async function handleAdd(): Promise<void> {
-    if (!variantId || adding) return
-    setAdding(true)
-    try {
-      await cart.add({
-        variantId,
-        quantity,
-        product: {
-          title: product.title,
-          price: displayPrice,
-          image: variantImage ?? null,
-          handle: product.handle,
-          ...(variantTitle ? { variantTitle } : {}),
-        },
-      })
-      getAnalytics().track('PRODUCT_ADDED_TO_CART', {
-        productId: product.id,
-        variantId,
-        title: product.title,
-        handle: product.handle,
-        price: displayPrice,
-        quantity,
-        ...(variantTitle ? { variantTitle } : {}),
-      })
-      openOverlay('cart')
-    } finally {
-      setAdding(false)
-    }
-  }
-
   const hasBlocks = Children.count(children) > 0
-  const ctx: ProductContextValue = {
-    product,
-    options,
-    variants,
-    selected,
-    setOption: (name, value) => setSelected((s) => ({ ...s, [name]: value })),
-    selectedVariant,
-    displayPrice,
-    variantImage,
-    soldOut,
-    quantity,
-    setQuantity,
-    adding,
-    add: handleAdd,
-  }
 
   return (
     <ProductProvider value={ctx}>
@@ -223,7 +105,7 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
                         className={`btn btn--${isActive ? 'primary' : 'secondary'} btn--sm`}
                         style={{ minWidth: 56 }}
                         aria-pressed={isActive}
-                        onClick={() => setSelected((s) => ({ ...s, [opt.name]: value }))}
+                        onClick={() => setOption(opt.name, value)}
                       >
                         {value}
                       </button>
@@ -236,8 +118,8 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
             <div className="cluster" style={{ marginTop: 'var(--space-3)' }}>
               <Button
                 label={soldOut ? t('product.soldOut') : adding ? t('product.adding') : buttonLabel}
-                onClick={() => void handleAdd()}
-                disabled={soldOut || adding || !variantId}
+                onClick={() => void ctx.add()}
+                disabled={soldOut || adding || !ctx.variantId}
                 variant="primary"
                 size="lg"
                 fullWidth

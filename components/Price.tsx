@@ -1,9 +1,4 @@
-import { formatMoney, type Money } from '@tanqory/theme-kit'
-
-/**
- * Reusable presentation component (= a commerce-standard "snippet"). No schema, not an
- * editor block — just shared markup that blocks import.
- */
-export function Price({ money, className = 'tq-card-price' }: { money: Money; className?: string }): JSX.Element {
-  return <span className={className}>{formatMoney(money)}</span>
-}
+// Moved to @tanqory/theme-kit/app (shared by every Tanqory theme).
+// Kept as a re-export so this theme's sections keep their local import path;
+// there is only ONE implementation and it lives in the kit.
+export { Price } from '@tanqory/theme-kit/app'

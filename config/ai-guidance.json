@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schemas.tanqory.com/theme-ai-guidance/v1",
+  "identity": "Nova — the clean, neutral Tanqory starter. Near-black ink on white, restrained blue accent, serif display over Inter body, balanced spacing. Deliberately unopinionated so any brand can be applied on top.",
+  "voice": "Clear, neutral, modern commerce. No slang, no hype.",
+  "invariants": [
+    "stay legible and neutral — personality comes from the merchant brand, not the theme",
+    "never remove the framework token structure",
+    "keep balanced spacing — neither dense nor editorial-airy"
+  ],
+  "safeToChange": [
+    "all colors and fonts via brand tokens",
+    "copy",
+    "imagery",
+    "section order"
+  ]
+}

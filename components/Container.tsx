@@ -1,18 +1,4 @@
-/**
- * Container — max-width gutter wrapper used by every section. Centralized
- * so the global `--nova-container` width + horizontal padding can be tuned
- * in one place.
- */
-import type { ReactNode } from 'react'
-
-export function Container({
-  children,
-  className = '',
-  as: As = 'div',
-}: {
-  children: ReactNode
-  className?: string
-  as?: 'div' | 'section' | 'header' | 'footer' | 'main' | 'aside'
-}): JSX.Element {
-  return <As className={`container ${className}`.trim()}>{children}</As>
-}
+// Moved to @tanqory/theme-kit/app (shared by every Tanqory theme).
+// Kept as a re-export so this theme's sections keep their local import path;
+// there is only ONE implementation and it lives in the kit.
+export { Container } from '@tanqory/theme-kit/app'

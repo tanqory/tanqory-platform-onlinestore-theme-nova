@@ -14,8 +14,28 @@ import { Money } from '../components/Money'
 import { Button } from '../components/Button'
 import { openOverlay } from '../components/useOverlayChannel'
 import { ProductProvider, type ProductContextValue } from '../components/product-context'
+import { ProductDescription } from './ProductDescription'
 
 const DEFAULT_VARIANT_TITLE = 'Default Title'
+
+/**
+ * The rich-text product body.
+ *
+ * theme-kit's own product query selects only `description`, which store-api
+ * returns as PLAINTEXT — so no theme-kit payload carries the merchant's
+ * formatting, and every PDP rendered one unbroken paragraph. The storefront
+ * schema does expose `Product.descriptionHtml` (`@cost(value: 0)`), so the
+ * theme asks for it directly through the kit's `graphql` escape hatch. One
+ * extra field, one cheap request, and it stays correct if the kit later adds
+ * the field itself.
+ */
+const PRODUCT_DESCRIPTION_HTML_QUERY = /* GraphQL */ `
+  query ThemeProductDescriptionHtml($handle: String!) {
+    product(handle: $handle) {
+      descriptionHtml
+    }
+  }
+`
 
 export function ProductDetails({ attributes, children }: SectionProps): JSX.Element {
   const { productByHandle, collectionByHandle, fetchProduct, graphql } = useData()
@@ -48,6 +68,31 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
       cancelled = true
     }
   }, [baseProduct?.handle, fetchProduct])
+
+  // The formatted body, fetched alongside the variant upgrade above. Mock /
+  // offline data has no `graphql`, so the theme falls back to the plaintext
+  // `description` there (ProductDescription handles that). A failed fetch is
+  // never fatal: the PDP renders with the plaintext body instead.
+  const [descriptionHtml, setDescriptionHtml] = useState<string | null>(null)
+  useEffect(() => {
+    let cancelled = false
+    const h = baseProduct?.handle
+    setDescriptionHtml(null)
+    if (!h || typeof graphql !== 'function') return
+    void graphql<{ product: { descriptionHtml?: string | null } | null }>(
+      PRODUCT_DESCRIPTION_HTML_QUERY,
+      { handle: h },
+    )
+      .then((res) => {
+        if (!cancelled) setDescriptionHtml(res?.product?.descriptionHtml ?? null)
+      })
+      .catch(() => {
+        if (!cancelled) setDescriptionHtml(null)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [baseProduct?.handle, graphql])
 
   const product = detail ?? baseProduct
   const options = product?.options ?? []
@@ -149,6 +194,7 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
   const hasBlocks = Children.count(children) > 0
   const ctx: ProductContextValue = {
     product,
+    descriptionHtml,
     options,
     variants,
     selected,
@@ -202,10 +248,12 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
               </div>
             </div>
 
-            <p className="product-details__desc">
-              {product.description ??
-                'A quietly considered piece — clean lines, soft hand, made to last.'}
-            </p>
+            {/* The SAME block the composed PDP uses. No template in this theme
+                ships blocks on `product-details`, so this branch is what every
+                store gets — rendering the description here as an escaped JSX
+                child is what turned the merchant's formatting into a wall of
+                text (and, before store-api stripped it, into literal tags). */}
+            <ProductDescription />
 
             {/* Real option pickers (Size, Color…) — rendered from the product's
                 option set once the full product loads. Single-variant products

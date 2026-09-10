@@ -10,6 +10,20 @@ import type { Product, ProductOption, ProductVariant, Money, ImageRef } from '@t
  */
 export interface ProductContextValue {
   product: Product
+  /**
+   * The merchant's rich-text product body as HTML.
+   *
+   * `product.description` is PLAINTEXT — store-api strips the markup out of it
+   * — so it is the only safe thing to render as a text node, and it is also the
+   * reason a formatted description used to arrive as one unbroken paragraph.
+   * `descriptionHtml` is the same body with its formatting intact, sanitised by
+   * store-api before it leaves the API. The theme renders it as-is and MUST NOT
+   * sanitise, re-encode or rewrite it.
+   *
+   * Undefined until the fetch resolves, and null when the store has no body or
+   * the theme is running on mock/offline data.
+   */
+  descriptionHtml?: string | null
   options: ProductOption[]
   variants: ProductVariant[]
   selected: Record<string, string>

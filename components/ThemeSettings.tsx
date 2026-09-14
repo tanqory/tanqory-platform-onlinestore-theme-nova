@@ -1,20 +1,20 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useData, useSettings } from '@tanqory/theme-kit'
 import {
-  LIVE_SETTINGS_MESSAGE,
   fontStylesheetHref,
   resolveThemeVars,
   themeSettingsCss,
   type BrandFallback,
   type ThemeSettings,
 } from '../lib/theme-settings'
+import { isEditorPreview, readLiveSettingsMessage, studioOrigins } from '../lib/live-settings'
 
 const EffectiveSettingsContext = createContext<ThemeSettings | null>(null)
 
 /**
  * Theme settings as the storefront should render them right now: the built
- * `config/settings.json`, plus — inside the editor preview — the values the
- * merchant is editing in the Theme panel but has not saved yet.
+ * `config/settings.json`, plus — inside the editor preview only — the style
+ * values the merchant is editing in the Theme panel but has not saved yet.
  *
  * Outside a {@link ThemeSettingsProvider} (the "Add section" preview renders a
  * section with no layout) it is plain `useSettings()`.
@@ -38,14 +38,19 @@ export function ThemeSettingsProvider({ children }: { children: ReactNode }): JS
   const [live, setLive] = useState<ThemeSettings | null>(null)
 
   useEffect(() => {
-    // Only a page framed by the editor listens, and only to its parent frame.
-    if (typeof window === 'undefined' || window.parent === window) return
+    if (typeof window === 'undefined') return
+    const env = import.meta.env as ImportMetaEnv & { VITE_TQ_STUDIO_ORIGINS?: string }
+    const ctx = {
+      isPreview: isEditorPreview(window.location, Boolean(env.DEV)),
+      parent: window.parent !== window ? window.parent : null,
+      allowedOrigins: studioOrigins(env.VITE_TQ_STUDIO_ORIGINS, Boolean(env.DEV)),
+    }
+    // A store's public pages never listen — see lib/live-settings.ts.
+    if (!ctx.isPreview || !ctx.parent) return
     const onMessage = (e: MessageEvent) => {
-      if (e.source !== window.parent) return
-      const msg = e.data as { type?: unknown; settings?: unknown } | null
-      if (!msg || msg.type !== LIVE_SETTINGS_MESSAGE) return
-      const next = msg.settings
-      setLive(next && typeof next === 'object' && !Array.isArray(next) ? (next as ThemeSettings) : null)
+      const result = readLiveSettingsMessage(e, ctx)
+      if (!result) return
+      setLive('clear' in result ? null : result.settings)
     }
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)

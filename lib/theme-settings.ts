@@ -30,13 +30,6 @@ export interface BrandFallback {
 }
 
 /**
- * Message the studio's Theme panel posts into the editor preview while a
- * merchant edits, so the canvas restyles before Save (Save rebuilds the theme).
- * `settings: null` drops the live values and returns to the built ones.
- */
-export const LIVE_SETTINGS_MESSAGE = 'tq:theme-settings'
-
-/**
  * The value every nova install shipped for `accent` before anything read it.
  * Nothing ever rendered it, so no merchant has seen it take effect — and it
  * equals nova's light-scheme text colour. Applying it now would paint primary
@@ -83,20 +76,145 @@ export const FONT_OPTIONS: Array<{ value: string; label: string }> = [
 const SANS_STACK = "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
 const SERIF_STACK = "Georgia, 'Times New Roman', Times, serif"
 
-const HEX = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i
-const FUNCTIONAL = /^(?:rgb|rgba|hsl|hsla)\(\s*[0-9.%,\s/+-]+(?:deg)?[0-9.%,\s/+-]*\)$/i
+// ── Colours ─────────────────────────────────────────────────────────────────
+
+type Rgb = [number, number, number]
+
+const NUM = /^(?:\d+(?:\.\d+)?|\.\d+)$/
+const PCT = /^(?:\d+(?:\.\d+)?|\.\d+)%$/
+
+/** An opaque alpha component: `1`, `1.0`, `100%`. Anything translucent is refused. */
+function isOpaqueAlpha(token: string): boolean {
+  if (NUM.test(token)) return Number(token) === 1
+  if (PCT.test(token)) return Number(token.slice(0, -1)) === 100
+  return false
+}
 
 /**
- * A colour safe to write into a stylesheet, or null. Hex and rgb()/hsl() only —
- * the value lands inside a `<style>` element, so anything that could close a
- * declaration or the element is refused rather than escaped.
+ * The arguments of `fn(…)` in either CSS syntax: legacy `a, b, c[, alpha]` or
+ * modern `a b c[ / alpha]`. Null when the list is neither (mixed separators,
+ * empty tokens, wrong arity).
+ */
+function colorArgs(inner: string): { channels: string[]; alpha: string | null } | null {
+  const body = inner.trim()
+  if (!body) return null
+  if (body.includes(',')) {
+    if (body.includes('/')) return null
+    const parts = body.split(',').map((t) => t.trim())
+    if (parts.some((t) => !t || /\s/.test(t))) return null
+    if (parts.length === 3) return { channels: parts, alpha: null }
+    if (parts.length === 4) return { channels: parts.slice(0, 3), alpha: parts[3] }
+    return null
+  }
+  const [main, alpha, extra] = body.split('/').map((t) => t.trim())
+  if (extra !== undefined || alpha === '') return null
+  const channels = main.split(/\s+/)
+  if (channels.length !== 3 || (alpha !== undefined && /\s/.test(alpha))) return null
+  return { channels, alpha: alpha ?? null }
+}
+
+function parseRgbFunction(inner: string): Rgb | null {
+  const args = colorArgs(inner)
+  if (!args || (args.alpha !== null && !isOpaqueAlpha(args.alpha))) return null
+  const { channels } = args
+  // CSS requires the three channels to be all numbers or all percentages.
+  if (channels.every((t) => NUM.test(t))) {
+    const v = channels.map(Number)
+    return v.every((n) => n <= 255) ? (v.map(Math.round) as Rgb) : null
+  }
+  if (channels.every((t) => PCT.test(t))) {
+    const v = channels.map((t) => Number(t.slice(0, -1)))
+    return v.every((n) => n <= 100) ? (v.map((n) => Math.round((n / 100) * 255)) as Rgb) : null
+  }
+  return null
+}
+
+function parseHslFunction(inner: string): Rgb | null {
+  const args = colorArgs(inner)
+  if (!args || (args.alpha !== null && !isOpaqueAlpha(args.alpha))) return null
+  const [hueToken, sToken, lToken] = args.channels
+  const hue = /^-?(?:\d+(?:\.\d+)?|\.\d+)(?:deg)?$/.test(hueToken) ? Number(hueToken.replace(/deg$/, '')) : NaN
+  if (!Number.isFinite(hue) || !PCT.test(sToken) || !PCT.test(lToken)) return null
+  const sat = Number(sToken.slice(0, -1)) / 100
+  const light = Number(lToken.slice(0, -1)) / 100
+  if (sat > 1 || light > 1) return null
+  const h = ((hue % 360) + 360) % 360
+  const a = sat * Math.min(light, 1 - light)
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12
+    return Math.round((light - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))) * 255)
+  }
+  return [f(0), f(8), f(4)]
+}
+
+/** Parse an accepted colour to RGB, or null. Accepts hex and rgb()/hsl(); opaque only. */
+export function parseColor(value: unknown): Rgb | null {
+  if (typeof value !== 'string') return null
+  const v = value.trim().toLowerCase()
+  const hex = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/.exec(v)
+  if (hex) {
+    let h = hex[1]
+    if (h.length <= 4) h = h.split('').map((c) => c + c).join('')
+    if (h.length === 8 && h.slice(6) !== 'ff') return null
+    return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)) as Rgb
+  }
+  const fn = /^(rgba?|hsla?)\((.*)\)$/.exec(v)
+  if (!fn) return null
+  return fn[1].startsWith('rgb') ? parseRgbFunction(fn[2]) : parseHslFunction(fn[2])
+}
+
+const toHex = (rgb: Rgb) => '#' + rgb.map((c) => c.toString(16).padStart(2, '0')).join('')
+
+/**
+ * A colour safe to write into a stylesheet, as canonical `#rrggbb`, or null.
+ * Hex, rgb() and hsl() are accepted when they are valid CSS and opaque; every
+ * other value — invalid numbers, translucent colours, keywords, anything that
+ * could close a declaration — is refused, so the theme default applies.
  */
 export function normalizeColor(value: unknown): string | null {
-  if (typeof value !== 'string') return null
-  const v = value.trim()
-  if (HEX.test(v)) return v.toLowerCase()
-  if (FUNCTIONAL.test(v)) return v
-  return null
+  const rgb = parseColor(value)
+  return rgb ? toHex(rgb) : null
+}
+
+/** WCAG 2 relative luminance of an accepted colour. */
+export function relativeLuminance(color: string): number {
+  const rgb = parseColor(color)
+  if (!rgb) return NaN
+  const [r, g, b] = rgb.map((c) => {
+    const s = c / 255
+    return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+/** WCAG 2 contrast ratio between two accepted colours (1–21). */
+export function contrastRatio(a: string, b: string): number {
+  const [hi, lo] = [relativeLuminance(a), relativeLuminance(b)].sort((x, y) => y - x)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+/** WCAG 2.1 AA for body-size text. */
+export const MIN_TEXT_CONTRAST = 4.5
+
+/**
+ * The text colour for `background` that meets {@link MIN_TEXT_CONTRAST}.
+ * Prefers white or nova's near-black (#0a0a0a), whichever reads better; on the
+ * mid-greys where neither reaches 4.5:1 it uses pure black (the better of
+ * white and pure black is never below 4.58:1), so the result always passes AA.
+ */
+export function readableTextOn(background: string): string {
+  const bg = normalizeColor(background)
+  if (!bg) return '#ffffff'
+  const white = contrastRatio(bg, '#ffffff')
+  const ink = contrastRatio(bg, '#0a0a0a')
+  if (Math.max(white, ink) >= MIN_TEXT_CONTRAST) return white >= ink ? '#ffffff' : '#0a0a0a'
+  return white >= contrastRatio(bg, '#000000') ? '#ffffff' : '#000000'
+}
+
+/** `color` mixed with black — the primary button's hover shade (85% colour). */
+export function hoverShade(color: string): string {
+  const rgb = parseColor(color)
+  return rgb ? toHex(rgb.map((c) => Math.round(c * 0.85)) as Rgb) : color
 }
 
 /** A font family name safe to quote in CSS and put in a Google Fonts URL, or null. */
@@ -118,26 +236,6 @@ export function normalizeImageUrl(value: unknown): string | null {
   const v = raw.trim()
   if (!v || /[\s"'<>]/.test(v)) return null
   return /^https?:\/\//i.test(v) || /^\/\/[^/]/.test(v) || /^\/[^/]/.test(v) ? v : null
-}
-
-function hexToRgb(hex: string): [number, number, number] | null {
-  if (!HEX.test(hex)) return null
-  let h = hex.slice(1)
-  if (h.length === 3 || h.length === 4) h = h.slice(0, 3).split('').map((c) => c + c).join('')
-  return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)) as [number, number, number]
-}
-
-/** The text colour (white or nova's near-black) that reads best on `background`. */
-export function readableTextOn(background: string): string {
-  const rgb = hexToRgb(background)
-  if (!rgb) return '#ffffff'
-  const [r, g, b] = rgb.map((c) => {
-    const s = c / 255
-    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
-  })
-  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
-  // Contrast against white vs against #0a0a0a (luminance ≈ 0.003).
-  return 1.05 / (luminance + 0.05) >= (luminance + 0.05) / 0.053 ? '#ffffff' : '#0a0a0a'
 }
 
 function fontStack(family: string): string {
@@ -173,9 +271,15 @@ export function resolveThemeVars(
   const brandPrimary = brand?.colors?.primary?.[0]
   const brandColor = themeBrand ?? normalizeColor(brandPrimary?.background)
   if (brandColor) {
+    // Text on the brand colour (the primary button's hover when no accent is
+    // set). A Settings → Brand foreground is used only when it passes AA on
+    // its background.
+    const brandForeground = themeBrand ? null : normalizeColor(brandPrimary?.foreground)
     vars['--color-brand'] = brandColor
     vars['--color-brand-contrast'] =
-      (!themeBrand && normalizeColor(brandPrimary?.foreground)) || readableTextOn(brandColor)
+      brandForeground && contrastRatio(brandForeground, brandColor) >= MIN_TEXT_CONTRAST
+        ? brandForeground
+        : readableTextOn(brandColor)
   }
 
   // Accent — primary (solid) buttons and highlights.
@@ -184,7 +288,11 @@ export function resolveThemeVars(
     vars['--color-accent'] = accent
     vars['--color-button'] = accent
     vars['--color-button-text'] = readableTextOn(accent)
-    vars['--color-button-hover'] = `color-mix(in srgb, ${accent} 85%, #000000)`
+    // The hover shade gets its own text colour: darkening can take a colour
+    // across the point where the other text colour reads better.
+    const hover = hoverShade(accent)
+    vars['--color-button-hover'] = hover
+    vars['--color-button-hover-text'] = readableTextOn(hover)
   }
 
   // Background + text — always written as a pair, derived into nova's surface
@@ -224,19 +332,23 @@ export function resolveThemeVars(
 /**
  * The stylesheet text for {@link resolveThemeVars}, or '' when nothing is set.
  *
- * `:root:root` outranks both tokens.css / ai-tokens.css (`:root`) and nova's
- * dark-scheme media rule (`:root:not([data-scheme])`), so a merchant's choice
- * wins over the theme default it replaces. A section that sets
- * `[data-scheme]` on itself still re-scopes its own subtree.
+ * Every declaration is `!important`. The rules it replaces have different
+ * specificities — tokens.css / ai-tokens.css use `:root` (0,1,0), nova's
+ * dark-scheme media rule uses `:root:not([data-scheme])` (0,2,0) — so any plain
+ * selector would win or lose on source order, i.e. on where this <style> ends
+ * up relative to the theme stylesheet. An important declaration beats every
+ * normal declaration on the root element whatever its specificity or order.
+ * It does not reach descendants: a section that sets `[data-scheme]` on itself
+ * declares its own values on its own element and still re-scopes its subtree.
  */
 export function themeSettingsCss(vars: Record<string, string>): string {
   const body = Object.entries(vars)
     // Defence in depth: every value is built from a normalized input, but this
     // text is injected into a <style> element, so nothing structural may pass.
-    .filter(([k, v]) => /^--[a-z0-9-]+$/.test(k) && !/[<>{};\\]/.test(v))
-    .map(([k, v]) => `${k}:${v};`)
+    .filter(([k, v]) => /^--[a-z0-9-]+$/.test(k) && !/[<>{};!\\]/.test(v))
+    .map(([k, v]) => `${k}:${v} !important;`)
     .join('')
-  return body ? `:root:root{${body}}` : ''
+  return body ? `:root{${body}}` : ''
 }
 
 /** Google Fonts stylesheet for the resolved families, or null when none are set. */

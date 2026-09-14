@@ -4,7 +4,10 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
   LEGACY_ACCENT_PLACEHOLDER,
+  MIN_TEXT_CONTRAST,
+  contrastRatio,
   fontStylesheetHref,
+  hoverShade,
   normalizeColor,
   normalizeImageUrl,
   readableTextOn,
@@ -42,7 +45,8 @@ test('accent (what ai-api writes) drives the accent token and primary buttons wi
   assert.equal(vars['--color-accent'], '#c2410c')
   assert.equal(vars['--color-button'], '#c2410c')
   assert.equal(vars['--color-button-text'], '#ffffff')
-  assert.match(vars['--color-button-hover'], /^color-mix\(in srgb, #c2410c 85%, #000000\)$/)
+  assert.equal(vars['--color-button-hover'], hoverShade('#c2410c'))
+  assert.equal(vars['--color-button-hover-text'], '#ffffff')
   assert.equal(resolveThemeVars({ accent: '#fde047' })['--color-button-text'], '#0a0a0a')
 })
 
@@ -54,6 +58,62 @@ test('brand colour: theme setting wins, Settings → Brand is the fallback', () 
   const fromTheme = resolveThemeVars({ colorBrand: '#ffffff' }, brand)
   assert.equal(fromTheme['--color-brand'], '#ffffff')
   assert.equal(fromTheme['--color-brand-contrast'], '#0a0a0a')
+
+  // A Brand foreground that fails AA on its background is not used.
+  const weak = resolveThemeVars({}, { colors: { primary: [{ background: '#fde047', foreground: '#ffffff' }] } })
+  assert.equal(weak['--color-brand-contrast'], '#0a0a0a')
+})
+
+test('hover text: a light brand colour gets dark hover text (the hover no longer keeps --color-bg)', () => {
+  const css = readFileSync(new URL('../assets/styles.css', import.meta.url), 'utf8')
+  const hover = /\.btn--primary:hover\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+  assert.match(hover, /background:\s*var\(--color-button-hover, var\(--color-brand\)\)/)
+  assert.match(hover, /color:\s*var\(--color-button-hover-text, var\(--color-brand-contrast\)\)/)
+  assert.equal(resolveThemeVars({ colorBrand: '#fde047' })['--color-brand-contrast'], '#0a0a0a')
+})
+
+test('every text colour picked meets WCAG AA (4.5:1), on the colour and on its hover shade', () => {
+  // Colours the previous white-vs-#0a0a0a pick failed: mid-greys and blues
+  // just under the crossover, and rgb()/hsl() input, which always got white.
+  const cases = ['#787878', '#777777', '#7a7a7a', '#376efa', '#1f6feb', 'rgb(253, 224, 71)', 'hsl(50 98% 64%)', 'rgb(120 120 120)']
+  for (const input of cases) {
+    const c = normalizeColor(input)
+    assert.ok(c, input)
+    const text = readableTextOn(c)
+    assert.ok(contrastRatio(c, text) >= MIN_TEXT_CONTRAST, `${input}: ${text} is ${contrastRatio(c, text).toFixed(2)}:1`)
+    const vars = resolveThemeVars({ accent: input })
+    const hoverRatio = contrastRatio(vars['--color-button-hover'], vars['--color-button-hover-text'])
+    assert.ok(hoverRatio >= MIN_TEXT_CONTRAST, `${input} hover: ${hoverRatio.toFixed(2)}:1`)
+  }
+  // Exhaustive over a coarse RGB grid.
+  const hex = (n: number) => n.toString(16).padStart(2, '0')
+  for (let r = 0; r < 256; r += 17)
+    for (let g = 0; g < 256; g += 17)
+      for (let b = 0; b < 256; b += 17) {
+        const c = `#${hex(r)}${hex(g)}${hex(b)}`
+        for (const bg of [c, hoverShade(c)]) {
+          assert.ok(contrastRatio(bg, readableTextOn(bg)) >= MIN_TEXT_CONTRAST, bg)
+        }
+      }
+})
+
+test('invalid rgb()/hsl() and translucent colours are rejected so the theme default applies', () => {
+  for (const bad of [
+    'rgb(300, 0, 0)', 'rgb(1, 2)', 'rgb(1, 2, 3, 4, 5)', 'rgb(10%, 20, 30)', 'rgb(1 2 3,)', 'rgb(1,, 2, 3)',
+    'rgb(-1 0 0)', 'rgb(0 0 0 / 0.5)', 'rgba(1, 2, 3, 0.5)', 'hsl(120 50 50)', 'hsl(120 150% 50%)',
+    'hsl(abc 50% 50%)', '#00000080', '#fff8', 'red', 'rgb()', 'rgb(1 2 3 / )',
+  ]) {
+    assert.equal(normalizeColor(bad), null, bad)
+    assert.deepEqual(resolveThemeVars({ colorBrand: bad }), {}, bad)
+  }
+  // Valid forms normalise to one canonical hex.
+  assert.equal(normalizeColor('rgb(253 224 71)'), '#fde047')
+  assert.equal(normalizeColor('rgba(253, 224, 71, 1)'), '#fde047')
+  assert.equal(normalizeColor('rgb(100%, 0%, 0%)'), '#ff0000')
+  assert.equal(normalizeColor('hsl(120deg 50% 50%)'), '#40bf40')
+  assert.equal(normalizeColor('hsl(-30, 100%, 50%)'), '#ff0080')
+  assert.equal(normalizeColor('#ABC'), '#aabbcc')
+  assert.equal(normalizeColor('#aabbccff'), '#aabbcc')
 })
 
 test('background and text are written as a pair and derive the surface palette', () => {
@@ -114,15 +174,22 @@ test('values that could break out of the <style> element are refused, not escape
       colorBrand: 'rgb(1, 2, 3)',
     }),
   )
-  assert.equal(css, ':root:root{--color-brand:rgb(1, 2, 3);--color-brand-contrast:#ffffff;}')
+  assert.equal(css, ':root{--color-brand:#010203 !important;--color-brand-contrast:#ffffff !important;}')
   assert.equal(normalizeImageUrl('javascript:alert(1)'), null)
   assert.equal(normalizeImageUrl('"><img src=x onerror=1>'), null)
   assert.equal(normalizeImageUrl('/media/logo.png'), '/media/logo.png')
   assert.equal(normalizeImageUrl({ url: 'https://cdn.example.com/a.png' }), 'https://cdn.example.com/a.png')
 })
 
-test('the stylesheet outranks the theme defaults it replaces', () => {
-  assert.equal(themeSettingsCss({ '--color-accent': '#c2410c' }), ':root:root{--color-accent:#c2410c;}')
+test('precedence does not depend on source order: every declaration is !important', () => {
+  // tokens.css `:root` is (0,1,0) and nova's dark-scheme rule
+  // `:root:not([data-scheme])` is (0,2,0); a plain `:root:root` (0,2,0) only
+  // won that tie by coming later in the document.
+  assert.equal(themeSettingsCss({ '--color-accent': '#c2410c' }), ':root{--color-accent:#c2410c !important;}')
+  const css = themeSettingsCss(resolveThemeVars({ accent: '#c2410c', colorText: '#222222', fontBody: 'Inter' }))
+  const declarations = css.slice(':root{'.length, -1).split(';').filter(Boolean)
+  assert.ok(declarations.length > 5)
+  for (const d of declarations) assert.match(d, / !important$/, d)
   assert.equal(readableTextOn('#000000'), '#ffffff')
   assert.equal(readableTextOn('#ffffff'), '#0a0a0a')
 })

@@ -144,7 +144,12 @@ p { max-width: var(--container-prose); text-wrap: pretty; }
   background: var(--color-button, var(--color-fg));
   color: var(--color-button-text, var(--color-bg));
 }
-.btn--primary:hover { background: var(--color-button-hover, var(--color-brand)); }
+.btn--primary:hover {
+  /* Hover text follows the hover background: the brand colour pairs with
+   * --color-brand-contrast, an accent's hover shade with its own AA pick. */
+  background: var(--color-button-hover, var(--color-brand));
+  color: var(--color-button-hover-text, var(--color-brand-contrast));
+}
 
 .btn--secondary {
   background: transparent;

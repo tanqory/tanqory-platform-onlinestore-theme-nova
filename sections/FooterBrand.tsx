@@ -14,7 +14,7 @@ export function FooterBrand({ attributes }: SectionProps): JSX.Element {
   const boundTitle = useBoundText(attributes.title)
   const boundTagline = useBoundText(attributes.tagline)
   const name =
-    (boundTitle || (settings.shopName as string) || '').trim() ||
+    (boundTitle || (typeof settings.shopName === 'string' ? settings.shopName : '')).trim() ||
     data.shop?.name?.trim() ||
     'Your store'
   // Precedence: an explicit block tagline, then the brand slogan the merchant

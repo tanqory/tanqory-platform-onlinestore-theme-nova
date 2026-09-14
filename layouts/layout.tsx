@@ -523,8 +523,11 @@ function useChrome(opts?: Record<string, unknown>) {
   })
   const data = useData()
   const { totalQuantity } = useCart()
+  // Text settings are read as text only: a non-string (a malformed settings
+  // file) must not reach `.trim()` and take the whole layout down.
+  const text = (v: unknown): string => (typeof v === 'string' ? v : '')
   const shopName =
-    ((a.logo as string) || (settings.shopName as string) || '').trim() ||
+    (text(a.logo) || text(settings.shopName)).trim() ||
     data.shop?.name?.trim() ||
     'Your store'
   // Header logo image — Theme settings logo, else the Settings → Brand logo.

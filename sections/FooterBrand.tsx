@@ -1,4 +1,5 @@
-import { defineSection, useBoundText, useData, useSettings, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useBoundText, useData, type SectionProps } from '@tanqory/theme-kit'
+import { useThemeSettings } from '../components/ThemeSettings'
 
 /**
  * Footer BLOCK — brand column (logo/name + tagline). Data-driven: name falls
@@ -9,7 +10,7 @@ import { defineSection, useBoundText, useData, useSettings, type SectionProps } 
  */
 export function FooterBrand({ attributes }: SectionProps): JSX.Element {
   const data = useData()
-  const settings = useSettings()
+  const settings = useThemeSettings()
   const boundTitle = useBoundText(attributes.title)
   const boundTagline = useBoundText(attributes.tagline)
   const name =
@@ -31,9 +32,9 @@ export function FooterBrand({ attributes }: SectionProps): JSX.Element {
   return (
     <div className="site-footer__brand">
       <h2>{name}</h2>
-      {tagline && <p style={{ color: 'rgba(255,255,255,0.7)', maxWidth: '36ch' }}>{tagline}</p>}
+      {tagline && <p style={{ color: 'color-mix(in srgb, var(--color-fg-inverse) 70%, transparent)', maxWidth: '36ch' }}>{tagline}</p>}
       {(email || phone) && (
-        <p className="site-footer__contact" style={{ color: 'rgba(255,255,255,0.7)' }}>
+        <p className="site-footer__contact" style={{ color: 'color-mix(in srgb, var(--color-fg-inverse) 70%, transparent)' }}>
           {email && (
             <a href={`mailto:${email}`} style={{ color: 'inherit' }}>
               {email}

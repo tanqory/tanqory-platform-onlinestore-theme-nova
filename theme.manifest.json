@@ -14,7 +14,7 @@
     "sections": 61,
     "templates": 18,
     "layouts": 1,
-    "settings": 34,
+    "settings": 40,
     "categories": {
       "block": 28,
       "commerce": 10,
@@ -426,10 +426,6 @@
           "type": "text",
           "default": "Frequently asked questions",
           "label": "Heading"
-        },
-        "items": {
-          "type": "textarea",
-          "label": "Items JSON"
         }
       },
       "allowedBlocks": [
@@ -759,7 +755,7 @@
         },
         "logo": {
           "type": "text",
-          "label": "Logo text (blank = shop name)"
+          "label": "Logo text — shown when there is no logo image (blank = shop name)"
         },
         "showSearch": {
           "type": "boolean",
@@ -1103,11 +1099,6 @@
           "type": "text",
           "default": "As seen in",
           "label": "Heading"
-        },
-        "logos": {
-          "type": "textarea",
-          "label": "Logos JSON (legacy — prefer Add block)",
-          "default": "[]"
         }
       },
       "allowedBlocks": [
@@ -1164,10 +1155,6 @@
         "subheading": {
           "type": "text",
           "label": "Subheading"
-        },
-        "items": {
-          "type": "textarea",
-          "label": "Items JSON (legacy — prefer Add block)"
         }
       },
       "allowedBlocks": [
@@ -1549,11 +1536,6 @@
           "type": "number",
           "default": 6000,
           "label": "Auto-advance interval (ms)"
-        },
-        "slides": {
-          "type": "textarea",
-          "label": "Slides JSON",
-          "default": "[]"
         }
       },
       "allowedBlocks": [
@@ -1885,182 +1867,267 @@
   ],
   "settingsSchema": [
     {
-      "group": "Account",
-      "items": [
-        {
-          "key": "accountLoggedIn",
-          "type": "boolean",
-          "group": "Account",
-          "label": "Preview signed-in state",
-          "default": false,
-          "info": "Editor preview only — the live storefront reflects the real session."
-        },
-        {
-          "key": "accountHeading",
-          "type": "text",
-          "group": "Account",
-          "label": "Account menu heading",
-          "default": "",
-          "placeholder": "My account / Welcome"
-        },
-        {
-          "key": "accountSubtext",
-          "type": "text",
-          "group": "Account",
-          "label": "Account menu subtext",
-          "default": ""
-        },
-        {
-          "key": "accountPrimaryLabel",
-          "type": "text",
-          "group": "Account",
-          "label": "Primary action label",
-          "default": "",
-          "placeholder": "View orders / Sign in"
-        },
-        {
-          "key": "accountPrimaryHref",
-          "type": "url",
-          "group": "Account",
-          "label": "Primary action link",
-          "default": ""
-        },
-        {
-          "key": "accountSecondaryLabel",
-          "type": "text",
-          "group": "Account",
-          "label": "Secondary action label",
-          "default": ""
-        },
-        {
-          "key": "accountSecondaryHref",
-          "type": "url",
-          "group": "Account",
-          "label": "Secondary action link",
-          "default": ""
-        },
-        {
-          "key": "accountExtraLinks",
-          "type": "textarea",
-          "group": "Account",
-          "label": "Extra account links",
-          "default": "Orders|/account/orders\nAddresses|/account/addresses",
-          "info": "One per line, \"Label|/path\"."
-        }
-      ]
-    },
-    {
       "group": "Brand",
       "items": [
+        {
+          "key": "logo",
+          "type": "image",
+          "group": "Brand",
+          "label": "Logo",
+          "default": "",
+          "info": "Shown in the header. Leave empty to use the logo from Settings → Brand."
+        },
         {
           "key": "shopName",
           "type": "text",
           "group": "Brand",
           "label": "Shop name",
           "default": "",
-          "info": "Shown in the header when no logo is set. Leave empty to use the store brand logo/name from Settings → Brand."
+          "placeholder": "Store name",
+          "info": "Shown in the header when there is no logo. Leave empty to use the store name."
+        }
+      ]
+    },
+    {
+      "group": "Colors",
+      "items": [
+        {
+          "key": "colorBrand",
+          "type": "color",
+          "group": "Colors",
+          "label": "Brand color",
+          "default": "",
+          "info": "Button hover and brand accents. Leave empty to use the primary color from Settings → Brand."
         },
         {
           "key": "accent",
           "type": "color",
-          "group": "Brand",
+          "group": "Colors",
           "label": "Accent color",
-          "default": "#0a0a0a"
-        }
-      ]
-    },
-    {
-      "group": "Cart",
-      "items": [
-        {
-          "key": "enableCartDrawer",
-          "type": "boolean",
-          "group": "Cart",
-          "label": "Enable cart drawer",
-          "default": true
-        },
-        {
-          "key": "cartDrawerWidth",
-          "type": "text",
-          "group": "Cart",
-          "label": "Cart drawer width",
-          "default": "420px"
-        },
-        {
-          "key": "cartEmptyHeading",
-          "type": "text",
-          "group": "Cart",
-          "label": "Empty-cart heading",
-          "default": "Your cart is empty"
-        },
-        {
-          "key": "cartEmptySubtext",
-          "type": "text",
-          "group": "Cart",
-          "label": "Empty-cart subtext",
-          "default": "Add a few things to get started."
-        },
-        {
-          "key": "cartCheckoutLabel",
-          "type": "text",
-          "group": "Cart",
-          "label": "Checkout button label",
-          "default": "Checkout"
-        },
-        {
-          "key": "cartViewLabel",
-          "type": "text",
-          "group": "Cart",
-          "label": "View-full-cart label",
-          "default": "View full cart"
-        }
-      ]
-    },
-    {
-      "group": "Footer",
-      "items": [
-        {
-          "key": "footerShopMenuHandle",
-          "type": "menu",
-          "group": "Footer",
-          "label": "Footer — Shop menu",
-          "default": "footer-shop"
-        },
-        {
-          "key": "footerHelpMenuHandle",
-          "type": "menu",
-          "group": "Footer",
-          "label": "Footer — Help menu",
-          "default": "footer-help"
-        },
-        {
-          "key": "footerCompanyMenuHandle",
-          "type": "menu",
-          "group": "Footer",
-          "label": "Footer — Company menu",
-          "default": "footer-company"
-        },
-        {
-          "key": "footerTagline",
-          "type": "textarea",
-          "group": "Footer",
-          "label": "Footer tagline",
           "default": "",
-          "info": "Leave empty to use the store description."
+          "info": "Primary buttons and highlights. Leave empty for the theme default."
         },
         {
-          "key": "showPoweredBy",
-          "type": "boolean",
-          "group": "Footer",
-          "label": "Show \"Made with Tanqory\"",
-          "default": true
+          "key": "colorBackground",
+          "type": "color",
+          "group": "Colors",
+          "label": "Background",
+          "default": "",
+          "info": "Page background. Leave both Background and Text empty to keep the theme palette, including its dark mode."
         },
         {
-          "key": "poweredByLabel",
-          "type": "text",
-          "group": "Footer",
-          "label": "\"Powered by\" label",
-          "default": "Made with Tanqory"
+          "key": "colorText",
+          "type": "color",
+          "group": "Colors",
+          "label": "Text",
+          "default": ""
+        }
+      ]
+    },
+    {
+      "group": "Typography",
+      "items": [
+        {
+          "key": "fontHeading",
+          "type": "select",
+          "group": "Typography",
+          "label": "Heading font",
+          "default": "",
+          "options": [
+            {
+              "value": "",
+              "label": "Default (Settings → Brand, else theme font)"
+            },
+            {
+              "value": "Inter",
+              "label": "Inter"
+            },
+            {
+              "value": "DM Sans",
+              "label": "DM Sans"
+            },
+            {
+              "value": "Work Sans",
+              "label": "Work Sans"
+            },
+            {
+              "value": "Poppins",
+              "label": "Poppins"
+            },
+            {
+              "value": "Montserrat",
+              "label": "Montserrat"
+            },
+            {
+              "value": "Roboto",
+              "label": "Roboto"
+            },
+            {
+              "value": "Open Sans",
+              "label": "Open Sans"
+            },
+            {
+              "value": "Lato",
+              "label": "Lato"
+            },
+            {
+              "value": "Nunito Sans",
+              "label": "Nunito Sans"
+            },
+            {
+              "value": "Space Grotesk",
+              "label": "Space Grotesk"
+            },
+            {
+              "value": "Noto Sans Thai",
+              "label": "Noto Sans Thai"
+            },
+            {
+              "value": "IBM Plex Sans Thai",
+              "label": "IBM Plex Sans Thai"
+            },
+            {
+              "value": "Prompt",
+              "label": "Prompt"
+            },
+            {
+              "value": "Kanit",
+              "label": "Kanit"
+            },
+            {
+              "value": "Sarabun",
+              "label": "Sarabun"
+            },
+            {
+              "value": "Playfair Display",
+              "label": "Playfair Display"
+            },
+            {
+              "value": "DM Serif Display",
+              "label": "DM Serif Display"
+            },
+            {
+              "value": "Cormorant Garamond",
+              "label": "Cormorant Garamond"
+            },
+            {
+              "value": "EB Garamond",
+              "label": "EB Garamond"
+            },
+            {
+              "value": "Libre Baskerville",
+              "label": "Libre Baskerville"
+            },
+            {
+              "value": "Lora",
+              "label": "Lora"
+            },
+            {
+              "value": "Merriweather",
+              "label": "Merriweather"
+            }
+          ]
+        },
+        {
+          "key": "fontBody",
+          "type": "select",
+          "group": "Typography",
+          "label": "Body font",
+          "default": "",
+          "options": [
+            {
+              "value": "",
+              "label": "Default (Settings → Brand, else theme font)"
+            },
+            {
+              "value": "Inter",
+              "label": "Inter"
+            },
+            {
+              "value": "DM Sans",
+              "label": "DM Sans"
+            },
+            {
+              "value": "Work Sans",
+              "label": "Work Sans"
+            },
+            {
+              "value": "Poppins",
+              "label": "Poppins"
+            },
+            {
+              "value": "Montserrat",
+              "label": "Montserrat"
+            },
+            {
+              "value": "Roboto",
+              "label": "Roboto"
+            },
+            {
+              "value": "Open Sans",
+              "label": "Open Sans"
+            },
+            {
+              "value": "Lato",
+              "label": "Lato"
+            },
+            {
+              "value": "Nunito Sans",
+              "label": "Nunito Sans"
+            },
+            {
+              "value": "Space Grotesk",
+              "label": "Space Grotesk"
+            },
+            {
+              "value": "Noto Sans Thai",
+              "label": "Noto Sans Thai"
+            },
+            {
+              "value": "IBM Plex Sans Thai",
+              "label": "IBM Plex Sans Thai"
+            },
+            {
+              "value": "Prompt",
+              "label": "Prompt"
+            },
+            {
+              "value": "Kanit",
+              "label": "Kanit"
+            },
+            {
+              "value": "Sarabun",
+              "label": "Sarabun"
+            },
+            {
+              "value": "Playfair Display",
+              "label": "Playfair Display"
+            },
+            {
+              "value": "DM Serif Display",
+              "label": "DM Serif Display"
+            },
+            {
+              "value": "Cormorant Garamond",
+              "label": "Cormorant Garamond"
+            },
+            {
+              "value": "EB Garamond",
+              "label": "EB Garamond"
+            },
+            {
+              "value": "Libre Baskerville",
+              "label": "Libre Baskerville"
+            },
+            {
+              "value": "Lora",
+              "label": "Lora"
+            },
+            {
+              "value": "Merriweather",
+              "label": "Merriweather"
+            }
+          ]
         }
       ]
     },
@@ -2157,10 +2224,170 @@
           "default": 6
         }
       ]
+    },
+    {
+      "group": "Cart",
+      "items": [
+        {
+          "key": "enableCartDrawer",
+          "type": "boolean",
+          "group": "Cart",
+          "label": "Enable cart drawer",
+          "default": true
+        },
+        {
+          "key": "cartDrawerWidth",
+          "type": "text",
+          "group": "Cart",
+          "label": "Cart drawer width",
+          "default": "420px"
+        },
+        {
+          "key": "cartEmptyHeading",
+          "type": "text",
+          "group": "Cart",
+          "label": "Empty-cart heading",
+          "default": "Your cart is empty"
+        },
+        {
+          "key": "cartEmptySubtext",
+          "type": "text",
+          "group": "Cart",
+          "label": "Empty-cart subtext",
+          "default": "Add a few things to get started."
+        },
+        {
+          "key": "cartCheckoutLabel",
+          "type": "text",
+          "group": "Cart",
+          "label": "Checkout button label",
+          "default": "Checkout"
+        },
+        {
+          "key": "cartViewLabel",
+          "type": "text",
+          "group": "Cart",
+          "label": "View-full-cart label",
+          "default": "View full cart"
+        }
+      ]
+    },
+    {
+      "group": "Account",
+      "items": [
+        {
+          "key": "accountLoggedIn",
+          "type": "boolean",
+          "group": "Account",
+          "label": "Preview signed-in state",
+          "default": false,
+          "info": "Editor preview only — the live storefront reflects the real session."
+        },
+        {
+          "key": "accountHeading",
+          "type": "text",
+          "group": "Account",
+          "label": "Account menu heading",
+          "default": "",
+          "placeholder": "My account / Welcome"
+        },
+        {
+          "key": "accountSubtext",
+          "type": "text",
+          "group": "Account",
+          "label": "Account menu subtext",
+          "default": ""
+        },
+        {
+          "key": "accountPrimaryLabel",
+          "type": "text",
+          "group": "Account",
+          "label": "Primary action label",
+          "default": "",
+          "placeholder": "View orders / Sign in"
+        },
+        {
+          "key": "accountPrimaryHref",
+          "type": "url",
+          "group": "Account",
+          "label": "Primary action link",
+          "default": ""
+        },
+        {
+          "key": "accountSecondaryLabel",
+          "type": "text",
+          "group": "Account",
+          "label": "Secondary action label",
+          "default": ""
+        },
+        {
+          "key": "accountSecondaryHref",
+          "type": "url",
+          "group": "Account",
+          "label": "Secondary action link",
+          "default": ""
+        },
+        {
+          "key": "accountExtraLinks",
+          "type": "textarea",
+          "group": "Account",
+          "label": "Extra account links",
+          "default": "Orders|/account/orders\nAddresses|/account/addresses",
+          "info": "One per line, \"Label|/path\"."
+        }
+      ]
+    },
+    {
+      "group": "Footer",
+      "items": [
+        {
+          "key": "footerShopMenuHandle",
+          "type": "menu",
+          "group": "Footer",
+          "label": "Footer — Shop menu",
+          "default": "footer-shop"
+        },
+        {
+          "key": "footerHelpMenuHandle",
+          "type": "menu",
+          "group": "Footer",
+          "label": "Footer — Help menu",
+          "default": "footer-help"
+        },
+        {
+          "key": "footerCompanyMenuHandle",
+          "type": "menu",
+          "group": "Footer",
+          "label": "Footer — Company menu",
+          "default": "footer-company"
+        },
+        {
+          "key": "footerTagline",
+          "type": "textarea",
+          "group": "Footer",
+          "label": "Footer tagline",
+          "default": "",
+          "info": "Leave empty to use the store description."
+        },
+        {
+          "key": "showPoweredBy",
+          "type": "boolean",
+          "group": "Footer",
+          "label": "Show \"Made with Tanqory\"",
+          "default": true
+        },
+        {
+          "key": "poweredByLabel",
+          "type": "text",
+          "group": "Footer",
+          "label": "\"Powered by\" label",
+          "default": "Made with Tanqory"
+        }
+      ]
     }
   ],
   "settings": {
-    "accent": "#0a0a0a",
+    "accent": "",
     "accountExtraLinks": "Orders|/account/orders\nAddresses|/account/addresses",
     "accountHeading": "",
     "accountLoggedIn": false,
@@ -2174,16 +2401,22 @@
     "cartEmptyHeading": "Your cart is empty",
     "cartEmptySubtext": "Add a few things to get started.",
     "cartViewLabel": "View full cart",
+    "colorBackground": "",
+    "colorBrand": "",
+    "colorText": "",
     "enableAccountDropdown": true,
     "enableCartDrawer": true,
     "enableMobileNavDrawer": true,
     "enableSearchModal": true,
     "enableSpaNavigation": true,
+    "fontBody": "",
+    "fontHeading": "",
     "footerCompanyMenuHandle": "footer-company",
     "footerHelpMenuHandle": "footer-help",
     "footerShopMenuHandle": "footer-shop",
     "footerTagline": "",
     "headerMenuHandle": "main-menu",
+    "logo": "",
     "mobileNavHeading": "Menu",
     "mobileNavWidth": "320px",
     "poweredByLabel": "Made with Tanqory",

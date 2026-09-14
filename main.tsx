@@ -339,45 +339,11 @@ function applyHead({ title, description, keywords, image, type, siteName, favico
   }
 }
 
-/**
- * Apply the merchant's Settings → Brand fonts to the storefront (store#510).
- *
- * nova's typography reads `--font-display` / `--font-body` (assets/tokens.css),
- * so we override those two vars on the root element from the brand's font list
- * ([0] → display, [1] → body) and load the families from Google Fonts.
- *
- * Deliberately client-only + applied on the root element (not the React tree):
- * it runs after hydration, so there is no server/client markup mismatch, and
- * `display=swap` means the default font shows until the brand font loads rather
- * than blank text. A store with no brand fonts is a no-op (tokens.css default).
- */
-function applyBrandFonts(data: {
-  shop?: { brand?: { fonts?: string[] | null } | null } | null
-}): void {
-  if (typeof document === 'undefined') return
-  const fonts = (data.shop?.brand?.fonts ?? []).filter(
-    (f) => typeof f === 'string' && f.trim() !== '',
-  )
-  if (!fonts.length) return
-  const display = fonts[0]
-  const body = fonts[1] || fonts[0]
-  const root = document.documentElement
-  root.style.setProperty('--font-display', `"${display}", system-ui, sans-serif`)
-  root.style.setProperty('--font-body', `"${body}", system-ui, sans-serif`)
-
-  const families = Array.from(new Set([display, body]))
-    .map((f) => `family=${encodeURIComponent(f).replace(/%20/g, '+')}:wght@400;500;600;700`)
-    .join('&')
-  const href = `https://fonts.googleapis.com/css2?${families}&display=swap`
-  let link = document.getElementById('tq-brand-fonts') as HTMLLinkElement | null
-  if (!link) {
-    link = document.createElement('link')
-    link.id = 'tq-brand-fonts'
-    link.rel = 'stylesheet'
-    document.head.appendChild(link)
-  }
-  if (link.href !== href) link.href = href
-}
+// Settings → Brand fonts (store#510) are no longer applied here, client-only,
+// after hydration. The layout's ThemeSettingsProvider (components/ThemeSettings.tsx)
+// resolves the fonts — Theme settings first, then Settings → Brand — into the
+// same --font-display / --font-body variables inside the rendered tree, so the
+// SSG prerender carries them too and a theme font can override the brand one.
 
 /**
  * Pick the country (ISO 3166 alpha-2) for this page load:
@@ -568,7 +534,6 @@ if (
     },
   })
   applyHead(computeHead(window.location.pathname, data))
-  applyBrandFonts(data)
   armConsent(data)
   analytics?.pageViewed()
   emitRouteEvents(window.location.pathname, data)
@@ -603,7 +568,6 @@ if (
     }
     mount({ ...baseMountOptions(data), page: finalPage, forceClientRender: true })
     applyHead(head)
-    applyBrandFonts(data)
     armConsent(data)
     analytics?.pageViewed()
     emitRouteEvents(pathname, data)

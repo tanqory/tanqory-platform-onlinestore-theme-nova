@@ -139,10 +139,17 @@ p { max-width: var(--container-prose); text-wrap: pretty; }
 }
 
 .btn--primary {
-  background: var(--color-fg);
-  color: var(--color-bg);
+  /* --color-button* are set only when Theme settings choose an accent
+   * (lib/theme-settings.ts); otherwise the button keeps nova's fg/bg pair. */
+  background: var(--color-button, var(--color-fg));
+  color: var(--color-button-text, var(--color-bg));
 }
-.btn--primary:hover { background: var(--color-brand); }
+.btn--primary:hover {
+  /* Hover text follows the hover background: the brand colour pairs with
+   * --color-brand-contrast, an accent's hover shade with its own AA pick. */
+  background: var(--color-button-hover, var(--color-brand));
+  color: var(--color-button-hover-text, var(--color-brand-contrast));
+}
 
 .btn--secondary {
   background: transparent;
@@ -276,7 +283,8 @@ p { max-width: var(--container-prose); text-wrap: pretty; }
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  background: rgba(255, 255, 255, 0.86);
+  /* --header-bg is set only when Theme settings choose a background colour. */
+  background: var(--header-bg, rgba(255, 255, 255, 0.86));
   backdrop-filter: saturate(160%) blur(14px);
   -webkit-backdrop-filter: saturate(160%) blur(14px);
   border-bottom: 1px solid var(--color-border);

@@ -29,7 +29,7 @@ export default defineSection({
         { value: 'footer-company', label: 'Footer · Company' },
       ],
     },
-    logo: { type: 'text', label: 'Logo text (blank = shop name)' },
+    logo: { type: 'text', label: 'Logo text — shown when there is no logo image (blank = shop name)' },
     showSearch: { type: 'boolean', default: true, label: 'Show search' },
     showCart: { type: 'boolean', default: true, label: 'Show cart' },
     showAccount: { type: 'boolean', default: true, label: 'Show account' },

@@ -12,6 +12,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "types": ["vite/client"]
   },
   "include": ["main.tsx", "blocks", "components", "layouts", "config", "vite.config.ts", "tanqory.config.ts"]

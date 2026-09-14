@@ -5,7 +5,6 @@ import {
   SectionTree,
   useCart,
   useData,
-  useSettings,
   useT,
   type ContentNode,
   type PageDoc,
@@ -19,6 +18,8 @@ import { MobileNavDrawer } from '../overlays/MobileNavDrawer'
 import { openOverlay, closeOverlay } from '../components/useOverlayChannel'
 import { CookieConsent } from '../components/CookieConsent'
 import { TrackingPixels } from '../components/TrackingPixels'
+import { ThemeSettingsProvider, useThemeSettings } from '../components/ThemeSettings'
+import { resolveLogo, type BrandFallback } from '../lib/theme-settings'
 
 /**
  * Templates are bundled into the layout so the SPA router can swap them in
@@ -503,7 +504,9 @@ function useStorefrontMenus(handles: {
  * section tree; the layout only renders the page body + the global overlays.
  */
 function useChrome(opts?: Record<string, unknown>) {
-  const settings = useSettings()
+  // Effective theme settings — the built values, plus the Theme panel's unsaved
+  // edits while inside the editor preview (components/ThemeSettings.tsx).
+  const settings = useThemeSettings()
   const t = useT()
   // A section setting (Header/Footer section attributes) OVERRIDES the global
   // Theme setting; falling back to the global keeps brand-new templates working.
@@ -520,25 +523,21 @@ function useChrome(opts?: Record<string, unknown>) {
   })
   const data = useData()
   const { totalQuantity } = useCart()
+  // Text settings are read as text only: a non-string (a malformed settings
+  // file) must not reach `.trim()` and take the whole layout down.
+  const text = (v: unknown): string => (typeof v === 'string' ? v : '')
   const shopName =
-    ((a.logo as string) || (settings.shopName as string) || '').trim() ||
+    (text(a.logo) || text(settings.shopName)).trim() ||
     data.shop?.name?.trim() ||
     'Your store'
-  // Settings → Brand. Only used when the merchant hasn't overridden the brand
-  // with theme text (`a.logo` / settings.shopName) — an explicit theme choice
-  // still wins. Until now a merchant could upload a logo and the storefront
-  // never showed it: theme-kit didn't even request the field.
-  const brandLogo =
-    !((a.logo as string) || (settings.shopName as string) || '').trim() && data.shop?.brand?.logo
-      ? data.shop.brand.logo
-      : null
-  // Brand colours as CSS custom properties on the shell, so any section that
-  // uses var(--color-brand) follows Settings → Brand without new plumbing.
-  const brandColors = data.shop?.brand?.colors?.primary?.[0]
-  const brandVars: Record<string, string> = {
-    ...(brandColors?.background ? { '--color-brand': brandColors.background } : {}),
-    ...(brandColors?.foreground ? { '--color-brand-contrast': brandColors.foreground } : {}),
-  }
+  // Header logo image — Theme settings logo, else the Settings → Brand logo.
+  // With neither, the header shows `shopName` as text. Text never hides an
+  // image: the shop name / Header "Logo text" is what shows when there is no
+  // logo to show.
+  const logo = resolveLogo(settings, data.shop?.brand as BrandFallback | null | undefined)
+  // Brand colours no longer ride on the header/footer element: the layout's
+  // ThemeSettingsProvider sets --color-brand (theme setting, else Settings →
+  // Brand) on the root element, which the chrome inherits like everything else.
   const year = new Date().getFullYear()
   const locales = (data.localization?.availableLanguages ?? []).map((l) => ({
     code: l.isoCode,
@@ -572,14 +571,11 @@ function useChrome(opts?: Record<string, unknown>) {
   const enableCartDrawer = flag('showCart', 'enableCartDrawer')
   const enableAccountDropdown = flag('showAccount', 'enableAccountDropdown')
   const enableMobileNavDrawer = settings.enableMobileNavDrawer !== false
-  // Brand colours ride along on the chrome style that already exists, so
-  // Settings → Brand reaches the header without a second mechanism. Section
-  // attributes (a.bg/a.fg) still win — an explicit theme choice beats the
-  // brand default.
+  // Section attributes (a.bg/a.fg) colour this header/footer only — an
+  // explicit section choice beats the theme-wide colours it inherits.
   const chromeStyle =
-    a.bg || a.fg || Object.keys(brandVars).length
+    a.bg || a.fg
       ? ({
-          ...brandVars,
           ...(a.bg ? { background: a.bg as string } : {}),
           ...(a.fg ? { color: a.fg as string } : {}),
         } as React.CSSProperties)
@@ -594,7 +590,7 @@ function useChrome(opts?: Record<string, unknown>) {
       { title: 'Journal', url: '/pages/journal' },
     ]
   return {
-    settings, t, menus, data, totalQuantity, shopName, year, brandLogo, brandVars,
+    settings, t, menus, data, totalQuantity, shopName, year, logo,
     locales, activeLocale, countries, activeCountry,
     showCountrySwitch, showLocaleSwitch, showSwitchers,
     footerTagline, footerColumns, chromeStyle, showPoweredBy, poweredByLabel,
@@ -609,7 +605,7 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
     enableMobileNavDrawer, shopName, navItems, showSwitchers, locales,
     showLocaleSwitch, activeLocale, countries, showCountrySwitch, activeCountry,
     enableSearchModal, enableAccountDropdown, settings, totalQuantity, enableCartDrawer, chromeStyle,
-    brandLogo,
+    logo,
   } = useChrome(attributes)
   return (
       <header className="site-header" style={chromeStyle}>
@@ -625,11 +621,11 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
             </button>
           )}
           <a className="site-header__brand" href="/">
-            {brandLogo ? (
+            {logo ? (
               <img
                 className="site-header__logo"
-                src={brandLogo.url}
-                alt={brandLogo.altText || shopName}
+                src={logo.url}
+                alt={logo.altText || shopName}
               />
             ) : (
               shopName
@@ -749,7 +745,7 @@ export function SiteFooter({
                 <div className="site-footer__brand">
                   <h2>{shopName}</h2>
                   {footerTagline && (
-                    <p style={{ color: 'rgba(255,255,255,0.7)', maxWidth: '36ch' }}>{footerTagline}</p>
+                    <p style={{ color: 'color-mix(in srgb, var(--color-fg-inverse) 70%, transparent)', maxWidth: '36ch' }}>{footerTagline}</p>
                   )}
                 </div>
                 {footerColumns.map((col, i) => (
@@ -791,6 +787,16 @@ export function SiteFooter({
 }
 
 export default function Layout({ children }: { children: ReactNode }): JSX.Element {
+  // Theme settings apply to the whole shell — header/footer sections, the page
+  // body and the overlays all render inside the provider.
+  return (
+    <ThemeSettingsProvider>
+      <LayoutBody>{children}</LayoutBody>
+    </ThemeSettingsProvider>
+  )
+}
+
+function LayoutBody({ children }: { children: ReactNode }): JSX.Element {
   const { settings, menus, enableSearchModal, enableCartDrawer, enableMobileNavDrawer } = useChrome()
 
   // SPA routing — when enabled, internal link clicks update React state

@@ -11,7 +11,7 @@ export function FooterText({ attributes }: SectionProps): JSX.Element {
   return (
     <div className="site-footer__col">
       {heading && <h6>{heading}</h6>}
-      {body && <p style={{ color: 'rgba(255,255,255,0.7)', maxWidth: '36ch' }}>{body}</p>}
+      {body && <p style={{ color: 'color-mix(in srgb, var(--color-fg-inverse) 70%, transparent)', maxWidth: '36ch' }}>{body}</p>}
     </div>
   )
 }

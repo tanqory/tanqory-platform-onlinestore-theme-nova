@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { closeOverlay, useOverlay } from '../components/useOverlayChannel'
-
-interface AccountLink {
-  label: string
-  href: string
-}
+import { parseAccountLinks, safeHref } from '../lib/safe-href'
 
 interface AccountMenuProps {
   loggedIn: boolean
@@ -108,14 +104,16 @@ export function AccountMenu(props: AccountMenuProps): JSX.Element {
         : 'Manage orders and details.'
       : 'Sign in for faster checkout.')
   const primaryLabel = props.primaryLabel || (loggedIn ? 'View orders' : 'Sign in')
-  const primaryHref = props.primaryHref || (loggedIn ? '/account' : loginHref)
+  // Merchant-configured links pass a scheme check (no javascript:/data:) and
+  // fall back to the default link when they fail it.
+  const primaryHref = safeHref(props.primaryHref) || (loggedIn ? '/account' : loginHref)
   // Passwordless storefront: no Create account door. Logged-out shows the
   // single Sign in CTA unless the merchant explicitly configured a
   // secondary link; logged-in keeps Sign out.
   const secondaryLabel = props.secondaryLabel || (loggedIn ? 'Sign out' : '')
-  const secondaryHref = props.secondaryHref || (loggedIn ? '/account/logout' : '')
+  const secondaryHref = safeHref(props.secondaryHref) || (loggedIn ? '/account/logout' : '')
 
-  const extras = parseLinks(props.links)
+  const extras = parseAccountLinks(props.links)
 
   return (
     <div
@@ -149,33 +147,6 @@ export function AccountMenu(props: AccountMenuProps): JSX.Element {
       )}
     </div>
   )
-}
-
-function parseLinks(raw: string | undefined): AccountLink[] {
-  if (!raw) return []
-  const trimmed = raw.trim()
-  if (!trimmed) return []
-  // JSON form: [{"label":"Wishlist","href":"/account/wishlist"}, ...]
-  if (trimmed.startsWith('[')) {
-    try {
-      const parsed = JSON.parse(trimmed) as Array<{ label?: string; href?: string }>
-      return parsed
-        .filter((l): l is { label: string; href: string } => Boolean(l.label && l.href))
-        .map((l) => ({ label: l.label, href: l.href }))
-    } catch {
-      return []
-    }
-  }
-  // Compact form: "Wishlist|/account/wishlist, Orders|/account/orders"
-  return trimmed
-    .split(/[,\n]/)
-    .map((entry) => entry.trim())
-    .filter(Boolean)
-    .map((entry) => {
-      const [label, href] = entry.split('|').map((s) => s.trim())
-      return label && href ? { label, href } : null
-    })
-    .filter((l): l is AccountLink => l !== null)
 }
 
 export default AccountMenu

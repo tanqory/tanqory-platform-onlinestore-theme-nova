@@ -1,4 +1,8 @@
-import { defineSettings } from '@tanqory/theme-kit'
+import { defineSettings, type AttrSpec } from '@tanqory/theme-kit'
+import { FONT_OPTIONS } from '../lib/theme-settings'
+
+/** A theme setting: a theme-kit control plus the editor group it sits in. */
+type ThemeSettingSpec = AttrSpec & { group: string }
 
 /**
  * Theme settings schema — the typed, self-describing surface of everything a
@@ -17,20 +21,70 @@ import { defineSettings } from '@tanqory/theme-kit'
  * `default` matches the effective value the theme already produced, so making
  * them explicit changes nothing a shopper sees.
  */
-export default defineSettings({
+const schema: Record<string, ThemeSettingSpec> = {
   // ── Brand ────────────────────────────────────────────────────────────────
+  // Applied by lib/theme-settings.ts. Every Brand / Colors / Typography key
+  // defaults to '' — "not set": the storefront then uses Settings → Brand where
+  // the store has a value, else the theme's own design tokens.
+  logo: {
+    type: 'image',
+    group: 'Brand',
+    label: 'Logo',
+    default: '',
+    info: 'Shown in the header. Leave empty to use the logo from Settings → Brand.',
+  },
   shopName: {
     type: 'text',
     group: 'Brand',
     label: 'Shop name',
     default: '',
-    info: 'Shown in the header when no logo is set. Leave empty to use the store brand logo/name from Settings → Brand.',
+    placeholder: 'Store name',
+    info: 'Shown in the header when there is no logo. Leave empty to use the store name.',
+  },
+
+  // ── Colors ───────────────────────────────────────────────────────────────
+  colorBrand: {
+    type: 'color',
+    group: 'Colors',
+    label: 'Brand color',
+    default: '',
+    info: 'Button hover and brand accents. Leave empty to use the primary color from Settings → Brand.',
   },
   accent: {
     type: 'color',
-    group: 'Brand',
+    group: 'Colors',
     label: 'Accent color',
-    default: '#0a0a0a',
+    default: '',
+    info: 'Primary buttons and highlights. Leave empty for the theme default.',
+  },
+  colorBackground: {
+    type: 'color',
+    group: 'Colors',
+    label: 'Background',
+    default: '',
+    info: 'Page background. Leave both Background and Text empty to keep the theme palette, including its dark mode.',
+  },
+  colorText: {
+    type: 'color',
+    group: 'Colors',
+    label: 'Text',
+    default: '',
+  },
+
+  // ── Typography ───────────────────────────────────────────────────────────
+  fontHeading: {
+    type: 'select',
+    group: 'Typography',
+    label: 'Heading font',
+    default: '',
+    options: FONT_OPTIONS,
+  },
+  fontBody: {
+    type: 'select',
+    group: 'Typography',
+    label: 'Body font',
+    default: '',
+    options: FONT_OPTIONS,
   },
 
   // ── Header & navigation ─────────────────────────────────────────────────
@@ -241,4 +295,6 @@ export default defineSettings({
     label: '"Powered by" label',
     default: 'Made with Tanqory',
   },
-})
+}
+
+export default defineSettings(schema)

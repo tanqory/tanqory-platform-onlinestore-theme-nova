@@ -69,7 +69,7 @@ The list below is generated from that manifest — **do not edit by hand**; run
 `npm run manifest` (it also refreshes this block).
 
 <!-- BEGIN GENERATED CATALOG -->
-**61 sections · 18 templates · 34 settings**
+**61 sections · 18 templates · 40 settings**
 
 ### Sections by category
 - **block** (28): accordion, add-to-cart, button, collection-item, column, faq-item, footer-brand, footer-menu, footer-text, heading, icon, image, jumbo-text, logo, payment-icons, product-description, product-inventory, product-price, product-sku, product-title, quantity, slide, social-links, spacer, swatches, text, variant-picker, video
@@ -105,11 +105,13 @@ The list below is generated from that manifest — **do not edit by hand**; run
 | `search` | footer, header, search-results |
 
 ### Theme settings
-- **Account**: accountLoggedIn, accountHeading, accountSubtext, accountPrimaryLabel, accountPrimaryHref, accountSecondaryLabel, accountSecondaryHref, accountExtraLinks
-- **Brand**: shopName, accent
-- **Cart**: enableCartDrawer, cartDrawerWidth, cartEmptyHeading, cartEmptySubtext, cartCheckoutLabel, cartViewLabel
-- **Footer**: footerShopMenuHandle, footerHelpMenuHandle, footerCompanyMenuHandle, footerTagline, showPoweredBy, poweredByLabel
+- **Brand**: logo, shopName
+- **Colors**: colorBrand, accent, colorBackground, colorText
+- **Typography**: fontHeading, fontBody
 - **Header**: headerMenuHandle, enableSpaNavigation, enableAccountDropdown, enableMobileNavDrawer, mobileNavHeading, mobileNavWidth
 - **Search**: enableSearchModal, searchPlaceholder, searchCtaLabel, searchModalWidth, searchDebounceMs, searchMaxResults
+- **Cart**: enableCartDrawer, cartDrawerWidth, cartEmptyHeading, cartEmptySubtext, cartCheckoutLabel, cartViewLabel
+- **Account**: accountLoggedIn, accountHeading, accountSubtext, accountPrimaryLabel, accountPrimaryHref, accountSecondaryLabel, accountSecondaryHref, accountExtraLinks
+- **Footer**: footerShopMenuHandle, footerHelpMenuHandle, footerCompanyMenuHandle, footerTagline, showPoweredBy, poweredByLabel
 <!-- END GENERATED CATALOG -->
 

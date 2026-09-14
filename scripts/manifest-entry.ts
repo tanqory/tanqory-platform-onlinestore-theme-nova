@@ -118,11 +118,10 @@ export function buildManifest() {
     templates,
     layouts,
     // Typed, grouped theme-settings schema (settings.schema.ts) — what the
-    // editor panel and the AI generator read. `settingGroups` is the same data
-    // keyed by editor group heading.
-    settingsSchema: Object.entries(settingGroups)
-      .map(([group, items]) => ({ group, items }))
-      .sort((a, b) => a.group.localeCompare(b.group)),
+    // studio's Theme panel renders and the AI generator reads. Groups keep the
+    // order settings.schema.ts declares them in (Brand, Colors, Typography
+    // first), because that is the order the panel shows them in.
+    settingsSchema: Object.entries(settingGroups).map(([group, items]) => ({ group, items })),
     // Current values (settings.json).
     settings: settings as Record<string, unknown>,
     // Non-fatal integrity signals for the reader / the Phase 1 conformance test.

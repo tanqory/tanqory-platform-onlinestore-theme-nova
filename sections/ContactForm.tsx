@@ -1,9 +1,27 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useT, type SectionProps } from '@tanqory/theme-kit'
+import { stockCopy } from '../lib/theme-locale'
 
+/** The English words nova ships in this section's schema and templates, each with its string. */
+const STOCK = {
+  'Send us a message': 'contact.heading',
+  'Get in touch': 'contact.getInTouch',
+  'We read every note.': 'contact.subheading',
+  "We'll reply within one business day.": 'contact.replyWithinDay',
+  'Send message': 'contact.send',
+} as const
+
+/**
+ * Contact form. Its fixed words — field labels, and a heading, subheading or
+ * button still at nova's English default — are in the theme's language; words
+ * the merchant typed are shown as typed, and a setting cleared to '' stays
+ * hidden. A Thai site read "Send us a message / We read every note." under a
+ * Thai contact page before (build 7270019a).
+ */
 export function ContactForm({ attributes }: SectionProps): JSX.Element {
-  const heading = (attributes.heading as string) ?? 'Get in touch'
-  const subheading = attributes.subheading as string | undefined
-  const buttonLabel = (attributes.buttonLabel as string) ?? 'Send message'
+  const t = useT()
+  const heading = stockCopy(attributes.heading, STOCK, 'Get in touch', t)
+  const subheading = stockCopy(attributes.subheading, STOCK, undefined, t)
+  const buttonLabel = stockCopy(attributes.buttonLabel, STOCK, 'Send message', t)
   const action = (attributes.action as string) ?? '/_api/contact'
   const showPhone = Boolean(attributes.showPhone)
 
@@ -12,12 +30,12 @@ export function ContactForm({ attributes }: SectionProps): JSX.Element {
       <div className="container">
         <div className="contact">
           <div className="contact__head">
-            <h2>{heading}</h2>
+            {heading && <h2>{heading}</h2>}
             {subheading && <p className="lede">{subheading}</p>}
           </div>
           <form className="contact__form" action={action} method="post">
             <label className="field">
-              <span className="field__label">First name</span>
+              <span className="field__label">{t('contact.firstName')}</span>
               <input
                 className="field__input"
                 name="firstName"
@@ -27,7 +45,7 @@ export function ContactForm({ attributes }: SectionProps): JSX.Element {
               />
             </label>
             <label className="field">
-              <span className="field__label">Last name</span>
+              <span className="field__label">{t('contact.lastName')}</span>
               <input
                 className="field__input"
                 name="lastName"
@@ -36,7 +54,7 @@ export function ContactForm({ attributes }: SectionProps): JSX.Element {
               />
             </label>
             <label className="field field--full">
-              <span className="field__label">Email</span>
+              <span className="field__label">{t('contact.email')}</span>
               <input
                 className="field__input"
                 name="email"
@@ -47,12 +65,12 @@ export function ContactForm({ attributes }: SectionProps): JSX.Element {
             </label>
             {showPhone && (
               <label className="field field--full">
-                <span className="field__label">Phone (optional)</span>
+                <span className="field__label">{t('contact.phone')}</span>
                 <input className="field__input" name="phone" type="tel" autoComplete="tel" />
               </label>
             )}
             <label className="field field--full">
-              <span className="field__label">Message</span>
+              <span className="field__label">{t('contact.message')}</span>
               <textarea className="field__textarea" name="message" required />
             </label>
             <div className="field--full" style={{ marginTop: 'var(--space-3)' }}>

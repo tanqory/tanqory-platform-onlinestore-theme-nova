@@ -1,13 +1,28 @@
 import { Children } from 'react'
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useData, useT, type SectionProps } from '@tanqory/theme-kit'
+import { localizedCopy } from '../lib/theme-locale'
 import { Link } from '../components/Link'
 import { ImageResponsive } from '../components/ImageResponsive'
 
 export function CollectionList({ attributes, children }: SectionProps): JSX.Element {
   const { allCollections } = useData()
+  const t = useT()
   const limit = (attributes.limit as number) ?? 12
-  const heading = (attributes.heading as string) ?? 'Shop by collection'
-  const subheading = attributes.subheading as string | undefined
+  // nova's English defaults follow the theme's language; the merchant's words,
+  // and a heading cleared to '', are kept (lib/theme-locale.ts).
+  const heading =
+    attributes.heading === ''
+      ? ''
+      : localizedCopy(attributes.heading, 'Shop by collection', 'collections.heading', t)
+  const subheading =
+    attributes.subheading === '' || attributes.subheading === undefined
+      ? (attributes.subheading as string | undefined)
+      : localizedCopy(
+          attributes.subheading,
+          'Browse every category we carry.',
+          'collections.subheading',
+          t,
+        )
 
   // CURATED mode: when the merchant added child blocks (collection-item) in
   // the editor, render exactly those, in their order. AUTO mode: with no

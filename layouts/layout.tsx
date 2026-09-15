@@ -20,6 +20,7 @@ import { CookieConsent } from '../components/CookieConsent'
 import { TrackingPixels } from '../components/TrackingPixels'
 import { ThemeSettingsProvider, useThemeSettings } from '../components/ThemeSettings'
 import { resolveLogo, type BrandFallback } from '../lib/theme-settings'
+import { localizedCopy } from '../lib/theme-locale'
 
 /**
  * Templates are bundled into the layout so the SPA router can swap them in
@@ -581,7 +582,12 @@ function useChrome(opts?: Record<string, unknown>) {
         } as React.CSSProperties)
       : undefined
   const showPoweredBy = a.showPoweredBy !== undefined ? a.showPoweredBy !== false : settings.showPoweredBy !== false
-  const poweredByLabel = (a.poweredByLabel as string) || (settings.poweredByLabel as string) || 'Made with Tanqory'
+  const poweredByLabel = localizedCopy(
+    (a.poweredByLabel as string) || (settings.poweredByLabel as string),
+    'Made with Tanqory',
+    'footer.poweredBy',
+    t,
+  )
   const navItems: Array<{ title: string; url: string }> =
     menus.main ?? [
       { title: t('nav.shop') || 'Shop', url: '/collections/all' },
@@ -797,7 +803,11 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
 }
 
 function LayoutBody({ children }: { children: ReactNode }): JSX.Element {
-  const { settings, menus, enableSearchModal, enableCartDrawer, enableMobileNavDrawer } = useChrome()
+  const { settings, menus, enableSearchModal, enableCartDrawer, enableMobileNavDrawer, t } =
+    useChrome()
+  // Drawer copy: the merchant's own words, else nova's default in the theme's language.
+  const copy = (key: string, stock: string, i18n: string): string =>
+    localizedCopy(settings[key], stock, i18n, t)
 
   // SPA routing — when enabled, internal link clicks update React state
   // instead of triggering a full page load. Falls back to native nav when
@@ -877,8 +887,8 @@ function LayoutBody({ children }: { children: ReactNode }): JSX.Element {
        *  so mounting them all here is cheap. */}
       {enableSearchModal && (
         <SearchModal
-          placeholder={(settings.searchPlaceholder as string) || 'Search products…'}
-          ctaLabel={(settings.searchCtaLabel as string) || 'See all results →'}
+          placeholder={copy('searchPlaceholder', 'Search products…', 'search.placeholder')}
+          ctaLabel={copy('searchCtaLabel', 'See all results →', 'search.cta')}
           maxWidth={(settings.searchModalWidth as string) || '640px'}
           debounceMs={Number(settings.searchDebounceMs ?? 250)}
           maxResults={Number(settings.searchMaxResults ?? 6)}
@@ -887,18 +897,20 @@ function LayoutBody({ children }: { children: ReactNode }): JSX.Element {
       {enableCartDrawer && (
         <CartDrawer
           width={(settings.cartDrawerWidth as string) || '420px'}
-          emptyHeading={(settings.cartEmptyHeading as string) || 'Your cart is empty'}
-          emptySubtext={
-            (settings.cartEmptySubtext as string) || 'Add a few things to get started.'
-          }
-          checkoutLabel={(settings.cartCheckoutLabel as string) || 'Checkout'}
-          viewCartLabel={(settings.cartViewLabel as string) || 'View full cart'}
+          emptyHeading={copy('cartEmptyHeading', 'Your cart is empty', 'cart.empty.title')}
+          emptySubtext={copy(
+            'cartEmptySubtext',
+            'Add a few things to get started.',
+            'cart.drawer.emptySub',
+          )}
+          checkoutLabel={copy('cartCheckoutLabel', 'Checkout', 'cart.checkout')}
+          viewCartLabel={copy('cartViewLabel', 'View full cart', 'cart.drawer.view')}
         />
       )}
       {enableMobileNavDrawer && (
         <MobileNavDrawer
           width={(settings.mobileNavWidth as string) || '320px'}
-          heading={(settings.mobileNavHeading as string) || 'Menu'}
+          heading={copy('mobileNavHeading', 'Menu', 'nav.menu')}
           links={menus.main}
         />
       )}

@@ -7,7 +7,23 @@ import { renderStorefrontHTML } from '@tanqory/theme-kit/ssg'
 import { createMockData, createLiveData, type DataApi } from '@tanqory/theme-kit'
 import collections from './lib/collections.json'
 import settings from './config/settings.json'
-import locale from './locales/en.json'
+import { documentTitle, shopNameOf } from './lib/head'
+import { localeStrings, themeLocaleOf } from './lib/theme-locale'
+
+// The theme's own language (`config/settings.json` `locale`) is what the SSG
+// bakes — the same choice main.tsx makes, so hydration matches (lib/theme-locale.ts).
+const localeMaps: Record<string, Record<string, string>> = Object.fromEntries(
+  Object.entries(
+    import.meta.glob('./locales/*.json', { eager: true }) as Record<
+      string,
+      { default: Record<string, string> }
+    >,
+  ).map(([path, mod]) => [path.match(/\/([^/]+)\.json$/)?.[1] ?? 'en', mod.default]),
+)
+const locale = localeStrings(
+  themeLocaleOf((settings as { locale?: unknown }).locale, Object.keys(localeMaps)),
+  localeMaps,
+)
 
 const env = import.meta.env as ImportMetaEnv & {
   VITE_TANQORY_BACKEND?: string
@@ -62,7 +78,9 @@ export async function render(
   // client sets per-route heads for everything else (see main.tsx computeHead).
   const shop = (data as { shop?: { name?: string; description?: string } }).shop
   const head = {
-    title: ((settings as { shopName?: string }).shopName || shop?.name || 'Store').trim(),
+    title: documentTitle({
+      shopName: shopNameOf((settings as { shopName?: unknown }).shopName, shop?.name),
+    }),
     description: (shop?.description || '').trim(),
     keywords: [] as string[],
   }

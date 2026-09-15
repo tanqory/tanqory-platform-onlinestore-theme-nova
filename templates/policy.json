@@ -3,7 +3,7 @@
     {
       "type": "header",
       "id": "header",
-      "settings": { "menu": "main-menu" },
+      "settings": {},
       "area": "header"
     },
     {
@@ -19,7 +19,7 @@
       "area": "footer",
       "blocks": [
         { "type": "footer-brand", "id": "footer-brand", "settings": {} },
-        { "type": "footer-menu", "id": "footer-menu-shop", "settings": { "menu": "main-menu" } },
+        { "type": "footer-menu", "id": "footer-menu-shop", "settings": { "menu": "footer-shop" } },
         { "type": "footer-menu", "id": "footer-menu-help", "settings": { "menu": "footer-help" } },
         { "type": "footer-menu", "id": "footer-menu-company", "settings": { "menu": "footer-company" } }
       ]

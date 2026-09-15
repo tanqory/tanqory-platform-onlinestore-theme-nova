@@ -39,7 +39,21 @@ const schema: Record<string, ThemeSettingSpec> = {
     label: 'Shop name',
     default: '',
     placeholder: 'Store name',
-    info: 'Shown in the header when there is no logo. Leave empty to use the store name.',
+    info: 'Shown in the header when there is no logo, and in the browser tab. Leave empty to use the store name.',
+  },
+  // Applied by main.tsx / entry-server.tsx through lib/theme-locale.ts: the
+  // string map (locales/<code>.json) the theme's fixed interface words use
+  // before a visitor picks a language. An AI build sets it to its brief's language.
+  locale: {
+    type: 'select',
+    group: 'Brand',
+    label: 'Theme language',
+    default: '',
+    options: [
+      { value: '', label: 'English' },
+      { value: 'th', label: 'ไทย (Thai)' },
+    ],
+    info: 'The language of the theme’s own words — account menu, contact form, cart and policy headings. Your own text is never changed.',
   },
 
   // ── Colors ───────────────────────────────────────────────────────────────
@@ -281,7 +295,7 @@ const schema: Record<string, ThemeSettingSpec> = {
     group: 'Footer',
     label: 'Footer tagline',
     default: '',
-    info: 'Leave empty to use the store description.',
+    info: 'Shown under the shop name in the footer. Leave empty to use the brand slogan, else the store description.',
   },
   showPoweredBy: {
     type: 'boolean',

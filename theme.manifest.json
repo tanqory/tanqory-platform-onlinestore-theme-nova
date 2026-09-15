@@ -14,7 +14,7 @@
     "sections": 61,
     "templates": 18,
     "layouts": 1,
-    "settings": 40,
+    "settings": 41,
     "categories": {
       "block": 28,
       "commerce": 10,
@@ -634,7 +634,7 @@
         },
         "tagline": {
           "type": "textarea",
-          "label": "Tagline (blank = store description)",
+          "label": "Tagline (blank = theme tagline, then brand slogan)",
           "dynamic": true
         }
       },
@@ -1884,7 +1884,25 @@
           "label": "Shop name",
           "default": "",
           "placeholder": "Store name",
-          "info": "Shown in the header when there is no logo. Leave empty to use the store name."
+          "info": "Shown in the header when there is no logo, and in the browser tab. Leave empty to use the store name."
+        },
+        {
+          "key": "locale",
+          "type": "select",
+          "group": "Brand",
+          "label": "Theme language",
+          "default": "",
+          "options": [
+            {
+              "value": "",
+              "label": "English"
+            },
+            {
+              "value": "th",
+              "label": "ไทย (Thai)"
+            }
+          ],
+          "info": "The language of the theme’s own words — account menu, contact form, cart and policy headings. Your own text is never changed."
         }
       ]
     },
@@ -2367,7 +2385,7 @@
           "group": "Footer",
           "label": "Footer tagline",
           "default": "",
-          "info": "Leave empty to use the store description."
+          "info": "Shown under the shop name in the footer. Leave empty to use the brand slogan, else the store description."
         },
         {
           "key": "showPoweredBy",
@@ -2416,6 +2434,7 @@
     "footerShopMenuHandle": "footer-shop",
     "footerTagline": "",
     "headerMenuHandle": "main-menu",
+    "locale": "",
     "logo": "",
     "mobileNavHeading": "Menu",
     "mobileNavWidth": "320px",

@@ -222,7 +222,7 @@ function computeHead(pathname: string, data: DataApi): HeadMeta {
         } | null
       }
     | undefined
-  const shopName = (shop?.name || (settings as { shopName?: string }).shopName || 'Store').trim()
+  const shopName = ((settings as { shopName?: string }).shopName || shop?.name || 'Store').trim()
   let seoTitle: string | null | undefined
   let rawTitle: string | undefined
   let description: string | null | undefined
@@ -550,7 +550,7 @@ if (
     // Blog + article are fetched on demand (not in the sync bootstrap), so
     // resolve their template variant + SEO head asynchronously before mount.
     const shop = data.shop as { name?: string } | undefined
-    const shopName = (shop?.name || (settings as { shopName?: string }).shopName || 'Store').trim()
+    const shopName = ((settings as { shopName?: string }).shopName || shop?.name || 'Store').trim()
     const am = resolveArticleMatch(pathname)
     const bh = resolveBlogHandle(pathname)
     if (page === 'article' && am && data.articleByHandle) {

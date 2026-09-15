@@ -62,7 +62,7 @@ export async function render(
   // client sets per-route heads for everything else (see main.tsx computeHead).
   const shop = (data as { shop?: { name?: string; description?: string } }).shop
   const head = {
-    title: (shop?.name || (settings as { shopName?: string }).shopName || 'Store').trim(),
+    title: ((settings as { shopName?: string }).shopName || shop?.name || 'Store').trim(),
     description: (shop?.description || '').trim(),
     keywords: [] as string[],
   }

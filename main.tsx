@@ -24,24 +24,34 @@ import {
 } from '@tanqory/theme-kit'
 import { apiBase } from './lib/api-base'
 import { decodeHandle } from './lib/handle'
+import { documentTitle, shopNameOf } from './lib/head'
+import { localeStrings, themeLocaleOf } from './lib/theme-locale'
 import './assets/styles.css'
 import mockCollections from './lib/collections.json'
 import settings from './config/settings.json'
 
 // All bundled UI-string maps, e.g. { './locales/en.json': {default:{…}}, './locales/th.json': … }.
-// The active locale is chosen at boot from ?locale= / localStorage / default.
+// The active locale is chosen at boot from ?locale= / localStorage / the theme's own.
 const localeModules = import.meta.glob('./locales/*.json', { eager: true }) as Record<
   string,
   { default: Record<string, string> }
 >
-const DEFAULT_LOCALE = 'en'
 const localeMaps: Record<string, Record<string, string>> = Object.fromEntries(
   Object.entries(localeModules).map(([path, mod]) => [
-    path.match(/\/([^/]+)\.json$/)?.[1] ?? DEFAULT_LOCALE,
+    path.match(/\/([^/]+)\.json$/)?.[1] ?? 'en',
     mod.default,
   ]),
 )
-const baseLocale = localeMaps[DEFAULT_LOCALE] ?? {}
+/**
+ * The theme's own language (`config/settings.json` `locale`, blank = English):
+ * the string map a visitor sees before choosing one, and the one the SSG bakes.
+ * A theme built for a Thai shop draws its account menu, contact form and policy
+ * headings in Thai (lib/theme-locale.ts).
+ */
+const DEFAULT_LOCALE = themeLocaleOf(
+  (settings as { locale?: unknown }).locale,
+  Object.keys(localeMaps),
+)
 
 /** Map a URL pathname → template name (a file under ./templates). */
 function resolveTemplate(pathname: string): string {
@@ -169,7 +179,7 @@ function headFrom(
   image?: string | null,
 ): HeadMeta {
   return {
-    title: seo?.title?.trim() ? seo.title.trim() : `${resourceTitle} — ${shopName}`,
+    title: documentTitle({ seoTitle: seo?.title, resourceTitle, shopName }),
     description: (seo?.description || fallbackDesc || '').trim(),
     keywords: (seo?.keywords ?? []).filter(Boolean),
     image: absUrl(image),
@@ -222,7 +232,7 @@ function computeHead(pathname: string, data: DataApi): HeadMeta {
         } | null
       }
     | undefined
-  const shopName = ((settings as { shopName?: string }).shopName || shop?.name || 'Store').trim()
+  const shopName = shopNameOf((settings as { shopName?: unknown }).shopName, shop?.name)
   let seoTitle: string | null | undefined
   let rawTitle: string | undefined
   let description: string | null | undefined
@@ -248,7 +258,7 @@ function computeHead(pathname: string, data: DataApi): HeadMeta {
     type = 'article'
   }
   const isHome = !isDetail.pg && !isDetail.pr && !isDetail.co
-  const title = seoTitle?.trim() ? seoTitle.trim() : rawTitle ? `${rawTitle} — ${shopName}` : shopName
+  const title = documentTitle({ seoTitle, resourceTitle: rawTitle, shopName })
   return {
     title,
     description: (description || (isHome ? shop?.description : '') || '').trim(),
@@ -389,14 +399,12 @@ function resolveLocale(): string {
   return DEFAULT_LOCALE
 }
 
-/** The active locale's strings, with the default locale as the fallback base so
- *  a partially-translated locale shows English (not raw keys). */
-function pickLocale(): Record<string, string> {
-  const code = resolveLocale()
-  return code === DEFAULT_LOCALE ? baseLocale : { ...baseLocale, ...(localeMaps[code] ?? {}) }
-}
+/** The active locale's strings, laid over English so a partially-translated
+ *  locale shows English (not raw keys). */
+const activeLocale = localeStrings(resolveLocale(), localeMaps)
 
-const activeLocale = pickLocale()
+// The page's language for the browser, screen readers and search engines.
+if (typeof document !== 'undefined') document.documentElement.lang = resolveLocale()
 
 /** The locale code to send to the backend (X-Tanqory-Lang) for content
  *  translation — only when non-default, so default-language requests skip the
@@ -506,7 +514,7 @@ if (
   VITE_TANQORY_BACKEND &&
   VITE_TANQORY_STORE_ID &&
   page === (ssgState.page ?? 'index') &&
-  // SSG bakes the DEFAULT locale's strings; a non-default ?locale= would render
+  // SSG bakes the theme's DEFAULT locale's strings; a different ?locale= would render
   // different useT() text than the server did → hydration mismatch (#418). Those
   // visitors take the client-render path below instead.
   resolveLocale() === DEFAULT_LOCALE
@@ -550,7 +558,7 @@ if (
     // Blog + article are fetched on demand (not in the sync bootstrap), so
     // resolve their template variant + SEO head asynchronously before mount.
     const shop = data.shop as { name?: string } | undefined
-    const shopName = ((settings as { shopName?: string }).shopName || shop?.name || 'Store').trim()
+    const shopName = shopNameOf((settings as { shopName?: unknown }).shopName, shop?.name)
     const am = resolveArticleMatch(pathname)
     const bh = resolveBlogHandle(pathname)
     if (page === 'article' && am && data.articleByHandle) {

@@ -69,7 +69,7 @@ The list below is generated from that manifest — **do not edit by hand**; run
 `npm run manifest` (it also refreshes this block).
 
 <!-- BEGIN GENERATED CATALOG -->
-**61 sections · 18 templates · 40 settings**
+**61 sections · 18 templates · 41 settings**
 
 ### Sections by category
 - **block** (28): accordion, add-to-cart, button, collection-item, column, faq-item, footer-brand, footer-menu, footer-text, heading, icon, image, jumbo-text, logo, payment-icons, product-description, product-inventory, product-price, product-sku, product-title, quantity, slide, social-links, spacer, swatches, text, variant-picker, video
@@ -105,7 +105,7 @@ The list below is generated from that manifest — **do not edit by hand**; run
 | `search` | footer, header, search-results |
 
 ### Theme settings
-- **Brand**: logo, shopName
+- **Brand**: logo, shopName, locale
 - **Colors**: colorBrand, accent, colorBackground, colorText
 - **Typography**: fontHeading, fontBody
 - **Header**: headerMenuHandle, enableSpaNavigation, enableAccountDropdown, enableMobileNavDrawer, mobileNavHeading, mobileNavWidth

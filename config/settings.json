@@ -28,6 +28,7 @@
   "footerShopMenuHandle": "footer-shop",
   "footerTagline": "",
   "headerMenuHandle": "main-menu",
+  "locale": "",
   "logo": "",
   "mobileNavHeading": "Menu",
   "mobileNavWidth": "320px",

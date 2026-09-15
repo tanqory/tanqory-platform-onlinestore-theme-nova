@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
+import { useT } from '@tanqory/theme-kit'
 import { closeOverlay, useOverlay } from '../components/useOverlayChannel'
 import { parseAccountLinks, safeHref } from '../lib/safe-href'
+import { accountLinkLabel } from '../lib/theme-locale'
 
 interface AccountMenuProps {
   loggedIn: boolean
@@ -35,8 +37,14 @@ interface AccountSession {
  *             the OTP flow lands the customer back where they started
  *             (passwordless — there is no separate Create account door).
  * Logged-in:  greeting + View orders / Sign out (+ merchant extras).
+ *
+ * Its own words come from the theme's string map (`useT`), so they are in the
+ * theme's language (`config/settings.json` `locale`): a Thai theme showed
+ * "Sign in for faster checkout." on every page before (build 7270019a). A
+ * merchant's own account settings still win.
  */
 export function AccountMenu(props: AccountMenuProps): JSX.Element {
+  const t = useT()
   const open = useOverlay('account')
   const ref = useRef<HTMLDivElement>(null)
   const [session, setSession] = useState<AccountSession | null>(null)
@@ -95,25 +103,31 @@ export function AccountMenu(props: AccountMenuProps): JSX.Element {
   const loginHref = `/account/login?return_to=${encodeURIComponent(here)}`
 
   const who = session?.firstName || session?.email || ''
-  const heading = props.heading || (loggedIn ? 'My account' : 'Welcome')
+  const heading = props.heading || (loggedIn ? t('account.myAccount') : t('account.welcome'))
   const subtext =
     props.subtext ||
     (loggedIn
       ? who
-        ? `Signed in as ${who}`
-        : 'Manage orders and details.'
-      : 'Sign in for faster checkout.')
-  const primaryLabel = props.primaryLabel || (loggedIn ? 'View orders' : 'Sign in')
+        ? `${t('account.signedInAs')} ${who}`
+        : t('account.manage')
+      : t('account.signInPrompt'))
+  const primaryLabel =
+    props.primaryLabel || (loggedIn ? t('account.viewOrders') : t('account.signIn'))
   // Merchant-configured links pass a scheme check (no javascript:/data:) and
   // fall back to the default link when they fail it.
   const primaryHref = safeHref(props.primaryHref) || (loggedIn ? '/account' : loginHref)
   // Passwordless storefront: no Create account door. Logged-out shows the
   // single Sign in CTA unless the merchant explicitly configured a
   // secondary link; logged-in keeps Sign out.
-  const secondaryLabel = props.secondaryLabel || (loggedIn ? 'Sign out' : '')
+  const secondaryLabel = props.secondaryLabel || (loggedIn ? t('account.signOut') : '')
   const secondaryHref = safeHref(props.secondaryHref) || (loggedIn ? '/account/logout' : '')
 
-  const extras = parseAccountLinks(props.links)
+  // nova's default extras ("Orders", "Addresses") follow the theme's language;
+  // a label the merchant wrote is shown as written.
+  const extras = parseAccountLinks(props.links).map((link) => ({
+    ...link,
+    label: accountLinkLabel(link.label, t),
+  }))
 
   return (
     <div
@@ -121,7 +135,7 @@ export function AccountMenu(props: AccountMenuProps): JSX.Element {
       className={`account-menu ${open ? 'account-menu--open' : ''}`}
       role="dialog"
       aria-modal="false"
-      aria-label="Account menu"
+      aria-label={t('account.menuLabel')}
       aria-hidden={!open}
     >
       <div className="account-menu__head">

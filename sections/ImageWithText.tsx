@@ -1,9 +1,17 @@
 import { defineSection, type SectionProps } from '@tanqory/theme-kit'
 import { ImageResponsive } from '../components/ImageResponsive'
 import { Button } from '../components/Button'
+import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
 export function ImageWithText({ attributes }: SectionProps): JSX.Element {
-  const reverse = Boolean(attributes.imageRight)
+  // `mediaPosition` is the design's enum; `imageRight` is the boolean merchants
+  // already have saved. A boolean cannot express a third position, which is why
+  // the design replaced it.
+  const mediaPosition = (attributes.mediaPosition as string) ?? (attributes.imageRight ? 'right' : 'left')
+  const mediaRatio = (attributes.mediaRatio as string) ?? 'adapt'
+  const verticalAlign = (attributes.contentVerticalAlign as string) ?? 'center'
+  const mobileMediaPosition = (attributes.mobileMediaPosition as string) ?? 'before'
+  const buttonVariant = (attributes.buttonVariant as 'secondary' | 'link') ?? 'link'
   const image = attributes.image as string | undefined
   const imageAlt = attributes.imageAlt as string | undefined
   const eyebrow = attributes.eyebrow as string | undefined
@@ -13,9 +21,15 @@ export function ImageWithText({ attributes }: SectionProps): JSX.Element {
   const buttonLink = attributes.buttonLink as string | undefined
 
   return (
-    <section className="section">
+    <section {...sharedRootProps(attributes)} className="section">
       <div className="container">
-        <div className={`iwt ${reverse ? 'iwt--reverse' : ''}`}>
+        <div
+          className="iwt"
+          data-media={mediaPosition}
+          data-ratio={mediaRatio}
+          data-valign={verticalAlign}
+          data-mobile-media={mobileMediaPosition}
+        >
           <div className="iwt__media">
             <ImageResponsive src={image} alt={imageAlt ?? heading} />
           </div>
@@ -25,7 +39,12 @@ export function ImageWithText({ attributes }: SectionProps): JSX.Element {
             {body && <p>{body}</p>}
             {buttonLabel && (
               <div className="cluster">
-                <Button label={buttonLabel} link={buttonLink} variant="secondary" />
+                <Button
+                  label={buttonLabel}
+                  link={buttonLink}
+                  variant={buttonVariant}
+                  {...(buttonVariant === 'link' ? { className: 'btn--forward' } : {})}
+                />
               </div>
             )}
           </div>
@@ -37,17 +56,64 @@ export function ImageWithText({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'image-with-text',
+  role: 'section',
   title: 'Image with text',
   category: 'content',
   icon: '◧',
-  attributes: {
+  attributes: withShared({
     image: {
       type: 'image',
       label: 'Image',
-      default: 'data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%271400%27%20height%3D%271000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23374a40%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%235e7d6a%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3C/svg%3E',
+      default: 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221400%22%20height%3D%221000%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22s%22%20width%3D%2222.63%22%20height%3D%2222.63%22%20patternUnits%3D%22userSpaceOnUse%22%20patternTransform%3D%22rotate%2845%29%22%3E%3Crect%20width%3D%2222.63%22%20height%3D%2222.63%22%20fill%3D%22%23EFEEEB%22%2F%3E%3Crect%20width%3D%2211.31%22%20height%3D%2222.63%22%20fill%3D%22%23E8E6E2%22%2F%3E%3C%2Fpattern%3E%3C%2Fdefs%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url%28%23s%29%22%2F%3E%3C%2Fsvg%3E',
     },
     imageAlt: { type: 'text', label: 'Image alt text' },
-    imageRight: { type: 'boolean', default: false, label: 'Image on right' },
+    mediaPosition: {
+      type: 'select',
+      default: 'left',
+      label: 'Image side',
+      options: [
+        { value: 'left', label: 'Left' },
+        { value: 'right', label: 'Right' },
+      ],
+    },
+    mediaRatio: {
+      type: 'select',
+      default: 'adapt',
+      label: 'Image shape',
+      options: [
+        { value: 'adapt', label: 'Adapt to image' },
+        { value: 'portrait', label: 'Portrait' },
+        { value: 'square', label: 'Square' },
+        { value: 'landscape', label: 'Landscape' },
+      ],
+    },
+    contentVerticalAlign: {
+      type: 'select',
+      default: 'center',
+      label: 'Text vertical position',
+      options: [
+        { value: 'top', label: 'Top' },
+        { value: 'center', label: 'Center' },
+      ],
+    },
+    mobileMediaPosition: {
+      type: 'select',
+      default: 'before',
+      label: 'Image on mobile',
+      options: [
+        { value: 'before', label: 'Above text' },
+        { value: 'after', label: 'Below text' },
+      ],
+    },
+    buttonVariant: {
+      type: 'select',
+      default: 'link',
+      label: 'Button style',
+      options: [
+        { value: 'secondary', label: 'Secondary' },
+        { value: 'link', label: 'Text link' },
+      ],
+    },
     eyebrow: { type: 'text', label: 'Eyebrow' },
     heading: { type: 'text', default: 'A story worth telling', label: 'Heading' },
     body: {
@@ -58,6 +124,6 @@ export default defineSection({
     },
     buttonLabel: { type: 'text', label: 'Button label' },
     buttonLink: { type: 'url', label: 'Button link' },
-  },
+  }),
   component: ImageWithText,
 })

@@ -35,6 +35,7 @@ export function SocialLinks({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'social-links',
+  role: 'block',
   title: 'Social links',
   category: 'block',
   icon: '@',

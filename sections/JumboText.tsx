@@ -13,6 +13,7 @@ export function JumboText({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'jumbo-text',
+  role: 'block',
   title: 'Jumbo text',
   category: 'block',
   icon: 'A',

@@ -1,0 +1,132 @@
+[
+ {
+  "name": "sectionWidth",
+  "control": "segmented",
+  "options": "standard | wide | full",
+  "def": "wide (commerce) / standard (content)",
+  "scope": "Layout",
+  "resp": "no",
+  "dep": "",
+  "desc": "Container preset"
+ },
+ {
+  "name": "contentWidth",
+  "control": "segmented",
+  "options": "narrow | content | standard",
+  "def": "content",
+  "scope": "Layout",
+  "resp": "no",
+  "dep": "text sections",
+  "desc": "Inner text measure"
+ },
+ {
+  "name": "contentAlignment",
+  "control": "segmented",
+  "options": "left | center",
+  "def": "left",
+  "scope": "Layout",
+  "resp": "yes",
+  "dep": "",
+  "desc": "Header + text alignment"
+ },
+ {
+  "name": "spacingTop",
+  "control": "segmented",
+  "options": "none | small | medium | large | xl",
+  "def": "medium",
+  "scope": "Spacing",
+  "resp": "yes",
+  "dep": "",
+  "desc": "Padding preset (64 / 48 / 40 at medium)"
+ },
+ {
+  "name": "spacingBottom",
+  "control": "segmented",
+  "options": "none | small | medium | large | xl",
+  "def": "medium",
+  "scope": "Spacing",
+  "resp": "yes",
+  "dep": "",
+  "desc": "Padding preset"
+ },
+ {
+  "name": "background",
+  "control": "segmented",
+  "options": "surface | surface-secondary | primary",
+  "def": "surface",
+  "scope": "Appearance",
+  "resp": "no",
+  "dep": "",
+  "desc": "Section background role"
+ },
+ {
+  "name": "heading",
+  "control": "text / rich text",
+  "options": "",
+  "def": "—",
+  "scope": "Content",
+  "resp": "no",
+  "dep": "",
+  "desc": "SectionHeader slots"
+ },
+ {
+  "name": "eyebrow",
+  "control": "text / rich text",
+  "options": "",
+  "def": "—",
+  "scope": "Content",
+  "resp": "no",
+  "dep": "",
+  "desc": "SectionHeader slots"
+ },
+ {
+  "name": "description",
+  "control": "text / rich text",
+  "options": "",
+  "def": "—",
+  "scope": "Content",
+  "resp": "no",
+  "dep": "",
+  "desc": "SectionHeader slots"
+ },
+ {
+  "name": "headerSize",
+  "control": "segmented",
+  "options": "small | medium | large",
+  "def": "medium",
+  "scope": "Appearance",
+  "resp": "yes",
+  "dep": "heading set",
+  "desc": "H3 / H2 / H1"
+ },
+ {
+  "name": "mobileContentAlignment",
+  "control": "segmented",
+  "options": "inherit | left | center",
+  "def": "inherit",
+  "scope": "Mobile",
+  "resp": "mobile",
+  "dep": "contentAlignment=center",
+  "desc": "Overrides on mobile"
+ },
+ {
+  "name": "hideOnMobile",
+  "control": "toggle",
+  "options": "",
+  "def": "off",
+  "scope": "Mobile",
+  "resp": "mobile",
+  "dep": "",
+  "desc": "Suppress section < 768"
+ },
+ {
+  "name": "anchorId",
+  "control": "text",
+  "options": "",
+  "def": "—",
+  "scope": "Advanced",
+  "resp": "no",
+  "dep": "",
+  "desc": "In-page link target"
+ }
+]

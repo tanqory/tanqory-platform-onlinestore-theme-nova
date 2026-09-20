@@ -13,6 +13,7 @@ export function TextBlock({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'text',
+  role: 'block',
   title: 'Text',
   category: 'block',
   icon: '¶',

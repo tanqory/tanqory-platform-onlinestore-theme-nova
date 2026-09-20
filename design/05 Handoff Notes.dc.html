@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#FCFCFB} a{color:#1B1A18} a:hover{color:#5C5955}</style>
+</helmet>
+<div style="font-family:'Instrument Sans',Helvetica,Arial,sans-serif;color:#1B1A18;padding:64px 48px;display:flex;flex-direction:column;gap:40px;max-width:1440px;margin:0 auto;box-sizing:border-box">
+<header style="display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap">
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C5955;letter-spacing:.04em">TANQORY NOVA · 05 / 06</span>
+    <h1 style="margin:0;font-size:40px;line-height:1.1;font-weight:500;letter-spacing:-.02em">Section Handoff Notes</h1>
+    <p style="margin:0;font-size:16px;line-height:24px;color:#5C5955;max-width:760px;text-wrap:pretty">One entry per Tanqory section: components used, content slots (data required), responsive rules, edge cases and the recommended merchant prop matrix. Props are DESIGN CONTROL RECOMMENDATIONS — Claude Code maps them to schema. Shared props (sectionWidth, spacingTop/Bottom, background, headerAlignment) are defined once in <a href="06 Configuration System.dc.html">06 Configuration System</a> and not repeated here unless the default differs.</p>
+  </div>
+  <nav style="display:flex;gap:8px;font-size:13px">
+    <a href="04 Sections B.dc.html" style="padding:8px 12px;border:1px solid #C9C6C0;border-radius:4px;text-decoration:none;background:#fff">← 04 B</a>
+    <a href="06 Configuration System.dc.html" style="padding:8px 12px;border:1px solid #C9C6C0;border-radius:4px;text-decoration:none;background:#fff">06 Configuration →</a>
+  </nav>
+</header>
+<div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px">
+  <sc-for list="{{ sections }}" as="s" hint-placeholder-count="34"><a href="#{{ s.id }}" style="padding:6px 10px;border:1px solid #E6E4E0;border-radius:999px;text-decoration:none;background:#fff;font-family:'IBM Plex Mono',monospace;font-size:12px">{{ s.name }}</a></sc-for>
+</div>
+<sc-for list="{{ sections }}" as="s" hint-placeholder-count="6">
+  <section id="{{ s.id }}" style="background:#fff;border:1px solid #E6E4E0;border-radius:4px;padding:32px;display:flex;flex-direction:column;gap:24px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:24px;flex-wrap:wrap"><h2 style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:500">{{ s.name }}</h2><span style="font-size:12px;color:#8A867F;text-transform:uppercase;letter-spacing:.06em;font-weight:500">{{ s.group }}</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;font-size:14px;line-height:20px;color:#5C5955">
+      <div><strong style="color:#1B1A18;display:block;margin-bottom:6px">Purpose</strong>{{ s.purpose }}</div>
+      <div><strong style="color:#1B1A18;display:block;margin-bottom:6px">Components used</strong>{{ s.components }}</div>
+      <div><strong style="color:#1B1A18;display:block;margin-bottom:6px">Content slots · data required</strong>{{ s.slots }}</div>
+      <div><strong style="color:#1B1A18;display:block;margin-bottom:6px">Responsive rules</strong>{{ s.responsive }}</div>
+      <div><strong style="color:#1B1A18;display:block;margin-bottom:6px">Edge cases</strong>{{ s.edge }}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;border-top:1px solid #E6E4E0;font-size:13px;line-height:18px">
+      <div style="display:grid;grid-template-columns:150px 90px minmax(0,1.4fr) 110px 90px 80px 140px minmax(0,1.6fr);gap:12px;padding:10px 0;color:#8A867F;font-family:'IBM Plex Mono',monospace;font-size:11px;border-bottom:1px solid #E6E4E0"><span>property</span><span>control</span><span>options</span><span>default</span><span>group</span><span>responsive</span><span>dependency</span><span>description</span></div>
+      <sc-for list="{{ s.props }}" as="p" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:150px 90px minmax(0,1.4fr) 110px 90px 80px 140px minmax(0,1.6fr);gap:12px;padding:10px 0;border-bottom:1px solid #F4F3F1;align-items:start"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#1B1A18">{{ p.name }}</span><span style="color:#5C5955">{{ p.control }}</span><span style="color:#5C5955">{{ p.options }}</span><span style="font-weight:500">{{ p.def }}</span><span style="color:#5C5955">{{ p.group }}</span><span style="color:#5C5955">{{ p.resp }}</span><span style="color:#8A867F;font-family:'IBM Plex Mono',monospace;font-size:11px">{{ p.dep }}</span><span style="color:#5C5955">{{ p.desc }}</span></div>
+      </sc-for>
+    </div>
+  </section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const P = (name, control, options, def, group, resp, dep, desc) => ({ name, control, options, def, group, resp, dep: dep || '—', desc });
+    const S = (name, group, purpose, components, slots, responsive, edge, props) => ({ id: name, name, group, purpose, components, slots, responsive, edge, props });
+    const sections = [
+      S('announcement-bar', 'Layout', 'Single-line store-wide notice; optional rotation of up to 3 messages.', 'Text, Text Link, IconButton (prev/next, dismiss)', 'messages[] {text, link?}; background role', '36px desktop / 32px mobile; one line, ellipsis on mobile; arrows hidden < 768 (swipe or auto-rotate).', 'No messages → section hidden. Very long text → ellipsis + full text on tap (tooltip/expand). Dismiss persists per session.', [
+        P('background', 'segmented', 'primary | surface-secondary', 'primary', 'Appearance', 'no', '', 'Bar color role; text auto-inverts'),
+        P('rotation', 'toggle', 'on | off', 'off', 'Content', 'no', 'messages > 1', 'Auto-rotate messages every 6s, pauses on hover'),
+        P('showArrows', 'toggle', '', 'on', 'Layout', 'desktop', 'rotation=on', 'Prev/next controls on desktop'),
+        P('dismissible', 'toggle', '', 'off', 'Advanced', 'no', '', 'Adds close button; hides for session')
+      ]),
+      S('header', 'Layout', 'Quiet orientation bar: logo, navigation, search, account, cart.', 'NavigationMenu, MobileNavigation, SearchInterface, AccountTrigger, CartTrigger, IconButton, Badge', 'logo image (or store name), menu (resource), search enabled, account enabled, cart count', '≥1024 full nav (72px); 768–1023 hamburger + centered logo (60px); <768 56px bar. Sticky per setting; announcement never sticky.', 'Long labels overflow into “More”. No logo → store name H4/600. Transparent-over-hero variant inverts and needs overlay ≥ medium. Cart ≥100 → 99+.', [
+        P('layout', 'visual cards', 'logo-center | logo-left', 'logo-center', 'Layout', 'desktop', '', 'Desktop arrangement; mobile is fixed'),
+        P('sticky', 'segmented', 'always | on-scroll-up | none', 'always', 'Layout', 'yes', '', 'Sticky behavior; scrolled state adds hairline + floating shadow'),
+        P('transparentOnHero', 'toggle', '', 'off', 'Appearance', 'yes', 'first section = hero image-background', 'Overlays header on hero until scrolled'),
+        P('searchStyle', 'segmented', 'icon | inline-field', 'icon', 'Content', 'desktop', 'showSearch=on', 'Icon expands to 560 field; inline shows field permanently'),
+        P('showAccount', 'toggle', '', 'on', 'Content', 'no', '', 'Account trigger visibility'),
+        P('cartAction', 'segmented', 'drawer | page', 'drawer', 'Advanced', 'no', '', 'What the cart trigger opens'),
+        P('menu', 'resource', 'menu', 'main-menu', 'Content', 'no', '', 'Navigation source; children render mega menu (≥ 9 links or has images) or dropdown'),
+        P('logoHeight', 'segmented', 'small 24 | medium 32 | large 40', 'medium', 'Appearance', 'yes', 'logo set', 'Desktop logo height; mobile −8px')
+      ]),
+      S('hero', 'Layout', 'One message, up to two actions; media sets the mood.', 'Button ×0–2, Eyebrow, Display/H1, Body Large, image slot', 'heading, eyebrow?, body?, buttons[0–2], image, mobileImage?, focalPoint', 'Split → stacked < 768; image-background 4:5 on mobile; CTAs stack full width < 480; size steps down one tier per breakpoint.', 'Long heading steps Display→H1. No CTA/body collapse gaps. Auto-raise overlay for contrast. Portrait image in split adapts ratio.', [
+        P('layout', 'visual cards', 'image-background | split | contained | minimal', 'image-background', 'Layout', 'yes', '', 'Composition preset'),
+        P('size', 'segmented', 'small | medium | large | fullscreen', 'large', 'Layout', 'yes', 'layout≠minimal', 'Min-height 400 / 480 / 640 / 100svh'),
+        P('contentPosition', '9-grid picker', 'top/center/bottom × left/center/right', 'bottom-left', 'Layout', 'desktop', 'layout=image-background', 'Content anchor inside media'),
+        P('contentAlignment', 'segmented', 'left | center | right', 'left', 'Layout', 'yes', '', 'Text alignment'),
+        P('textWidth', 'segmented', 'narrow | medium | wide', 'medium', 'Layout', 'no', '', '480 / 640 / 840 max text width'),
+        P('mediaPosition', 'segmented', 'left | right', 'right', 'Media', 'desktop', 'layout=split', 'Media column side'),
+        P('imageRatio', 'select', 'adapt | landscape | square | portrait', 'adapt', 'Media', 'yes', 'layout=split|contained', 'Media frame ratio'),
+        P('imageFit', 'segmented', 'cover | contain', 'cover', 'Media', 'no', 'image set', 'Cropping behavior'),
+        P('overlay', 'segmented', 'none | light | medium | strong', 'medium', 'Appearance', 'no', 'layout=image-background', 'Scrim strength 0 / .24 / .48 / .64'),
+        P('mobileImage', 'resource', 'image', '—', 'Mobile', 'mobile', 'image set', 'Separate crop for < 768'),
+        P('mobileMediaPosition', 'segmented', 'before | after', 'before', 'Mobile', 'mobile', 'layout=split', 'Stack order on mobile'),
+        P('mobileContentAlignment', 'segmented', 'left | center', 'left', 'Mobile', 'mobile', '', 'Overrides alignment on mobile')
+      ]),
+      S('slideshow', 'Layout', 'Sequence of hero compositions with controls.', 'hero composition per slide, IconButton (prev/next/pause), counter', 'slides[] {hero slots}; autoplay settings', 'Same as hero per slide; controls bottom-right desktop, bottom-center mobile; counter replaces dots ≥ 6 slides.', '1 slide → renders as hero without controls. Autoplay pauses on hover/focus and under reduced motion. Mixed slide heights lock to the tallest.', [
+        P('slideHeight', 'segmented', 'small | medium | large | adapt-first', 'medium', 'Layout', 'yes', '', 'Fixed height or first slide’s ratio'),
+        P('autoplay', 'toggle', '', 'off', 'Content', 'no', 'slides > 1', 'Auto-advance'),
+        P('interval', 'segmented', '4s | 6s | 8s', '6s', 'Content', 'no', 'autoplay=on', 'Delay between slides'),
+        P('controls', 'segmented', 'arrows+counter | dots | none', 'arrows+counter', 'Layout', 'yes', 'slides > 1', 'Navigation UI'),
+        P('transition', 'segmented', 'fade | slide', 'fade', 'Appearance', 'no', '', 'Motion Standard; fade under reduced motion')
+      ]),
+      S('divider', 'Layout', 'Visual break or pure space between sections.', 'Divider', 'none', 'Spacing preset steps down per breakpoint.', 'Two adjacent dividers collapse to one.', [
+        P('style', 'segmented', 'line-subtle | line-strong | space', 'line-subtle', 'Appearance', 'no', '', 'Line role or invisible spacer'),
+        P('width', 'segmented', 'standard | wide | full', 'wide', 'Layout', 'no', 'style≠space', 'Line length'),
+        P('spacing', 'segmented', 'sm | md | lg | xl', 'md', 'Spacing', 'yes', '', 'Vertical padding around the line')
+      ]),
+      S('group', 'Layout', 'Wraps child sections in a shared background, width and spacing.', 'container only', 'children sections', 'Children inherit container; their outer spacing collapses to the group’s inner gap.', 'Empty group → hidden. Nested group not allowed.', [
+        P('background', 'segmented', 'surface | surface-secondary | primary', 'surface-secondary', 'Appearance', 'no', '', 'Shared background role'),
+        P('innerGap', 'segmented', 'small | medium | large', 'medium', 'Spacing', 'yes', '', 'Gap between children'),
+        P('sectionWidth', 'segmented', 'standard | wide | full', 'wide', 'Layout', 'no', '', 'Container children inherit')
+      ]),
+      S('footer', 'Layout', 'Wayfinding, newsletter, trust, legal.', 'footer-brand, footer-menu ×n, footer-text, NewsletterForm, SocialLinks, PaymentIcons, locale selector, Text Link', 'brand {logo?, text}, menus[] (resource), newsletter?, social urls, payment marks, legal menu, copyright', '5 col → 3 → 2 → 1 with fixed mobile order; menus become accordion on mobile.', 'Missing blocks collapse. > 4 menus wrap. Primary background inverts text. Success replaces newsletter form.', [
+        P('background', 'segmented', 'surface | surface-secondary | primary', 'surface-secondary', 'Appearance', 'no', '', 'Footer background role'),
+        P('showSocial', 'toggle', '', 'on', 'Content', 'no', 'social urls set', 'Social icon row'),
+        P('showPayment', 'toggle', '', 'on', 'Content', 'no', '', 'Payment marks in legal row'),
+        P('showLocale', 'toggle', '', 'on', 'Content', 'no', 'multiple locales/currencies', 'Language / currency selector'),
+        P('mobileMenus', 'segmented', 'accordion | stacked', 'accordion', 'Mobile', 'mobile', 'menus ≥ 2', 'Menu presentation < 768'),
+        P('legalMenu', 'resource', 'menu', 'footer-legal', 'Content', 'no', '', 'Links in the legal row')
+      ]),
+      S('featured-collection', 'Commerce', 'Merchandise one collection on any page.', 'SectionHeader, ProductCard, Text Link / Button (View all), carousel controls', 'collection (resource), heading?, description?, productsToShow', 'Columns 6→4→2, 5→3→2, 4→3→2, 3→3→2, 2→2→1. Carousel 4.3 / 2.5 / 1.2 visible.', 'Fewer products than columns → grid left-aligned, no stretch. Carousel with ≤ columns → grid. Empty collection → hidden in storefront, placeholder in editor.', [
+        P('collection', 'resource', 'collection', '—', 'Content', 'no', '', 'Source'),
+        P('layout', 'segmented', 'grid | carousel', 'grid', 'Layout', 'yes', '', 'Product presentation'),
+        P('columns', 'stepper', '2–6', '4', 'Layout', 'desktop', 'layout=grid', 'Desktop columns; tablet/mobile derive'),
+        P('mobileColumns', 'segmented', '1 | 2', '2', 'Mobile', 'mobile', 'layout=grid', 'Override derived mobile columns'),
+        P('productsToShow', 'stepper', '2–12', '4', 'Content', 'no', '', 'Max products rendered'),
+        P('headerAlignment', 'segmented', 'left | center', 'left', 'Layout', 'yes', '', 'Header alignment; centered moves View all below grid'),
+        P('showViewAll', 'toggle', '', 'on', 'Content', 'no', '', 'View all link/button with count'),
+        P('showNavigation', 'toggle', '', 'on', 'Layout', 'desktop', 'layout=carousel', 'Arrow buttons'),
+        P('carouselOnMobile', 'toggle', '', 'off', 'Mobile', 'mobile', 'layout=grid', 'Swipe row instead of grid on mobile'),
+        P('cardImageRatio', 'select', 'inherit | adapt | square | portrait | landscape', 'inherit', 'Media', 'yes', '', 'Overrides global ProductCard ratio for this section')
+      ]),
+      S('featured-product', 'Commerce', 'Compact merchandising of one product with purchase.', 'ProductMedia (single), ProductTitle, ProductPrice, Swatches/VariantPicker, AddToCart, Text Link, Eyebrow', 'product (resource); block order', 'Split → stacked < 768; ATC full width on mobile.', 'No media → frame kept. Many variants → Select. Sold out → button state + notify link.', [
+        P('product', 'resource', 'product', '—', 'Content', 'no', '', 'Source'),
+        P('mediaPosition', 'segmented', 'left | right', 'left', 'Media', 'desktop', '', 'Media column side'),
+        P('mediaRatio', 'select', 'adapt | square | portrait', 'square', 'Media', 'yes', '', 'Frame ratio'),
+        P('showVariants', 'toggle', '', 'on', 'Content', 'no', 'product has variants', 'Variant picker inline'),
+        P('descriptionLines', 'segmented', 'none | 3 | full', '3', 'Content', 'no', '', 'Clamp for description'),
+        P('showViewDetails', 'toggle', '', 'on', 'Content', 'no', '', 'Link to product page')
+      ]),
+      S('product-details', 'Commerce', 'The product page core: gallery + purchase column.', 'ProductGallery, ProductTitle, ProductPrice, CompareAtPrice, SaleBadge, VariantPicker, Swatches, QuantitySelector, AddToCart, InventoryStatus, SKU, ProductDescription, ProductAccordion, Breadcrumb', 'product (media[], title, vendor, price, compareAt, options[], variants[], inventory, sku, description, metafields for accordion)', '7/5 → 6/6 → stacked; gallery becomes 1:1 swipe < 768; sticky column desktop, sticky bar mobile.', 'Long title balanced, no clamp. > 12 option values → Select. Sold out / unavailable states. No media, video media, price range until resolved.', [
+        P('galleryLayout', 'visual cards', 'thumbnails-left | thumbnails-below | stacked', 'thumbnails-left', 'Media', 'desktop', 'media > 1', 'Desktop gallery layout'),
+        P('mediaRatio', 'select', 'adapt | portrait | square', 'portrait', 'Media', 'yes', '', 'Main media frame'),
+        P('enableZoom', 'toggle', '', 'on', 'Media', 'no', '', 'Lightbox zoom'),
+        P('stickyPurchase', 'segmented', 'desktop | mobile | both | none', 'both', 'Layout', 'yes', '', 'Sticky column / bar'),
+        P('variantStyle', 'per option', 'buttons | swatches | select', 'buttons (color→swatches)', 'Content', 'no', 'options exist', 'Control type per option'),
+        P('showVendor', 'toggle', '', 'off', 'Content', 'no', '', 'Eyebrow vendor'),
+        P('showSku', 'toggle', '', 'off', 'Content', 'no', '', 'SKU line'),
+        P('showInventory', 'segmented', 'always | low-only | never', 'low-only', 'Content', 'no', '', 'InventoryStatus visibility'),
+        P('lowStockThreshold', 'stepper', '1–20', '5', 'Advanced', 'no', 'showInventory≠never', 'Threshold for low-stock message'),
+        P('showQuantity', 'toggle', '', 'on', 'Content', 'no', '', 'Quantity selector'),
+        P('accordionItems', 'blocks', 'title + rich text | metafield', '—', 'Content', 'no', '', 'Additional information rows')
+      ]),
+      S('product-grid', 'Commerce', 'Collection page body with filters, sort and pagination.', 'ProductCard, Chip (applied filters), Checkbox, Accordion (filter groups), Popover (sort), Drawer (mobile filters), Skeleton, Pagination / Button (load more), Empty State', 'collection products, filters (facets), sort options, total count', 'Sidebar 260 → drawer < 1024; columns 4/3 → 3 → 2; toolbar sticky on mobile.', '2 products fine. 30+ → load more with progress. Empty → clear filters. Loading skeletons at ratio.', [
+        P('columns', 'segmented', '3 | 4', '3 with sidebar / 4 without', 'Layout', 'desktop', '', 'Desktop columns'),
+        P('mobileColumns', 'segmented', '1 | 2', '2', 'Mobile', 'mobile', '', 'Mobile columns'),
+        P('filterLayout', 'segmented', 'sidebar | drawer | none', 'sidebar', 'Layout', 'yes', '', 'Where filters live on desktop'),
+        P('showSort', 'toggle', '', 'on', 'Content', 'no', '', 'Sort control'),
+        P('showCount', 'toggle', '', 'on', 'Content', 'no', '', 'Result count'),
+        P('pagination', 'segmented', 'load-more | pages', 'load-more', 'Layout', 'no', '', 'Paging pattern'),
+        P('productsPerPage', 'segmented', '12 | 24 | 48', '24', 'Advanced', 'no', '', 'Page size'),
+        P('showQuickAdd', 'toggle', '', 'inherit', 'Content', 'no', '', 'Overrides global card quick add')
+      ]),
+      S('collection-list', 'Commerce', 'Navigate into collections with imagery.', 'SectionHeader, CollectionCard, carousel controls', 'collections[] (resource), heading?', 'Columns as product grid; editorial featured spans 2×2 → full width; carousel default on mobile ≥ 4.', 'No image → title fallback. < 3 collections in editorial → grid. Mixed ratios cover-cropped.', [
+        P('collections', 'resource list', 'collections', '—', 'Content', 'no', '', 'Items'),
+        P('layout', 'visual cards', 'grid | carousel | editorial', 'grid', 'Layout', 'yes', '', 'Composition'),
+        P('columns', 'stepper', '2–5', '4', 'Layout', 'desktop', 'layout=grid', 'Desktop columns'),
+        P('imageRatio', 'select', 'adapt | square | portrait | landscape', 'portrait', 'Media', 'yes', 'layout≠editorial', 'Card media ratio'),
+        P('textStyle', 'segmented', 'below | overlay', 'below', 'Appearance', 'no', '', 'Title placement; overlay forces scrim'),
+        P('showCount', 'toggle', '', 'off', 'Content', 'no', '', 'Product count'),
+        P('showDescription', 'toggle', '', 'off', 'Content', 'no', '', 'Collection description'),
+        P('carouselOnMobile', 'toggle', '', 'on', 'Mobile', 'mobile', 'layout=grid', 'Swipe row on mobile')
+      ]),
+      S('cart-items', 'Commerce', 'Cart page body; establishes drawer language.', 'CartLineItem, QuantitySelector, CartSummary, Button, Text Link, Textarea (note), PaymentIcons, Empty State, Toast', 'cart lines (image, title, variant, unit price, qty, line total, compareAt), subtotal, discounts, note', 'Lines + sticky summary 380 → 320 → below → mobile stacked with sticky checkout bar.', 'Updating row dims; error reverts + toast; remove → Undo toast; empty → Narrow state.', [
+        P('showLineCompareAt', 'toggle', '', 'on', 'Content', 'no', '', 'Strikethrough on discounted lines'),
+        P('showVendor', 'toggle', '', 'off', 'Content', 'no', '', 'Vendor under title'),
+        P('enableNote', 'toggle', '', 'on', 'Content', 'no', '', 'Order note textarea'),
+        P('showPaymentIcons', 'toggle', '', 'on', 'Content', 'no', '', 'Marks under checkout'),
+        P('emptyStateCollection', 'resource', 'collection', '—', 'Content', 'no', '', 'Optional products under empty state'),
+        P('summaryPosition', 'segmented', 'right | below', 'right', 'Layout', 'desktop', '', 'Summary placement on desktop')
+      ]),
+      S('search-results', 'Commerce', 'Query page for products and content.', 'Input (search), Tabs, ProductCard, SearchResultCard, product-grid toolbar, Skeleton, Empty State, collection-links', 'query, results by type with counts, sort options, popular collections', 'Tabs scroll on mobile; grid follows product-grid rules.', 'No results: echo query, spelling hint, popular chips. Loading skeletons. Content-only results → rows.', [
+        P('resultTypes', 'chips', 'products | articles | pages', 'all', 'Content', 'no', '', 'Which types are searched'),
+        P('showTabs', 'toggle', '', 'on', 'Layout', 'no', 'resultTypes > 1', 'Type tabs with counts'),
+        P('showSort', 'toggle', '', 'on', 'Content', 'no', '', 'Sort control'),
+        P('noResultsCollections', 'resource list', 'collections', '—', 'Content', 'no', '', 'Chips shown when empty'),
+        P('columns', 'segmented', '3 | 4', '4', 'Layout', 'desktop', '', 'Desktop columns')
+      ]),
+      S('product-recommendations', 'Other', 'Related / complementary products after PDP and in cart.', 'SectionHeader, ProductCard, carousel controls', 'recommendation API result, heading', 'As featured-collection.', '0 results → hidden. Fewer than columns → grid.', [
+        P('heading', 'text', '', 'You may also like', 'Content', 'no', '', 'Section title'),
+        P('intent', 'segmented', 'related | complementary', 'related', 'Content', 'no', '', 'Recommendation type'),
+        P('limit', 'stepper', '2–8', '4', 'Content', 'no', '', 'Max products'),
+        P('layout', 'segmented', 'grid | carousel', 'carousel', 'Layout', 'yes', '', 'Presentation')
+      ]),
+      S('account', 'Commerce', 'Customer area: orders, addresses, details; login/register.', 'Tabs / side nav, table→cards, Button, Input, Empty State, Badge (status)', 'customer, orders[], addresses[]', 'Side nav → tabs < 1024; table → cards < 768; login split → stacked.', 'No orders → Empty State. Many addresses → grid of cards with default badge.', [
+        P('showOrderHistory', 'toggle', '', 'on', 'Content', 'no', '', 'Orders tab'),
+        P('ordersPerPage', 'segmented', '10 | 20', '10', 'Advanced', 'no', '', 'Paging'),
+        P('loginLayout', 'segmented', 'split | stacked', 'split', 'Layout', 'desktop', '', 'Sign in / register arrangement')
+      ]),
+      S('policy-page', 'Commerce', 'Legal/policy reading page.', 'H1, Caption (updated), rich text, optional sticky TOC', 'policy title, body, updated date', 'Content 840; TOC hides < 1024.', 'Long policy → TOC when ≥ 6 headings.', [
+        P('showLastUpdated', 'toggle', '', 'on', 'Content', 'no', '', 'Date line'),
+        P('showTableOfContents', 'toggle', '', 'auto', 'Layout', 'desktop', 'headings ≥ 6', 'Sticky in-page nav')
+      ]),
+      S('store-locator', 'Commerce', 'Find physical stores.', 'Input (search), StoreLocatorCard, map embed slot, Empty State', 'stores[] {name, address, hours?, phone?, coords?}, map provider', '3 → 2 → 1 columns; map above list on mobile at 4:3.', 'No map → list only. Missing hours/phone collapse. No match → Empty State.', [
+        P('layout', 'segmented', 'list | list+map', 'list', 'Layout', 'yes', '', 'Map presence'),
+        P('columns', 'segmented', '2 | 3', '2', 'Layout', 'desktop', '', 'Card columns'),
+        P('showHours', 'toggle', '', 'on', 'Content', 'no', '', 'Hours rows'),
+        P('showPhone', 'toggle', '', 'on', 'Content', 'no', '', 'Call link'),
+        P('showImage', 'toggle', '', 'off', 'Media', 'no', '', 'Store photo 3:2 above card')
+      ]),
+      S('rich-text', 'Content', 'Heading + paragraph + optional button in reading measure.', 'Eyebrow, H1–H3, Body Large / Body, Button', 'eyebrow?, heading, body (rich), button?', 'Content width caps at 840; left-aligned on mobile unless overridden.', 'Long heading steps down. Body only → no heading gap.', [
+        P('headingSize', 'segmented', 'h1 | h2 | h3', 'h2', 'Appearance', 'yes', '', 'Heading role'),
+        P('contentAlignment', 'segmented', 'left | center', 'center', 'Layout', 'yes', '', 'Alignment'),
+        P('contentWidth', 'segmented', 'narrow | content | standard', 'content', 'Layout', 'no', '', 'Max text width'),
+        P('buttonVariant', 'segmented', 'primary | secondary | text', 'secondary', 'Appearance', 'no', 'button set', 'CTA style'),
+        P('mobileContentAlignment', 'segmented', 'left | center', 'left', 'Mobile', 'mobile', '', 'Override on mobile')
+      ]),
+      S('page-body', 'Content', 'Generic page content in reading layout.', 'H1, rich text, images', 'page title, body', 'Content 840 / text 680.', 'Wide tables scroll horizontally.', [
+        P('showTitle', 'toggle', '', 'on', 'Content', 'no', '', 'Render page title as H1'),
+        P('textWidth', 'segmented', 'content | standard', 'content', 'Layout', 'no', '', 'Measure')
+      ]),
+      S('article-body', 'Content', 'Blog article reading layout.', 'Eyebrow (blog · date), H1, hero image, rich text, tags, share links', 'article {title, date, author?, image?, body, tags?}', 'Content 840 / text 680; hero image 16:9 → 3:2 mobile.', 'No image → skip frame. Very long → no TOC, just spacing rhythm.', [
+        P('showDate', 'toggle', '', 'on', 'Content', 'no', '', 'Meta row date'),
+        P('showAuthor', 'toggle', '', 'off', 'Content', 'no', '', 'Author in meta'),
+        P('showFeaturedImage', 'toggle', '', 'on', 'Media', 'no', 'image set', 'Hero image'),
+        P('showShare', 'toggle', '', 'on', 'Content', 'no', '', 'Share links at end'),
+        P('showTags', 'toggle', '', 'on', 'Content', 'no', 'tags exist', 'Tag chips at end')
+      ]),
+      S('blog-posts', 'Content', 'Grid of recent articles.', 'SectionHeader, BlogCard, Text Link', 'blog (resource), posts limit', '3 → 2 → 1 (first featured, rest rows).', 'No image → text card with top border. 1 post → single featured card.', [
+        P('blog', 'resource', 'blog', '—', 'Content', 'no', '', 'Source'),
+        P('columns', 'segmented', '2 | 3 | 4', '3', 'Layout', 'desktop', '', 'Desktop columns'),
+        P('postsToShow', 'stepper', '1–9', '3', 'Content', 'no', '', 'Count'),
+        P('showExcerpt', 'toggle', '', 'off', 'Content', 'no', '', 'Two-line excerpt'),
+        P('showDate', 'toggle', '', 'on', 'Content', 'no', '', 'Date in meta'),
+        P('imageRatio', 'select', 'landscape | square | adapt', 'landscape', 'Media', 'yes', '', 'Card image ratio')
+      ]),
+      S('image-with-text', 'Content', 'Media beside copy.', 'image slot, Eyebrow, H2/H3, Body, Button / Text Link', 'image, eyebrow?, heading, body, button?', '50/50 → stacked < 768 (media first by default).', 'No image → single column rich-text. Long body → top-aligned content.', [
+        P('mediaPosition', 'segmented', 'left | right', 'left', 'Media', 'desktop', '', 'Media side'),
+        P('mediaRatio', 'select', 'adapt | portrait | square | landscape', 'adapt', 'Media', 'yes', '', 'Frame ratio'),
+        P('contentVerticalAlign', 'segmented', 'top | center', 'center', 'Layout', 'desktop', '', 'Copy alignment against media'),
+        P('mobileMediaPosition', 'segmented', 'before | after', 'before', 'Mobile', 'mobile', '', 'Stack order'),
+        P('buttonVariant', 'segmented', 'secondary | text', 'text', 'Appearance', 'no', 'button set', 'CTA style')
+      ]),
+      S('multicolumn', 'Content', 'Equal columns with optional image, heading, text, link.', 'SectionHeader, image slot, H4, Body Small, Text Link', 'columns[] {image?, heading, text, link?}', '3→2→2, 4→2→2; 1 column on mobile if text-heavy.', 'Missing image → text-only column, alignment kept. Uneven text → top aligned.', [
+        P('columns', 'stepper', '2–4', '3', 'Layout', 'desktop', '', 'Desktop columns'),
+        P('showImage', 'toggle', '', 'on', 'Media', 'no', '', 'Column images'),
+        P('imageRatio', 'select', 'landscape | square | portrait', 'landscape', 'Media', 'yes', 'showImage=on', 'Column image ratio'),
+        P('textAlignment', 'segmented', 'left | center', 'left', 'Layout', 'yes', '', 'Column text alignment'),
+        P('carouselOnMobile', 'toggle', '', 'off', 'Mobile', 'mobile', '', 'Swipe row on mobile')
+      ]),
+      S('feature-highlights', 'Content', 'Icon + short claim rows.', 'icon slot, H5, Body Small', 'items[] {icon, title, text?, link?}', '4→2→2; icons 44 circle → 20 plain on mobile.', 'No claims by default — merchant supplies. 2 items → centered pair.', [
+        P('columns', 'segmented', '3 | 4', '4', 'Layout', 'desktop', '', 'Desktop columns'),
+        P('iconStyle', 'segmented', 'outline | filled-circle', 'outline', 'Appearance', 'no', '', 'Icon treatment'),
+        P('textAlignment', 'segmented', 'left | center', 'center', 'Layout', 'yes', '', 'Alignment')
+      ]),
+      S('feature-grid-blocks', 'Content', 'Bento of image and text blocks.', 'image block (overlay text), text block (Surface Secondary / Primary), Text Link', 'blocks[] {type, image?, heading, link?, background}', 'Preset grid → large block full width, small 2-up on mobile.', 'Fewer blocks than preset → preset degrades to next smaller. Overlay text always Medium scrim.', [
+        P('preset', 'visual cards', '1+4 | 2+2 | 3-equal | 1+2', '1+4', 'Layout', 'yes', '', 'Grid arrangement'),
+        P('rowHeight', 'segmented', 'small | medium | large', 'medium', 'Layout', 'yes', '', '240 / 280 / 320 row height'),
+        P('blockBackground', 'segmented (per block)', 'surface-secondary | primary | image', 'surface-secondary', 'Appearance', 'no', '', 'Text block background role')
+      ]),
+      S('faq', 'Content', 'Question/answer accordion.', 'SectionHeader, Accordion (faq-item)', 'items[] {question, answer rich}', 'Content width; 60px rows → 56 mobile.', '1 item → open. Very long answer grows.', [
+        P('singleOpen', 'toggle', '', 'off', 'Content', 'no', '', 'Only one item open'),
+        P('firstOpen', 'toggle', '', 'on', 'Content', 'no', '', 'First item expanded by default'),
+        P('headerAlignment', 'segmented', 'left | center', 'left', 'Layout', 'yes', '', 'Header alignment')
+      ]),
+      S('collection-links', 'Content', 'Quick links to collections as chips or large rows.', 'Chip (link) or large Text Link rows', 'links[] (resource) or menu', 'Chips wrap; list rows full width.', 'Long labels wrap inside chip. Used in not-found, search empty, group.', [
+        P('style', 'segmented', 'chips | list', 'chips', 'Appearance', 'yes', '', 'Presentation'),
+        P('source', 'resource', 'menu | collections', '—', 'Content', 'no', '', 'Link source'),
+        P('listSize', 'segmented', 'medium | large', 'large', 'Appearance', 'yes', 'style=list', 'Row type size (H4 / H3)')
+      ]),
+      S('marquee', 'Content', 'Continuous horizontal text strip.', 'Text, dot separators', 'items[] text', 'One line all sizes; speed constant px/s.', '1 item → static. Reduced motion → static wrapped row. Pauses on hover/focus.', [
+        P('speed', 'segmented', 'slow | standard | fast', 'standard', 'Appearance', 'no', '', '40 / 60 / 90 px/s'),
+        P('direction', 'segmented', 'left | right', 'left', 'Appearance', 'no', '', 'Scroll direction'),
+        P('pauseOnHover', 'toggle', '', 'on', 'Advanced', 'no', '', 'Pause interaction'),
+        P('background', 'segmented', 'surface | surface-secondary | primary', 'surface', 'Appearance', 'no', '', 'Strip background')
+      ]),
+      S('logo-list', 'Other', 'Row of partner/press logos.', 'logo image slots', 'logos[] {image, link?}', 'Grid ≤ 6 → 3-up mobile; > 6 → scroll row.', 'Mixed aspect normalised by 32px height. Grayscale optional.', [
+        P('grayscale', 'toggle', '', 'on', 'Appearance', 'no', '', 'Monochrome logos'),
+        P('columns', 'segmented', '4 | 5 | 6', '6', 'Layout', 'desktop', 'logos ≤ 6', 'Grid columns'),
+        P('logoHeight', 'segmented', 'small 24 | medium 32 | large 40', 'medium', 'Appearance', 'yes', '', 'Uniform height')
+      ]),
+      S('newsletter', 'Other', 'Email capture.', 'SectionHeader, NewsletterForm, Caption', 'heading, text?, consent text?, success text', 'Inline form → stacked < 480.', 'Success replaces form. Error inline. Split layout needs image.', [
+        P('layout', 'segmented', 'centered | split', 'centered', 'Layout', 'yes', '', 'With optional image column'),
+        P('background', 'segmented', 'surface | surface-secondary | primary', 'surface-secondary', 'Appearance', 'no', '', 'Section background'),
+        P('showConsent', 'toggle', '', 'off', 'Content', 'no', '', 'Consent caption line'),
+        P('buttonLabel', 'text', '', 'Subscribe', 'Content', 'no', '', 'CTA label')
+      ]),
+      S('contact-form', 'Other', 'Contact form with optional side copy.', 'Input, Textarea, Button, inline errors, success state', 'fields config, recipient, success text', 'Narrow 560; split → stacked < 1024.', 'Errors: per-field + summary; success replaces form.', [
+        P('layout', 'segmented', 'stacked | split', 'stacked', 'Layout', 'yes', '', 'Form alone or beside text'),
+        P('fields', 'chips', 'name | email | phone | message', 'name, email, message', 'Content', 'no', '', 'Enabled fields'),
+        P('successMessage', 'text', '', 'Thanks — we’ll reply soon.', 'Content', 'no', '', 'Post-submit copy')
+      ]),
+      S('not-found', 'Other', '404 message with recovery actions.', 'Eyebrow, H1, Body, Button ×1–2, Input (search)?, collection-links?', 'heading, text, buttons', 'Narrow; buttons stack < 480.', 'Without search → single primary. Optional links below.', [
+        P('showSearch', 'toggle', '', 'on', 'Content', 'no', '', 'Search button/field'),
+        P('collectionLinks', 'resource list', 'collections', '—', 'Content', 'no', '', 'Chips under message')
+      ])
+    ];
+    return { sections };
+  }
+}
+</script>
+</body>
+</html>

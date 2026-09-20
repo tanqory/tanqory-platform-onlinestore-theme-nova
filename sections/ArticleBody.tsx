@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import { decodeHandle } from '../lib/handle'
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
-import { apiBase } from '../lib/api-base'
+import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
 import { Container } from '../components/Container'
+import { Button } from '../components/Button'
+import { Chip } from '../components/Chip'
+import { showToast } from '../components/Overlays'
+import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
 interface ArticleDetail {
   title: string
@@ -11,6 +14,8 @@ interface ArticleDetail {
   author: { name: string } | null
   image: { url: string; altText?: string } | null
   blog: { handle: string; title: string } | null
+  /** Real field on the storefront Article — now requested by the query below. */
+  tags: string[]
 }
 
 /**
@@ -20,6 +25,8 @@ interface ArticleDetail {
  */
 export function ArticleBody({ attributes }: SectionProps): JSX.Element {
   const { fallbackTitle, fallbackBody } = attributes as Record<string, string | undefined>
+  // Shared transport, not a hand-built fetch — see PageBody.
+  const { graphql } = useData()
 
   const handles =
     typeof window !== 'undefined'
@@ -32,39 +39,25 @@ export function ArticleBody({ attributes }: SectionProps): JSX.Element {
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    if (!blogHandle || !articleHandle) {
+    if (!blogHandle || !articleHandle || !graphql) {
       setLoaded(true)
       return
     }
-    const env = import.meta.env as ImportMetaEnv & {
-      VITE_TANQORY_BACKEND?: string
-      VITE_TANQORY_STORE_ID?: string
-      VITE_TANQORY_STOREFRONT_TOKEN?: string
-    }
-    if (!env.VITE_TANQORY_BACKEND || !env.VITE_TANQORY_STORE_ID) {
-      setLoaded(true)
-      return
-    }
-    const url = `${apiBase(env.VITE_TANQORY_BACKEND)}/api/v1/stores/${encodeURIComponent(
-      env.VITE_TANQORY_STORE_ID,
-    )}/graphql`
     let cancelled = false
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        ...(env.VITE_TANQORY_STOREFRONT_TOKEN
-          ? { 'x-publishable-key': env.VITE_TANQORY_STOREFRONT_TOKEN }
-          : {}),
-      },
-      body: JSON.stringify({
-        // Use the nested Blog.articleByHandle resolver: the root-level
-        // article(handle: ArticleHandleInput) endpoint has a known store-api
-        // bug (passes the whole input object where the data layer expects a
-        // string handle, throws internal_error). Nested form works end-to-end
-        // and gives us the same article shape; switching back is a one-line
-        // change once the resolver is patched.
-        query: `query A($blogHandle: String!, $articleHandle: String!) {
+    // Clear the previous article FIRST. With SPA soft-nav between two articles
+    // this component instance is reused, and `loaded` stayed true, so the old
+    // title, hero image, tags and `dangerouslySetInnerHTML` body kept rendering
+    // under the new URL until the second response arrived — a visibly wrong
+    // article rather than a loading state, and permanent if the fetch failed.
+    setArticle(null)
+    setLoaded(false)
+    // Nested form: the top-level `article(handle:)` resolver has a known
+    // store-api bug (passes the whole input object where the data layer wants a
+    // string handle, throws internal_error). This gives the same shape.
+    void graphql<{
+      blog?: { handle: string; title: string; articleByHandle?: ArticleDetail | null } | null
+    }>(
+      `query A($blogHandle: String!, $articleHandle: String!) {
           blog(handle: $blogHandle) {
             handle
             title
@@ -73,49 +66,48 @@ export function ArticleBody({ attributes }: SectionProps): JSX.Element {
               contentHtml
               publishedAt
               author { name }
+              tags
               image { url altText }
             }
           }
         }`,
-        variables: { blogHandle, articleHandle },
-      }),
-    })
-      .then((r) => r.json())
-      .then((j: {
-        data?: {
-          blog?: {
-            handle: string
-            title: string
-            articleByHandle: Omit<ArticleDetail, 'blog'> | null
-          } | null
-        }
-      }) => {
+      { blogHandle, articleHandle },
+    )
+      .then((res) => {
         if (cancelled) return
-        const blog = j.data?.blog
-        const a = blog?.articleByHandle
-        if (a) {
-          setArticle({
-            ...a,
-            blog: blog ? { handle: blog.handle, title: blog.title } : null,
-          })
-        } else {
-          setArticle(null)
-        }
+        const a = res?.blog?.articleByHandle
+        setArticle(
+          a
+            ? { ...a, blog: res?.blog ? { handle: res.blog.handle, title: res.blog.title } : null }
+            : null,
+        )
         setLoaded(true)
       })
+      // A failed fetch must still settle, or the page waits forever on an
+      // article that is never coming.
       .catch(() => {
-        if (!cancelled) setLoaded(true)
+        if (!cancelled) {
+          setArticle(null)
+          setLoaded(true)
+        }
       })
     return () => {
       cancelled = true
     }
-  }, [blogHandle, articleHandle])
+  }, [blogHandle, articleHandle, graphql])
+
+  const showDate = attributes.showDate !== false
+  const showAuthor = attributes.showAuthor === true
+  const showFeaturedImage = attributes.showFeaturedImage !== false
+  const showShare = attributes.showShare !== false
+  const showTags = attributes.showTags !== false
+  const tags = (article?.tags ?? []).filter(Boolean)
 
   const title = article?.title ?? (loaded ? fallbackTitle ?? '' : '')
   const body = article?.contentHtml ?? (loaded ? fallbackBody ?? '' : '')
 
   return (
-    <article className="article-body">
+    <article className="article-body" {...sharedRootProps(attributes)}>
       <Container className="article-body__inner">
         {article?.blog && (
           <p className="article-body__crumbs">
@@ -123,9 +115,9 @@ export function ArticleBody({ attributes }: SectionProps): JSX.Element {
           </p>
         )}
         {title && <h1 className="article-body__title">{title}</h1>}
-        {(article?.publishedAt || article?.author) && (
+        {((showDate && article?.publishedAt) || (showAuthor && article?.author)) && (
           <p className="article-body__meta">
-            {article?.publishedAt && (
+            {showDate && article?.publishedAt && (
               <time dateTime={article.publishedAt}>
                 {new Date(article.publishedAt).toLocaleDateString(undefined, {
                   year: 'numeric',
@@ -134,15 +126,15 @@ export function ArticleBody({ attributes }: SectionProps): JSX.Element {
                 })}
               </time>
             )}
-            {article?.author?.name && (
+            {showAuthor && article?.author?.name && (
               <>
-                {article.publishedAt && ' · '}
+                {showDate && article.publishedAt && ' · '}
                 <span>{article.author.name}</span>
               </>
             )}
           </p>
         )}
-        {article?.image && (
+        {showFeaturedImage && article?.image && (
           <figure className="article-body__hero">
             <img src={article.image.url} alt={article.image.altText ?? article.title} />
           </figure>
@@ -153,6 +145,33 @@ export function ArticleBody({ attributes }: SectionProps): JSX.Element {
             dangerouslySetInnerHTML={{ __html: body }}
           />
         )}
+        {showTags && tags.length > 0 && (
+          <div className="article-body__tags">
+            {tags.map((tag) => (
+              <Chip key={tag} label={tag} />
+            ))}
+          </div>
+        )}
+        {showShare && (
+          /* Native share where the browser has it, a copy-link fallback where
+             it does not — no third-party share buttons, which would load
+             tracking scripts onto every article. */
+          <div className="article-body__share">
+            <Button
+              label="Share this article"
+              variant="secondary"
+              onClick={() => {
+                const url = typeof window !== 'undefined' ? window.location.href : ''
+                if (typeof navigator === 'undefined') return
+                if (typeof navigator.share === 'function') {
+                  void navigator.share({ title, url }).catch(() => {})
+                } else {
+                  void navigator.clipboard?.writeText(url).then(() => showToast('Link copied'))
+                }
+              }}
+            />
+          </div>
+        )}
       </Container>
     </article>
   )
@@ -160,12 +179,19 @@ export function ArticleBody({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'article-body',
+  role: 'section',
+  requiresContext: ['article'],
   title: 'Article content',
   category: 'content',
   icon: '✎',
-  attributes: {
+  attributes: withShared({
     fallbackTitle: { type: 'text', label: 'Fallback title', default: 'Article' },
     fallbackBody: { type: 'textarea', label: 'Fallback body (HTML)', default: '' },
-  },
+    showDate: { type: 'boolean', default: true, label: 'Show date' },
+    showAuthor: { type: 'boolean', default: false, label: 'Show author' },
+    showFeaturedImage: { type: 'boolean', default: true, label: 'Show featured image' },
+    showShare: { type: 'boolean', default: true, label: 'Show share button' },
+    showTags: { type: 'boolean', default: true, label: 'Show tags' },
+  }),
   component: ArticleBody,
 })

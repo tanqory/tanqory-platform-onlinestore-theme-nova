@@ -55,6 +55,7 @@ export function PaymentIcons({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'payment-icons',
+  role: 'block',
   title: 'Payment icons',
   category: 'block',
   icon: '▭',

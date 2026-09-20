@@ -1,5 +1,9 @@
-import { Children } from 'react'
+import { Children, useState } from 'react'
 import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { SectionHead } from '../components/SectionHead'
+import { Accordion } from '../components/Disclosure'
+import { FaqCoordinationProvider } from '../components/faq-coordination'
+import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
 type FaqItem = { q?: string; a?: string }
 
@@ -22,7 +26,7 @@ const DEFAULT_FAQ: FaqItem[] = [
   },
   {
     q: 'What is your return policy?',
-    a: 'We accept returns within 30 days of delivery. Items must be unworn, unwashed, and in original packaging with tags attached.',
+    a: 'Describe your returns window and the condition items must be in. This answer is starter content — replace it with your own policy.',
   },
   {
     q: 'Do you ship internationally?',
@@ -42,22 +46,60 @@ export function FAQ({ attributes, children }: SectionProps): JSX.Element {
   const eyebrow = attributes.eyebrow as string | undefined
   const heading = (attributes.heading as string) ?? 'Frequently asked questions'
 
+  const singleOpen = attributes.singleOpen === true
+  const firstOpen = attributes.firstOpen !== false
+  const headerAlignment = (attributes.headerAlignment as 'left' | 'center') ?? 'left'
+  const [open, setOpen] = useState<number[]>(firstOpen ? [0] : [])
+
   return (
-    <section className="section">
+    <section {...sharedRootProps(attributes)} className="section">
       <div className="container">
-        <div className="faq">
-          <div className="faq__head">
-            {eyebrow && <span className="eyebrow">{eyebrow}</span>}
-            <h2>{heading}</h2>
-          </div>
-          {hasBlocks
-            ? children
-            : list.map((it, i) => (
-                <details key={i} className="faq__item">
-                  <summary className="faq__summary">{it.q}</summary>
-                  {it.a && <p className="faq__body">{it.a}</p>}
-                </details>
+        <div className="faq" data-align={headerAlignment}>
+          <SectionHead
+            eyebrow={eyebrow}
+            heading={heading}
+            description={attributes.description as string | undefined}
+            align={headerAlignment}
+          />
+          {hasBlocks ? (
+            // The section owns the open state so `singleOpen` and `firstOpen`
+            // work here too. They previously did nothing in block mode — which
+            // is the mode the section's own preset ships.
+            <div className="accordion">
+              {Children.map(children, (child, i) => (
+                <FaqCoordinationProvider
+                  value={{
+                    index: i,
+                    coordinated: true,
+                    isOpen: (n) => open.includes(n),
+                    toggle: (n) =>
+                      setOpen((cur) =>
+                        cur.includes(n)
+                          ? cur.filter((x) => x !== n)
+                          : singleOpen
+                            ? [n]
+                            : [...cur, n],
+                      ),
+                  }}
+                >
+                  {child}
+                </FaqCoordinationProvider>
               ))}
+            </div>
+          ) : (
+            <Accordion
+              /* A content accordion: few panels, each uniquely titled, so each
+                 is a useful landmark. The collection filters are not. */
+              landmarks
+              singleOpen={singleOpen}
+              defaultOpen={firstOpen && list[0] ? ['faq-0'] : []}
+              items={list.map((it, i) => ({
+                id: `faq-${i}`,
+                title: it.q ?? '',
+                body: it.a ?? '',
+              }))}
+            />
+          )}
         </div>
       </div>
     </section>
@@ -66,13 +108,18 @@ export function FAQ({ attributes, children }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'faq',
+  role: 'section',
   title: 'FAQ',
   category: 'content',
   icon: '?',
-  attributes: {
+  attributes: withShared({
+    description: { type: 'textarea', group: 'Content', label: 'Description' },
     eyebrow: { type: 'text', label: 'Eyebrow' },
     heading: { type: 'text', default: 'Frequently asked questions', label: 'Heading' },
-  },
+    singleOpen: { type: 'boolean', default: false, label: 'Only one answer open at a time' },
+    firstOpen: { type: 'boolean', default: true, label: 'Open the first answer' },
+    headerAlignment: { type: 'text_alignment', default: 'left', label: 'Header alignment' },
+  }),
   allowedBlocks: ['faq-item'],
   presets: [
     {

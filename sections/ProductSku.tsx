@@ -11,6 +11,8 @@ export function ProductSku(_props: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'product-sku',
+  role: 'block',
+  requiresContext: ['product'],
   title: 'Product SKU',
   category: 'block',
   icon: '⌗',

@@ -13,10 +13,35 @@ export function Header({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'header',
+  role: 'layout',
+  area: 'header',
   title: 'Header',
   category: 'layout',
   icon: '▭',
   attributes: {
+    // The design's two header layout controls. Semantic values, never raw
+    // positions — the CSS decides what `logo-center` means.
+    layout: {
+      type: 'select',
+      // The design's default is a centred logo with the navigation on the
+      // left — not Nova's old logo-left arrangement.
+      default: 'logo-center',
+      label: 'Layout',
+      options: [
+        { value: 'logo-left', label: 'Logo left' },
+        { value: 'logo-center', label: 'Logo center' },
+      ],
+    },
+    sticky: {
+      type: 'select',
+      default: 'always',
+      label: 'Sticky header',
+      options: [
+        { value: 'always', label: 'Always' },
+        { value: 'on-scroll-up', label: 'On scroll up' },
+        { value: 'none', label: 'Never' },
+      ],
+    },
     menu: {
       type: 'select',
       default: 'main-menu',
@@ -30,10 +55,47 @@ export default defineSection({
       ],
     },
     logo: { type: 'text', label: 'Logo text (blank = shop name)' },
+    transparentOnHero: {
+      type: 'boolean',
+      default: false,
+      label: 'Transparent over hero',
+      info: 'Requires the first section to be an image hero with overlay medium or stronger.',
+    },
+    logoHeight: {
+      type: 'select',
+      default: 'medium',
+      label: 'Logo height',
+      options: [
+        { value: 'small', label: 'Small (24)' },
+        { value: 'medium', label: 'Medium (32)' },
+        { value: 'large', label: 'Large (40)' },
+      ],
+    },
     showSearch: { type: 'boolean', default: true, label: 'Show search' },
+    searchStyle: {
+      type: 'select',
+      default: 'icon',
+      label: 'Search style',
+      visible_if: '{{ section.settings.showSearch == true }}',
+      options: [
+        { value: 'icon', label: 'Icon' },
+        { value: 'inline-field', label: 'Inline field' },
+      ],
+    },
+    cartAction: {
+      type: 'select',
+      default: 'drawer',
+      label: 'Cart opens',
+      options: [
+        { value: 'drawer', label: 'Drawer' },
+        { value: 'page', label: 'Cart page' },
+      ],
+    },
     showCart: { type: 'boolean', default: true, label: 'Show cart' },
     showAccount: { type: 'boolean', default: true, label: 'Show account' },
-    showLocale: { type: 'boolean', default: true, label: 'Show language / region' },
+    // The design's header carries search, account and cart only; the language
+    // and region selector lives in the footer. Off by default, still available.
+    showLocale: { type: 'boolean', default: false, label: 'Show language / region' },
     bg: { type: 'color', label: 'Background' },
     fg: { type: 'color', label: 'Text color' },
   },

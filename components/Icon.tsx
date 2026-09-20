@@ -67,18 +67,26 @@ const PATHS: Record<string, ReactNode> = {
 
 export const ICON_NAMES = Object.keys(PATHS)
 
-export function Icon({ name, size = 28 }: { name?: string; size?: number }): JSX.Element | null {
+/**
+ * The design sets three icon sizes (16 / 20 / 24) and ONE stroke weight,
+ * 1.5px at every size. Stroke therefore comes from `--icon-stroke` in CSS
+ * rather than an attribute here: the token existed but nothing read it, so the
+ * `iconStyle` merchant setting silently did nothing while this file hard-coded
+ * 1.6. `iconStyle` now selects the FAMILY (outline / filled), which is what the
+ * design's `outline | filled` means, and is applied by CSS on the root.
+ */
+export function Icon({ name, size = 24 }: { name?: string; size?: number }): JSX.Element | null {
   const path = name ? PATHS[name] : null
   // Unknown / legacy values (e.g. an old emoji) render nothing — never an emoji.
   if (!path) return null
   return (
     <svg
+      className="tq-icon"
       width={size}
       height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"

@@ -6,7 +6,7 @@
  * Sections should call <Link href={…}> instead of raw <a href={…}> so the
  * upgrade is non-breaking.
  */
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 
 export function Link({
   href,
@@ -16,6 +16,7 @@ export function Link({
   rel,
   prefetch: _prefetch = false,
   ariaLabel,
+  style,
 }: {
   href?: string | null
   children: ReactNode
@@ -24,11 +25,19 @@ export function Link({
   rel?: string
   prefetch?: boolean
   ariaLabel?: string
+  style?: CSSProperties
 }): JSX.Element {
   const safeHref = href || '#'
   const computedRel = target === '_blank' ? rel ?? 'noopener noreferrer' : rel
   return (
-    <a href={safeHref} className={className} target={target} rel={computedRel} aria-label={ariaLabel}>
+    <a
+      href={safeHref}
+      className={className}
+      target={target}
+      rel={computedRel}
+      aria-label={ariaLabel}
+      style={style}
+    >
       {children}
     </a>
   )

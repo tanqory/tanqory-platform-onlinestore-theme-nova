@@ -3,6 +3,8 @@ import {
   collectBoundIdentifiers,
   DynamicSourceProvider,
   SectionTree,
+  groupsFromGlob,
+  resolvePageSections,
   useCart,
   useData,
   useSettings,
@@ -11,7 +13,12 @@ import {
   type PageDoc,
   type ResourceContextValue,
 } from '@tanqory/theme-kit'
-import { apiBase } from '../lib/api-base'
+import { applyHead, computeHead } from '../lib/head'
+import { emitRoute } from '../lib/route-analytics'
+import { resolvePageTemplate } from '../lib/routes'
+import { isEditorPreview } from '../lib/runtime'
+import { ToastHost } from '../components/Overlays'
+import { useMenu } from '../components/use-menu'
 import { CartDrawer } from '../overlays/CartDrawer'
 import { SearchModal } from '../overlays/SearchModal'
 import { AccountMenu } from '../overlays/AccountMenu'
@@ -19,6 +26,8 @@ import { MobileNavDrawer } from '../overlays/MobileNavDrawer'
 import { openOverlay, closeOverlay } from '../components/useOverlayChannel'
 import { CookieConsent } from '../components/CookieConsent'
 import { TrackingPixels } from '../components/TrackingPixels'
+import { readableOn } from '../lib/contrast'
+import { Select } from '../components/Select'
 
 /**
  * Templates are bundled into the layout so the SPA router can swap them in
@@ -30,33 +39,31 @@ const TEMPLATES = import.meta.glob('../templates/*.json', { eager: true }) as Re
   string,
   { default?: PageDoc }
 >
+/** The shared header/footer groups the templates bind (see `groups/`). */
+const GROUPS = groupsFromGlob(import.meta.glob('../groups/*.json', { eager: true }))
 
-function lookupTemplate(name: string): ContentNode[] {
-  for (const [key, mod] of Object.entries(TEMPLATES)) {
-    if (key.endsWith(`/${name}.json`)) return mod.default?.sections ?? []
-  }
-  return []
+/** True when this theme ships `templates/<name>.json`. */
+function templateExists(name: string): boolean {
+  return Object.keys(TEMPLATES).some((k) => k.endsWith(`/${name}.json`))
 }
 
-/** Mirrors `resolveTemplate` in main.tsx — keep both in sync. */
-function resolveTemplate(pathname: string): string {
-  const p = pathname !== '/' ? pathname.replace(/\/+$/, '') : '/'
-  if (p === '/' || p === '') return 'index'
-  if (p === '/cart') return 'cart'
-  if (p === '/search') return 'search'
-  if (p === '/contact') return 'contact'
-  if (p === '/404') return '404'
-  if (p === '/collections') return 'list-collections'
-  if (/^\/collections\/[^/]+$/.test(p)) return 'collection'
-  if (/^\/products\/[^/]+$/.test(p)) return 'product'
-  if (/^\/pages\/[^/]+$/.test(p)) return 'page'
-  // Keep in lockstep with main.tsx's resolveTemplate — this copy drives SPA
-  // soft-routing; a route missing HERE renders 404 even when the entry maps it.
-  if (/^\/policies\/[^/]+$/.test(p)) return 'policy'
-  if (p === '/account' || /^\/account\/[^/]+/.test(p)) return 'account'
-  if (/^\/blogs\/[^/]+\/[^/]+$/.test(p)) return 'article'
-  if (/^\/blogs\/[^/]+$/.test(p)) return 'blog'
-  return '404'
+/**
+ * The section tree for a template, or null when the theme ships no such
+ * template file.
+ *
+ * Returning `null` rather than `[]` is load-bearing: the caller renders
+ * `softTree ? <SectionTree/> : children`, and `[]` is truthy — so an
+ * unconditional array meant `children` was NEVER rendered while SPA routing was
+ * on (the default), silently discarding the suffix-aware template the entry had
+ * already mounted.
+ */
+function lookupTemplate(name: string): ContentNode[] | null {
+  for (const [key, mod] of Object.entries(TEMPLATES)) {
+    // Through the kit's resolver, so a soft navigation renders the same shared
+    // header the entry mounted with — not the template's raw, header-less body.
+    if (key.endsWith(`/${name}.json`)) return resolvePageSections(mod.default, GROUPS)
+  }
+  return null
 }
 
 /**
@@ -78,11 +85,16 @@ function resolveTemplate(pathname: string): string {
  * Each section that consumes `window.location.pathname` (PageBody,
  * BlogPosts, ArticleBody, useUrlRedirect) reads it via `useEffect` keyed on
  * `pathname`, so they refetch when the route changes.
+ *
+ * The state holds pathname + SEARCH. Tracking the pathname alone meant a
+ * query-only navigation never re-rendered: going from `/search?q=shirt` to
+ * `/search?q=hat` pushed the new URL and left the previous query's results on
+ * screen, because the value every section keys off did not change.
  */
 function useSoftRoute(enabled: boolean): string {
-  const [pathname, setPathname] = useState<string>(() =>
-    typeof window !== 'undefined' ? window.location.pathname : '/',
-  )
+  const here = (): string =>
+    typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/'
+  const [pathname, setPathname] = useState<string>(here)
 
   useEffect(() => {
     if (!enabled) return
@@ -92,7 +104,7 @@ function useSoftRoute(enabled: boolean): string {
       if (next !== window.location.pathname + window.location.search) {
         window.history.pushState({}, '', next)
       }
-      setPathname(window.location.pathname)
+      setPathname(window.location.pathname + window.location.search)
       // Match a fresh page load — scroll to top unless the merchant is
       // jumping to an in-page anchor.
       if (!next.includes('#')) {
@@ -136,7 +148,7 @@ function useSoftRoute(enabled: boolean): string {
       navigate(url.pathname + url.search + url.hash)
     }
 
-    const onPop = () => setPathname(window.location.pathname)
+    const onPop = () => setPathname(window.location.pathname + window.location.search)
 
     document.addEventListener('click', onClick)
     window.addEventListener('popstate', onPop)
@@ -307,43 +319,25 @@ function usePreviewSelection(enabled: boolean): void {
 }
 
 function useUrlRedirect(pathname?: string): void {
+  const { graphql } = useData()
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const env = import.meta.env as ImportMetaEnv & {
-      VITE_TANQORY_BACKEND?: string
-      VITE_TANQORY_STORE_ID?: string
-      VITE_TANQORY_STOREFRONT_TOKEN?: string
-    }
-    if (!env.VITE_TANQORY_BACKEND || !env.VITE_TANQORY_STORE_ID) return
-    const url = `${apiBase(env.VITE_TANQORY_BACKEND)}/api/v1/stores/${encodeURIComponent(
-      env.VITE_TANQORY_STORE_ID,
-    )}/graphql`
+    if (typeof window === 'undefined' || !graphql) return
     const currentPath = pathname ?? window.location.pathname
     let cancelled = false
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        ...(env.VITE_TANQORY_STOREFRONT_TOKEN
-          ? { 'x-publishable-key': env.VITE_TANQORY_STOREFRONT_TOKEN }
-          : {}),
-      },
-      body: JSON.stringify({
-        // Server-side filter keeps the response small — we only care about
-        // exact-path matches. The pageSize cap of 5 lets us tolerate `query`
-        // false positives (substring match) without paying for a full list.
-        query: `query R($q: String) {
+    // Server-side filter keeps the response small — only exact-path matches
+    // matter. The cap of 5 tolerates `query` substring false positives without
+    // paying for a full list.
+    void graphql<{ urlRedirects?: { nodes: Array<{ path: string; target: string }> } }>(
+      `query R($q: String) {
           urlRedirects(first: 5, query: $q) {
             nodes { path target }
           }
         }`,
-        variables: { q: currentPath },
-      }),
-    })
-      .then((r) => r.json())
-      .then((j: { data?: { urlRedirects?: { nodes: Array<{ path: string; target: string }> } } }) => {
+      { q: currentPath },
+    )
+      .then((res) => {
         if (cancelled) return
-        const match = j.data?.urlRedirects?.nodes.find((n) => n.path === currentPath)
+        const match = res?.urlRedirects?.nodes.find((n) => n.path === currentPath)
         if (match) window.location.replace(match.target)
       })
       .catch(() => {
@@ -352,7 +346,7 @@ function useUrlRedirect(pathname?: string): void {
     return () => {
       cancelled = true
     }
-  }, [pathname])
+  }, [pathname, graphql])
 }
 
 /**
@@ -368,6 +362,34 @@ function useUrlRedirect(pathname?: string): void {
  * `PageBody` does: the runtime image bakes a copy of theme-kit and rebuilding
  * the image is a heavier operation than hot-PUTting a theme file.
  */
+/**
+ * De-duplicate the menu query across hook instances.
+ *
+ * `useChrome` runs three times per page — once in `Layout` for the overlays,
+ * once in `SiteHeader`, once in `SiteFooter` — and each instance owned its own
+ * copy of this effect, so the SAME menu query went out three times on every
+ * page despite the hook's "derived once" comment. Keyed by query + variables,
+ * with the in-flight promise shared and then released, so a later navigation
+ * still refetches.
+ */
+type MenuResponse = Record<string, { items?: Array<{ title: string; url?: string | null }> } | null> | null
+const menusInFlight = new Map<string, Promise<MenuResponse>>()
+
+function menuRequest(
+  graphql: (q: string, v: Record<string, string>) => Promise<MenuResponse>,
+  query: string,
+  variables: Record<string, string>,
+): Promise<MenuResponse> {
+  const key = `${query}|${JSON.stringify(variables)}`
+  const existing = menusInFlight.get(key)
+  if (existing) return existing
+  const p = graphql(query, variables).finally(() => {
+    menusInFlight.delete(key)
+  })
+  menusInFlight.set(key, p)
+  return p
+}
+
 function useStorefrontMenus(handles: {
   header: string
   footerShop: string
@@ -401,6 +423,7 @@ function useStorefrontMenus(handles: {
   // even in the editor. The GraphQL effect below still upgrades a live store
   // with on-demand menus; the hardcoded list is only the last resort.
   const data = useData()
+  const { graphql } = data
   useEffect(() => {
     const toLinks = (handle: string): MenuLink[] | null => {
       const m = handle ? data.menu?.(handle) : null
@@ -427,15 +450,7 @@ function useStorefrontMenus(handles: {
   }, [data, headerHandle, shopHandle, helpHandle, companyHandle])
 
   useEffect(() => {
-    const env = import.meta.env as ImportMetaEnv & {
-      VITE_TANQORY_BACKEND?: string
-      VITE_TANQORY_STORE_ID?: string
-      VITE_TANQORY_STOREFRONT_TOKEN?: string
-    }
-    if (!env.VITE_TANQORY_BACKEND || !env.VITE_TANQORY_STORE_ID) return
-    const url = `${apiBase(env.VITE_TANQORY_BACKEND)}/api/v1/stores/${encodeURIComponent(
-      env.VITE_TANQORY_STORE_ID,
-    )}/graphql`
+    if (!graphql) return
     // Only request slots whose handle is set — an empty handle means "fall
     // back to hardcoded" and we don't want to spend an alias on it.
     const slots: Array<{ alias: string; handle: string }> = []
@@ -452,26 +467,13 @@ function useStorefrontMenus(handles: {
     const variables = Object.fromEntries(slots.map((s, i) => [`h${i}`, s.handle]))
 
     let cancelled = false
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        ...(env.VITE_TANQORY_STOREFRONT_TOKEN
-          ? { 'x-publishable-key': env.VITE_TANQORY_STOREFRONT_TOKEN }
-          : {}),
-      },
-      body: JSON.stringify({
-        query: `query M(${argList}) {
+    void menuRequest(graphql, `query M(${argList}) {
           ${fieldList}
-        }`,
-        variables,
-      }),
-    })
-      .then((r) => r.json())
-      .then((j: { data?: Record<string, { items?: Array<{ title: string; url?: string | null }> } | null> }) => {
+        }`, variables)
+      .then((res: Record<string, { items?: Array<{ title: string; url?: string | null }> } | null> | null) => {
         if (cancelled) return
         const pluck = (key: string): MenuLink[] | null => {
-          const m = j.data?.[key]
+          const m = res?.[key]
           if (!m?.items?.length) return null
           return m.items
             .filter((it): it is { title: string; url: string } => Boolean(it.url))
@@ -490,7 +492,7 @@ function useStorefrontMenus(handles: {
     return () => {
       cancelled = true
     }
-  }, [headerHandle, shopHandle, helpHandle, companyHandle])
+  }, [headerHandle, shopHandle, helpHandle, companyHandle, graphql])
 
   return menus
 }
@@ -535,9 +537,16 @@ function useChrome(opts?: Record<string, unknown>) {
   // Brand colours as CSS custom properties on the shell, so any section that
   // uses var(--color-brand) follows Settings → Brand without new plumbing.
   const brandColors = data.shop?.brand?.colors?.primary?.[0]
+  // The merchant's brand colour is honoured; the label colour on top of it is
+  // not taken on trust. The style system requires "Button label on Primary
+  // ≥ 4.5:1 — if a merchant brand fails, Text Inverse flips automatically",
+  // and one live store stores #c63131 with #d7aeae, which is 2.72:1.
+  const brandLabel = brandColors?.background
+    ? readableOn(brandColors.background, brandColors.foreground)
+    : null
   const brandVars: Record<string, string> = {
     ...(brandColors?.background ? { '--color-brand': brandColors.background } : {}),
-    ...(brandColors?.foreground ? { '--color-brand-contrast': brandColors.foreground } : {}),
+    ...(brandLabel ? { '--color-brand-contrast': brandLabel } : {}),
   }
   const year = new Date().getFullYear()
   const locales = (data.localization?.availableLanguages ?? []).map((l) => ({
@@ -604,6 +613,38 @@ function useChrome(opts?: Record<string, unknown>) {
 }
 
 /** Site header — rendered by sections/Header.tsx (an editable section). */
+/**
+ * Header scroll state — the two things the design asks the header to know:
+ * whether the page has scrolled at all (the design gives the header "no shadow
+ * until scrolled"), and, in `on-scroll-up` mode, whether the shopper is
+ * scrolling down (hide) or up (reveal).
+ *
+ * Passive listener, state written only when the value actually changes, so a
+ * scroll does not re-render the whole header on every frame.
+ */
+function useHeaderScroll(sticky: string): { scrolled: boolean; hidden: boolean } {
+  const [state, setState] = useState({ scrolled: false, hidden: false })
+  const lastY = useRef(0)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const onScroll = (): void => {
+      const y = window.scrollY
+      const goingDown = y > lastY.current
+      lastY.current = y
+      setState((prev) => {
+        const scrolled = y > 4
+        // Never hide near the top, and only ever hide in on-scroll-up mode.
+        const hidden = sticky === 'on-scroll-up' && goingDown && y > 120
+        return prev.scrolled === scrolled && prev.hidden === hidden ? prev : { scrolled, hidden }
+      })
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [sticky])
+  return state
+}
+
 export function SiteHeader({ attributes }: { attributes?: Record<string, unknown> } = {}): JSX.Element {
   const {
     enableMobileNavDrawer, shopName, navItems, showSwitchers, locales,
@@ -611,8 +652,38 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
     enableSearchModal, enableAccountDropdown, settings, totalQuantity, enableCartDrawer, chromeStyle,
     brandLogo,
   } = useChrome(attributes)
+
+  // Two approved layout controls. `logo-left` keeps Nova's current
+  // arrangement; `logo-center` is the design's alternative — same markup, the
+  // grid decides, so nothing about the DOM order or tab order changes.
+  const layout = (attributes?.layout as string) === 'logo-left' ? 'logo-left' : 'logo-center'
+  const sticky = ['always', 'on-scroll-up', 'none'].includes(attributes?.sticky as string)
+    ? (attributes?.sticky as string)
+    : 'always'
+  const headerState = useHeaderScroll(sticky)
+  // Three header controls that were declared in the editor and read nowhere.
+  const searchStyle = (attributes?.searchStyle as string) === 'inline-field' ? 'inline-field' : 'icon'
+  const cartAction = (attributes?.cartAction as string) === 'page' ? 'page' : 'drawer'
+  const transparentOnHero = attributes?.transparentOnHero === true
+  // Design: segmented small 24 / medium 32 / large 40, mobile −8px. The CSS
+  // hard-coded 30px, which is not even one of the three options, so the
+  // control shipped dead while `templates/index.json` persisted a value for it.
+  const logoHeight = ['small', 'medium', 'large'].includes(attributes?.logoHeight as string)
+    ? (attributes?.logoHeight as string)
+    : 'medium'
+
   return (
-      <header className="site-header" style={chromeStyle}>
+      <header
+        className="site-header"
+        style={chromeStyle}
+        data-layout={layout}
+        data-sticky={sticky}
+        data-scrolled={headerState.scrolled ? 'true' : 'false'}
+        data-hidden={headerState.hidden ? 'true' : 'false'}
+        data-search={searchStyle}
+        data-logo-height={logoHeight}
+        {...(transparentOnHero ? { 'data-transparent': 'true' } : {})}
+      >
         <div className="container site-header__inner">
           {enableMobileNavDrawer && (
             <button
@@ -652,7 +723,18 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
                 compact
               />
             )}
-            {enableSearchModal ? (
+            {searchStyle === 'inline-field' ? (
+              <form className="site-header__search" action="/search" method="get" role="search">
+                <Icon name="search" />
+                <input
+                  type="search"
+                  name="q"
+                  placeholder="Search"
+                  aria-label="Search the store"
+                  className="site-header__search-input"
+                />
+              </form>
+            ) : enableSearchModal ? (
               <button
                 type="button"
                 className="site-header__icon"
@@ -700,7 +782,7 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
                 <Icon name="user" />
               </a>
             )}
-            {enableCartDrawer ? (
+            {cartAction === 'drawer' && enableCartDrawer ? (
               <button
                 type="button"
                 className="site-header__icon site-header__cart"
@@ -736,12 +818,25 @@ export function SiteFooter({
     showLocaleSwitch, activeLocale, countries, showCountrySwitch, activeCountry,
     year, t, chromeStyle, showPoweredBy, poweredByLabel,
   } = useChrome(attributes)
+  const a = attributes ?? {}
+  const background = (a.background as string) ?? 'surface-secondary'
+  const mobileMenus = (a.mobileMenus as string) ?? 'accordion'
+  const showSocial = a.showSocial !== false
+  const showPayment = a.showPayment !== false
+  const legalMenu = useMenu((a.legalMenu as string) || '')
   // Block-composed footer (commerce-standard standard): when the section has blocks
   // (Brand / Menu / Text), render them in the grid. With no blocks, fall back
   // to the data-driven default (brand + the three menu columns).
   const hasBlocks = Children.count(children) > 0
   return (
-      <footer className="site-footer" style={chromeStyle}>
+      <footer
+        className="site-footer"
+        style={chromeStyle}
+        data-background={background}
+        data-mobile-menus={mobileMenus}
+        data-social={showSocial ? 'true' : 'false'}
+        data-payment={showPayment ? 'true' : 'false'}
+      >
         <div className="container">
           <div className="site-footer__grid">
             {hasBlocks ? children : (
@@ -749,12 +844,12 @@ export function SiteFooter({
                 <div className="site-footer__brand">
                   <h2>{shopName}</h2>
                   {footerTagline && (
-                    <p style={{ color: 'rgba(255,255,255,0.7)', maxWidth: '36ch' }}>{footerTagline}</p>
+                    <p className="site-footer__muted">{footerTagline}</p>
                   )}
                 </div>
                 {footerColumns.map((col, i) => (
                   <div className="site-footer__col" key={i}>
-                    {col.title && <h6>{col.title}</h6>}
+                    {col.title && <h3 className="site-footer__col-title">{col.title}</h3>}
                     <ul>
                       {col.links.map((item) => (
                         <li key={`${item.url}-${item.title}`}>
@@ -768,22 +863,34 @@ export function SiteFooter({
             )}
           </div>
 
-          {showSwitchers && (
-            <div className="site-footer__market">
-              <LocaleSwitch
-                locales={showLocaleSwitch ? locales : []}
-                activeLocale={activeLocale}
-                countries={showCountrySwitch ? countries : []}
-                activeCountry={activeCountry ?? countries[0]?.code ?? ''}
-              />
-            </div>
-          )}
-
+          {/* One legal row: copyright and legal links on the left, the locale
+              selector and payment marks on the right — the design does not
+              give the selector a row of its own. */}
           <div className="site-footer__bottom">
             <small>© {year} {shopName}. {t('footer.rights')}</small>
-            {showPoweredBy && (
-              <small>{poweredByLabel}</small>
+            {(legalMenu?.items ?? []).length > 0 && (
+              <nav className="site-footer__legal-links" aria-label="Legal">
+                {(legalMenu?.items ?? [])
+                  .filter((it) => Boolean(it.url))
+                  .map((it) => (
+                    <a key={`${it.url}-${it.title}`} href={it.url as string}>
+                      {it.title}
+                    </a>
+                  ))}
+              </nav>
             )}
+            <div className="site-footer__legal-end">
+              {showSwitchers && (
+                <LocaleSwitch
+                  locales={showLocaleSwitch ? locales : []}
+                  activeLocale={activeLocale}
+                  countries={showCountrySwitch ? countries : []}
+                  activeCountry={activeCountry ?? countries[0]?.code ?? ''}
+                  compact
+                />
+              )}
+              {showPoweredBy && <small>{poweredByLabel}</small>}
+            </div>
           </div>
         </div>
       </footer>
@@ -804,14 +911,15 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
   // child render with its own template lookup and every edit would silently
   // get lost. Same logic for the click-to-navigate interceptor — clicking a
   // CTA in preview mode should select the section, not navigate away.
-  const isPreview =
-    typeof window !== 'undefined' &&
-    (/^preview-/.test(window.location.hostname) ||
-      new URLSearchParams(window.location.search).has('preview'))
+  const isPreview = isEditorPreview()
 
   const enableSpa = !isPreview && settings.enableSpaNavigation !== false
-  const softPathname = useSoftRoute(enableSpa)
-  const softTree = enableSpa ? lookupTemplate(resolveTemplate(softPathname)) : null
+  // `useSoftRoute` returns pathname + search, so a query-only navigation is a
+  // real state change. Everything that resolves a TEMPLATE or a resource wants
+  // the bare pathname, so split it once here rather than at each call site.
+  const softLocation = useSoftRoute(enableSpa)
+  const softPathname = softLocation.split('?')[0] ?? '/'
+  const softSearch = softLocation.includes('?') ? `?${softLocation.split('?')[1] ?? ''}` : ''
 
   useUrlRedirect(softPathname)
   usePreviewSelection(isPreview)
@@ -826,7 +934,39 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
   const currentPath =
     (enableSpa ? softPathname : null) ??
     (typeof window !== 'undefined' ? window.location.pathname : '/')
-  const pageTree = (softTree ?? lookupTemplate(resolveTemplate(currentPath)) ?? []) as ContentNode[]
+
+  // The path the entry mounted for. Its template was already resolved there —
+  // including the merchant's `templateSuffix` — so on the landing route the
+  // layout must render `children` and not second-guess it. Only a soft
+  // navigation AWAY from that path is the layout's to resolve.
+  const entryPathRef = useRef(currentPath)
+  const navigatedAway = enableSpa && softPathname !== entryPathRef.current
+
+  // Soft navigation resolves the template the same way the entry does —
+  // `resolvePageTemplate` applies `templateSuffix`, so a product assigned
+  // `product.bundle` renders the bundle template whether the shopper typed the
+  // URL or clicked a link. The previous lookup used the BASE template only.
+  const softTree = navigatedAway
+    ? lookupTemplate(resolvePageTemplate(softPathname, data, templateExists)) ??
+      lookupTemplate('404') ??
+      []
+    : null
+
+  const pageTree = (softTree ??
+    lookupTemplate(resolvePageTemplate(currentPath, data, templateExists)) ??
+    []) as ContentNode[]
+
+  // Per-route document head + analytics. Both used to run only at boot, so with
+  // SPA routing on every soft navigation kept the landing page's <title>,
+  // canonical and og: tags, and emitted no view event of its own.
+  // `emitRoute` de-duplicates by URL, so the boot emission is not repeated here.
+  useEffect(() => {
+    if (!enableSpa || typeof window === 'undefined') return
+    applyHead(computeHead(softPathname, data, settings as { shopName?: string }))
+    emitRoute({ pathname: softPathname, search: softSearch }, data)
+    // `softPathname` also changes on query-only navigation (search), which is
+    // exactly when the head and the SEARCH_SUBMITTED event need to change.
+  }, [enableSpa, softPathname, softSearch, data, settings])
   const boundIds = useMemo(() => collectBoundIdentifiers(pageTree), [pageTree])
   const [resourceValue, setResourceValue] = useState<ResourceContextValue>({})
   useEffect(() => {
@@ -865,6 +1005,11 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
 
       <CookieConsent />
       <TrackingPixels />
+
+      {/* Toast host — mounted once for the whole shell. Without it `showToast`
+       *  updates a store nothing is listening to, so the cart's "removed"
+       *  message and the article share confirmation silently never appear. */}
+      <ToastHost />
 
       {/* Overlay surfaces — render once per shell. Each is a no-op when its
        *  matching overlay isn't the active one (driven by useOverlayChannel),
@@ -906,7 +1051,9 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
  * Compact (header) — single icon button that opens a small grouped panel.
  * Full (footer)   — two side-by-side dropdowns with labels.
  *
- * Both wrap native <form>/<select> so they work without client JS (commerce-standard
+ * Both use the design system's Select — a control plus a panel it draws
+ * itself. They were native <select> elements with a chevron painted on top,
+ * which leaves the browser drawing the open state (commerce-standard
  * convention). The storefront is served statically by `vite preview` — there
  * is no API server inside the runtime pod — so the forms GET back to `/` with
  * the selected value as a query param (e.g. `/?locale=th`, `/?country=TH`).
@@ -954,35 +1101,23 @@ function LocaleSwitch({
           {locales.length > 0 && (
             <div className="locale-switch__group">
               <span className="locale-switch__label">{label.language}</span>
-              <select
-                className="locale-switch__select"
+              <Select
+                label="Language"
                 value={locale}
-                onChange={(e) => setLocale(e.currentTarget.value)}
-                aria-label="Language"
-              >
-                {locales.map((l) => (
-                  <option key={l.code} value={l.code}>
-                    {l.label}
-                  </option>
-                ))}
-              </select>
+                onChange={setLocale}
+                options={locales.map((l) => ({ value: l.code, label: l.label }))}
+              />
             </div>
           )}
           {countries.length > 0 && (
             <div className="locale-switch__group">
               <span className="locale-switch__label">{label.region}</span>
-              <select
-                className="locale-switch__select"
+              <Select
+                label="Country / region"
                 value={country}
-                onChange={(e) => setCountry(e.currentTarget.value)}
-                aria-label="Country / region"
-              >
-                {countries.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.label} · {c.currency}
-                  </option>
-                ))}
-              </select>
+                onChange={setCountry}
+                options={countries.map((c) => ({ value: c.code, label: c.label, note: c.currency }))}
+              />
             </div>
           )}
         </div>
@@ -997,18 +1132,13 @@ function LocaleSwitch({
           <label className="locale-switch__label" htmlFor="market-country">
             {label.region}
           </label>
-          <select
+          <Select
             id="market-country"
-            className="locale-switch__select"
+            label={label.region}
             value={country}
-            onChange={(e) => setCountry(e.currentTarget.value)}
-          >
-            {countries.map((c) => (
-              <option key={c.code} value={c.code}>
-                {c.label} ({c.currency})
-              </option>
-            ))}
-          </select>
+            onChange={setCountry}
+            options={countries.map((c) => ({ value: c.code, label: c.label, note: c.currency }))}
+          />
         </div>
       )}
       {locales.length > 0 && (
@@ -1016,18 +1146,13 @@ function LocaleSwitch({
           <label className="locale-switch__label" htmlFor="market-locale">
             {label.language}
           </label>
-          <select
+          <Select
             id="market-locale"
-            className="locale-switch__select"
+            label={label.language}
             value={locale}
-            onChange={(e) => setLocale(e.currentTarget.value)}
-          >
-            {locales.map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.label}
-              </option>
-            ))}
-          </select>
+            onChange={setLocale}
+            options={locales.map((l) => ({ value: l.code, label: l.label }))}
+          />
         </div>
       )}
       {activeCountryRow && (

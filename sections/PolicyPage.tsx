@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { decodeHandle } from '../lib/handle'
 import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
 import { Container } from '../components/Container'
+import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
 /** One on-demand call — only on /policies/* — so policy BODIES never weigh down
  *  every page's bootstrap (which prefetches just handle/title/url for footer). */
@@ -61,16 +62,68 @@ export function PolicyPage({ attributes }: SectionProps): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handle])
 
+  const showLastUpdated = attributes.showLastUpdated !== false
+  const tocMode = (attributes.showTableOfContents as string) ?? 'auto'
+
+  // Headings are parsed out of the policy HTML — the storefront API returns no
+  // heading list, and a policy has no structured outline. `auto` follows the
+  // design's rule of showing the TOC from six headings up.
+  const headings = useMemo(() => {
+    if (!policy?.body || typeof document === 'undefined') return []
+    const doc = new DOMParser().parseFromString(policy.body, 'text/html')
+    return [...doc.querySelectorAll('h2, h3')].map((h, i) => ({
+      id: h.id || `policy-h-${i}`,
+      text: h.textContent?.trim() ?? '',
+      level: h.tagName === 'H3' ? 3 : 2,
+    }))
+  }, [policy?.body])
+
+  const showToc = tocMode === 'always' || (tocMode === 'auto' && headings.length >= 6)
+
+  // Ids have to exist on the REAL nodes for the links to land, so they are
+  // stamped into the html we render, not only onto the parsed copy.
+  const bodyHtml = useMemo(() => {
+    if (!policy?.body || !showToc || typeof document === 'undefined') return policy?.body ?? ''
+    const doc = new DOMParser().parseFromString(policy.body, 'text/html')
+    doc.querySelectorAll('h2, h3').forEach((h, i) => {
+      if (!h.id) h.id = `policy-h-${i}`
+    })
+    return doc.body.innerHTML
+  }, [policy?.body, showToc])
+
+  // `updatedAt` is not on ShopPolicy — the storefront API does not expose one.
+  // The control stays so the design's contract is visible, and the line simply
+  // does not render until the field exists. See docs/DESIGN-GAPS.md (F19).
+  const updatedAt = (policy as { updatedAt?: string } | null)?.updatedAt
+
   return (
-    <section className="section policy-page">
+    <section {...sharedRootProps(attributes)} className="section policy-page" data-toc={showToc ? 'true' : 'false'}>
       <Container className="policy-page__inner">
         {policy ? (
           <>
             <h1 className="policy-page__title">{policy.title}</h1>
+            {showLastUpdated && updatedAt && (
+              <p className="policy-page__updated">
+                Last updated{' '}
+                <time dateTime={updatedAt}>{new Date(updatedAt).toLocaleDateString()}</time>
+              </p>
+            )}
+            {showToc && headings.length > 0 && (
+              <nav className="policy-page__toc" aria-label="On this page">
+                <p className="policy-page__toc-title">On this page</p>
+                <ol>
+                  {headings.map((h) => (
+                    <li key={h.id} data-level={h.level}>
+                      <a href={`#${h.id}`}>{h.text}</a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            )}
             {policy.body ? (
               <div
                 className="policy-page__body rte"
-                dangerouslySetInnerHTML={{ __html: policy.body }}
+                dangerouslySetInnerHTML={{ __html: bodyHtml }}
               />
             ) : (
               <p className="u-text-muted">Loading…</p>
@@ -88,11 +141,24 @@ export function PolicyPage({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'policy-page',
+  role: 'section',
   title: 'Policy',
   category: 'commerce',
   icon: 'doc',
-  attributes: {
+  attributes: withShared({
     policy: { type: 'text', label: 'Policy handle (blank = from URL)' },
-  },
+    showLastUpdated: { type: 'boolean', default: true, label: 'Show last-updated date' },
+    showTableOfContents: {
+      type: 'select',
+      default: 'auto',
+      label: 'Table of contents',
+      info: 'Auto shows it once the policy has six or more headings.',
+      options: [
+        { value: 'auto', label: 'Automatic' },
+        { value: 'always', label: 'Always' },
+        { value: 'never', label: 'Never' },
+      ],
+    },
+  }),
   component: PolicyPage,
 })

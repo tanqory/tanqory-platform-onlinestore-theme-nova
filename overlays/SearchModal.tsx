@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useData } from '@tanqory/theme-kit'
+import { useData, type Product } from '@tanqory/theme-kit'
 import { Modal } from '../components/Modal'
 import { ImageResponsive } from '../components/ImageResponsive'
 import { Money } from '../components/Money'
@@ -17,12 +17,15 @@ interface SearchModalProps {
  * Predictive search overlay — replaces a full page navigation to `/search`
  * with an instant, debounced search-as-you-type experience.
  *
- * Phase 1 (this file): client-side filter over the bootstrap product list
- * already in memory. Zero extra round-trips, instant feedback. Good enough
- * for catalogues up to a few hundred SKUs, which is the bootstrap limit.
+ * Searches the shop through the storefront search endpoint, the same one the
+ * /search page uses.
  *
- * Phase 2 (when needed): swap the matchProducts call for the storefront
- * `predictiveSearch` GraphQL query (resolver already wired). Same shape.
+ * It used to filter only the product list already bootstrapped into the page.
+ * On a live store that set is a handful of products, so the header search —
+ * the main way a shopper looks for something — answered "No matches" for
+ * things the shop plainly sells: 0 results for "blazer" and 0 for "book" while
+ * /search returned 6 and 3. The in-memory filter is kept as the fallback for
+ * offline development and the editor preview, where there is no endpoint.
  */
 export function SearchModal(props: SearchModalProps): JSX.Element {
   const open = useOverlay('search')
@@ -75,11 +78,52 @@ export function SearchModal(props: SearchModalProps): JSX.Element {
     return out
   }, [data])
 
-  const results = useMemo(() => {
+  /** What the in-memory list can answer — the fallback, and what shows while
+   *  the request is in flight so the panel never flashes "no matches". */
+  const localResults = useMemo(() => {
     if (!debouncedTerm) return []
     const q = debouncedTerm.toLowerCase()
     return allProducts.filter((p) => p.title.toLowerCase().includes(q)).slice(0, maxResults)
   }, [allProducts, debouncedTerm, maxResults])
+
+  const search = data.search
+  // Results carry the term they answered. Holding bare products let the
+  // previous query's hits render under the new query's heading: type "shirt",
+  // wait, then type "hat", and the panel showed shirts labelled "hat" while
+  // the new request was still open — and `pending` was false, because `remote`
+  // was not null.
+  const [remote, setRemote] = useState<{ term: string; products: Product[] } | null>(null)
+  const [searching, setSearching] = useState(false)
+  useEffect(() => {
+    if (!debouncedTerm || !search) {
+      setRemote(null)
+      setSearching(false)
+      return
+    }
+    let cancelled = false
+    setSearching(true)
+    void search(debouncedTerm, { first: maxResults, types: ['PRODUCT'] })
+      .then((r) => {
+        if (!cancelled) setRemote({ term: debouncedTerm, products: r.products ?? [] })
+      })
+      // A failed lookup falls back to whatever is in memory rather than
+      // claiming the shop has nothing.
+      .catch(() => {
+        if (!cancelled) setRemote(null)
+      })
+      .finally(() => {
+        if (!cancelled) setSearching(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [debouncedTerm, search, maxResults])
+
+  const fresh = remote && remote.term === debouncedTerm ? remote.products : null
+  const results = (fresh ?? localResults).slice(0, maxResults)
+  // "No matches" is only true once the lookup has finished. Saying it while a
+  // request is still open is the same wrong answer, just earlier.
+  const pending = searching && fresh === null && localResults.length === 0
 
   return (
     <Modal open={open} maxWidth={maxWidth} ariaLabel="Search">
@@ -110,7 +154,9 @@ export function SearchModal(props: SearchModalProps): JSX.Element {
 
         {debouncedTerm && (
           <div className="search-modal__results" role="listbox" aria-label="Search results">
-            {results.length === 0 ? (
+            {pending ? (
+              <p className="search-modal__empty u-text-muted" role="status">Searching…</p>
+            ) : results.length === 0 ? (
               <p className="search-modal__empty u-text-muted">No matches for “{debouncedTerm}”.</p>
             ) : (
               <>

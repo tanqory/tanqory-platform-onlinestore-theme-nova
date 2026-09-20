@@ -16,6 +16,7 @@ export function HeadingBlock({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'heading',
+  role: 'block',
   title: 'Heading',
   category: 'block',
   icon: 'H',

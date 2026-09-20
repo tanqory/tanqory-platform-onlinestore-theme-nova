@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react'
 import { decodeHandle } from '../lib/handle'
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
-import { apiBase } from '../lib/api-base'
+import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
 import { Container } from '../components/Container'
+import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
 /**
  * Renders the merchant's published Page content for the current `/pages/<handle>`
  * URL by querying the storefront GraphQL `page(handle:)` resolver at mount.
  *
- * Self-contained on purpose: the theme-runtime image bakes its own copy of
- * `@tanqory/theme-kit` from `node_modules`, so adding `pageByHandle` to
- * theme-kit's bootstrap query wouldn't reach prod until the runtime image is
- * rebuilt. Doing the fetch here keeps the wire-up to a single theme file that
- * code-store can hot-PUT. When the runtime image catches up, this section
- * can be slimmed down to read from `dataApi.pageByHandle(handle)`.
+ * Reads through the shared data layer: the bootstrap's `pageByHandle` when the
+ * route's page is already known, otherwise the kit's `graphql()` transport —
+ * which is part of the shipped runtime, so this needs no image rebuild. It
+ * previously hand-rolled a fetch with its own env reading, publishable-key and
+ * country headers, which is how a section ends up disagreeing with the rest of
+ * the store about currency or locale.
  *
  * Falls back to the section's authored `fallbackTitle` / `fallbackBody` while
  * the request is in flight, when the URL isn't `/pages/...`, or when the
@@ -21,6 +21,10 @@ import { Container } from '../components/Container'
  */
 export function PageBody({ attributes }: SectionProps): JSX.Element {
   const { fallbackTitle, fallbackBody } = attributes as Record<string, string | undefined>
+  // One transport for every section: `graphql()` carries the publishable key,
+  // country and locale headers the rest of the data layer uses. This file used
+  // to build its own fetch, its own headers and its own error handling.
+  const { graphql, pageByHandle } = useData()
 
   const handle =
     typeof window !== 'undefined'
@@ -35,51 +39,25 @@ export function PageBody({ attributes }: SectionProps): JSX.Element {
       setLoaded(true)
       return
     }
-    const env = import.meta.env as ImportMetaEnv & {
-      VITE_TANQORY_BACKEND?: string
-      VITE_TANQORY_STORE_ID?: string
-      VITE_TANQORY_STOREFRONT_TOKEN?: string
-    }
-    if (!env.VITE_TANQORY_BACKEND || !env.VITE_TANQORY_STORE_ID) {
+    // The bootstrap already knows the page on a `/pages/<handle>` route.
+    const cached = pageByHandle?.(handle)
+    if (cached) {
+      setPage({ title: cached.title, body: cached.body ?? '' })
       setLoaded(true)
       return
     }
-    const url = `${apiBase(env.VITE_TANQORY_BACKEND)}/api/v1/stores/${encodeURIComponent(
-      env.VITE_TANQORY_STORE_ID,
-    )}/graphql`
-    const country =
-      typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search).get('country') ||
-          (() => {
-            try {
-              return window.localStorage.getItem('tq-country')
-            } catch {
-              return null
-            }
-          })()
-        : null
+    if (!graphql) {
+      setLoaded(true)
+      return
+    }
     let cancelled = false
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        ...(env.VITE_TANQORY_STOREFRONT_TOKEN
-          ? { 'x-publishable-key': env.VITE_TANQORY_STOREFRONT_TOKEN }
-          : {}),
-        ...(country && /^[A-Za-z]{2}$/.test(country)
-          ? { 'x-tanqory-country': country.toUpperCase() }
-          : {}),
-      },
-      body: JSON.stringify({
-        query: 'query P($h: String) { page(handle: $h) { title body } }',
-        variables: { h: handle },
-      }),
-    })
-      .then((r) => r.json())
-      .then((j: { data?: { page?: { title: string; body: string } | null } }) => {
+    void graphql<{ page?: { title: string; body: string } | null }>(
+      'query P($h: String) { page(handle: $h) { title body } }',
+      { h: handle },
+    )
+      .then((res) => {
         if (cancelled) return
-        const p = j.data?.page
-        setPage(p ? { title: p.title, body: p.body } : null)
+        setPage(res?.page ? { title: res.page.title, body: res.page.body } : null)
         setLoaded(true)
       })
       .catch(() => {
@@ -88,15 +66,18 @@ export function PageBody({ attributes }: SectionProps): JSX.Element {
     return () => {
       cancelled = true
     }
-  }, [handle])
+  }, [handle, graphql, pageByHandle])
 
   const title = page?.title ?? (loaded ? fallbackTitle ?? '' : '')
   const body = page?.body ?? (loaded ? fallbackBody ?? '' : '')
 
+  const showTitle = attributes.showTitle !== false
+  const textWidth = (attributes.textWidth as string) ?? 'content'
+
   return (
-    <section className="page-body">
+    <section {...sharedRootProps(attributes)} className="page-body" data-width={textWidth}>
       <Container className="page-body__inner">
-        {title && <h1 className="page-body__title">{title}</h1>}
+        {showTitle && title && <h1 className="page-body__title">{title}</h1>}
         {body && (
           <div
             className="page-body__content rich-text"
@@ -110,10 +91,12 @@ export function PageBody({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'page-body',
+  role: 'section',
+  requiresContext: ['page'],
   title: 'Page content',
   category: 'content',
   icon: '¶',
-  attributes: {
+  attributes: withShared({
     fallbackTitle: {
       type: 'text',
       label: 'Fallback title',
@@ -124,6 +107,16 @@ export default defineSection({
       label: 'Fallback body (HTML)',
       default: '',
     },
-  },
+    showTitle: { type: 'boolean', default: true, label: 'Show page title' },
+    textWidth: {
+      type: 'select',
+      default: 'content',
+      label: 'Text width',
+      options: [
+        { value: 'content', label: 'Content' },
+        { value: 'standard', label: 'Standard' },
+      ],
+    },
+  }),
   component: PageBody,
 })

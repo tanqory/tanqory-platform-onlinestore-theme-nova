@@ -1,0 +1,50 @@
+# The theme ships five gates (typecheck, manifest, inert-settings, design
+# coverage, page headings) plus tests and a build. Until now none of them ran
+# anywhere but a developer's terminal, so a green ratchet proved only that
+# somebody remembered to run it.
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      # --frozen-lockfile is the point: a clean clone must install without the
+      # vendored .tgz that used to be required.
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm verify
+
+  # The live gates drive a real browser against the dev server, so they cannot
+  # share the job above. They are advisory until the storefront they audit is
+  # reachable from CI.
+  verify-live:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: start dev server
+        run: |
+          pnpm dev &
+          npx wait-on http://localhost:4321 --timeout 120000
+      - run: pnpm verify:live

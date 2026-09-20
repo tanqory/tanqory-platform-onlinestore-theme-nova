@@ -1,5 +1,7 @@
 import { Children } from 'react'
 import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { SectionHead } from '../components/SectionHead'
+import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
 type Logo = { src?: string; alt?: string; href?: string }
 
@@ -22,23 +24,32 @@ export function LogoList({ attributes, children }: SectionProps): JSX.Element {
   // their tree order. LEGACY MODE: fall back to the logos-JSON setting so
   // templates written before the block standard keep rendering.
   const hasBlocks = Children.count(children) > 0
+  const grayscale = attributes.grayscale !== false
+  const columns = [4, 5, 6].includes(Number(attributes.columns)) ? Number(attributes.columns) : 6
+  const logoHeight = (attributes.logoHeight as string) ?? 'medium'
 
   return (
-    <section className="section section--tight">
+    <section {...sharedRootProps(attributes)}
+      className="section section--tight"
+      data-grayscale={grayscale ? 'true' : 'false'}
+      data-logo-height={logoHeight}
+    >
       <div className="container">
         {heading && (
-          <div className="logo-list__head">
-            <span className="eyebrow">{heading}</span>
-          </div>
+          <SectionHead
+            eyebrow={heading}
+            description={attributes.description as string | undefined}
+            align="center"
+          />
         )}
         {hasBlocks ? (
-          <div className="logo-list__grid">{children}</div>
+          <div className="logo-list__grid" data-columns={columns}>{children}</div>
         ) : logos.length === 0 ? (
           <div className="card card--padded card--bordered u-text-center">
             <p className="u-text-muted">Add brand logos in the editor.</p>
           </div>
         ) : (
-          <div className="logo-list__grid">
+          <div className="logo-list__grid" data-columns={columns}>
             {logos.map((logo, i) => {
               const inner = logo.src ? (
                 <img src={logo.src} alt={logo.alt ?? ''} loading="lazy" decoding="async" />
@@ -64,12 +75,35 @@ export function LogoList({ attributes, children }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'logo-list',
+  role: 'section',
   title: 'Logo list',
   category: 'social-proof',
   icon: '◍',
-  attributes: {
+  attributes: withShared({
+    description: { type: 'textarea', group: 'Content', label: 'Description' },
     heading: { type: 'text', default: 'As seen in', label: 'Heading' },
-  },
+    grayscale: { type: 'boolean', default: true, label: 'Grayscale logos' },
+    columns: {
+      type: 'select',
+      default: '6',
+      label: 'Columns',
+      options: [
+        { value: '4', label: '4' },
+        { value: '5', label: '5' },
+        { value: '6', label: '6' },
+      ],
+    },
+    logoHeight: {
+      type: 'select',
+      default: 'medium',
+      label: 'Logo height',
+      options: [
+        { value: 'small', label: 'Small (24)' },
+        { value: 'medium', label: 'Medium (32)' },
+        { value: 'large', label: 'Large (40)' },
+      ],
+    },
+  }),
   allowedBlocks: ['logo'],
   presets: [
     {

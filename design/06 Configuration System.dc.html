@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#FCFCFB} a{color:#1B1A18} a:hover{color:#5C5955}</style>
+</helmet>
+<div style="font-family:'Instrument Sans',Helvetica,Arial,sans-serif;color:#1B1A18;padding:64px 48px;display:flex;flex-direction:column;gap:40px;max-width:1440px;margin:0 auto;box-sizing:border-box">
+<header style="display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap">
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C5955;letter-spacing:.04em">TANQORY NOVA · 06 / 06</span>
+    <h1 style="margin:0;font-size:40px;line-height:1.1;font-weight:500;letter-spacing:-.02em">Configuration System</h1>
+    <p style="margin:0;font-size:16px;line-height:24px;color:#5C5955;max-width:760px;text-wrap:pretty">What merchants can change, at four levels: global theme, component, shared section props, and section-specific props (the last live in <a href="05 Handoff Notes.dc.html">05 Handoff Notes</a>). Controls are semantic — merchants pick “Wide”, the system decides 1440px. Nothing here exposes raw CSS.</p>
+  </div>
+  <nav style="display:flex;gap:8px;font-size:13px">
+    <a href="05 Handoff Notes.dc.html" style="padding:8px 12px;border:1px solid #C9C6C0;border-radius:4px;text-decoration:none;background:#fff">← 05 Handoff</a>
+    <a href="00 Index.dc.html" style="padding:8px 12px;border:1px solid #C9C6C0;border-radius:4px;text-decoration:none;background:#fff">Index</a>
+  </nav>
+</header>
+
+<section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px">
+  <sc-for list="{{ principles }}" as="p" hint-placeholder-count="4"><div style="background:#fff;border:1px solid #E6E4E0;border-radius:4px;padding:24px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:20px;color:#5C5955"><strong style="color:#1B1A18;font-size:16px">{{ p.h }}</strong>{{ p.t }}</div></sc-for>
+</section>
+
+<sc-for list="{{ tables }}" as="t" hint-placeholder-count="4">
+  <section id="{{ t.id }}" style="background:#fff;border:1px solid #E6E4E0;border-radius:4px;padding:32px;display:flex;flex-direction:column;gap:20px">
+    <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;color:#8A867F;text-transform:uppercase;letter-spacing:.06em;font-weight:500">{{ t.level }}</span><h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">{{ t.title }}</h2><p style="margin:0;font-size:14px;line-height:20px;color:#5C5955;max-width:900px">{{ t.intro }}</p></div>
+    <sc-if value="{{ t.meta }}" hint-placeholder-val="{{ false }}"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;font-size:13px;line-height:19px;color:#5C5955;padding:16px;background:#F4F3F1;border-radius:4px"><sc-for list="{{ t.meta }}" as="m" hint-placeholder-count="4"><div><strong style="color:#1B1A18;display:block;margin-bottom:4px">{{ m.h }}</strong>{{ m.t }}</div></sc-for></div></sc-if>
+    <div style="display:flex;flex-direction:column;border-top:1px solid #E6E4E0;font-size:13px;line-height:18px">
+      <div style="display:grid;grid-template-columns:170px 100px minmax(0,1.4fr) 120px 110px 80px 150px minmax(0,1.6fr);gap:12px;padding:10px 0;color:#8A867F;font-family:'IBM Plex Mono',monospace;font-size:11px;border-bottom:1px solid #E6E4E0"><span>property</span><span>control</span><span>options</span><span>default</span><span>scope / group</span><span>responsive</span><span>dependency</span><span>description</span></div>
+      <sc-for list="{{ t.rows }}" as="p" hint-placeholder-count="8">
+        <div style="display:grid;grid-template-columns:170px 100px minmax(0,1.4fr) 120px 110px 80px 150px minmax(0,1.6fr);gap:12px;padding:10px 0;border-bottom:1px solid #F4F3F1;align-items:start"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">{{ p.name }}</span><span style="color:#5C5955">{{ p.control }}</span><span style="color:#5C5955">{{ p.options }}</span><span style="font-weight:500">{{ p.def }}</span><span style="color:#5C5955">{{ p.scope }}</span><span style="color:#5C5955">{{ p.resp }}</span><span style="color:#8A867F;font-family:'IBM Plex Mono',monospace;font-size:11px">{{ p.dep }}</span><span style="color:#5C5955">{{ p.desc }}</span></div>
+      </sc-for>
+    </div>
+  </section>
+</sc-for>
+
+<section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px">
+  <div style="background:#fff;border:1px solid #E6E4E0;border-radius:4px;padding:32px;display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Responsive fallback rules</h2>
+    <div style="display:flex;flex-direction:column;font-size:14px;line-height:20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:8px 0;border-bottom:1px solid #E6E4E0;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A867F"><span>desktop columns</span><span>tablet (auto)</span><span>mobile (auto)</span></div>
+      <sc-for list="{{ fallbacks }}" as="f" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:8px 0;border-bottom:1px solid #F4F3F1;font-variant-numeric:tabular-nums"><span>{{ f.d }}</span><span style="color:#5C5955">{{ f.t }}</span><span style="color:#5C5955">{{ f.m }}</span></div></sc-for>
+    </div>
+    <ul style="margin:0;padding-left:16px;font-size:14px;line-height:21px;color:#5C5955"><li>Merchants set desktop values; tablet is always derived; mobile is derived unless a Mobile-group override is set.</li><li>Sizes (hero, spacing, type) step down one tier per breakpoint automatically.</li><li>Carousels show 4.3 / 2.5 / 1.2 items regardless of column setting.</li><li>Split layouts stack below 768 with media first unless mobileMediaPosition says otherwise.</li><li>Alignment: center on desktop → left on mobile by default (mobileContentAlignment overrides).</li></ul>
+  </div>
+  <div style="background:#fff;border:1px solid #E6E4E0;border-radius:4px;padding:32px;display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Conditional visibility</h2>
+    <div style="display:flex;flex-direction:column;font-size:14px;line-height:20px">
+      <sc-for list="{{ conditions }}" as="c" hint-placeholder-count="8"><div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:16px;padding:10px 0;border-bottom:1px solid #F4F3F1"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">{{ c.when }}</span><span style="color:#5C5955">{{ c.then }}</span></div></sc-for>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:19px;color:#8A867F">The Theme Editor hides irrelevant controls rather than disabling them. A hidden control keeps its stored value.</p>
+  </div>
+  <div style="background:#fff;border:1px solid #E6E4E0;border-radius:4px;padding:32px;display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Control type recommendations</h2>
+    <div style="display:flex;flex-direction:column;font-size:14px;line-height:20px">
+      <sc-for list="{{ controls }}" as="c" hint-placeholder-count="10"><div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:16px;padding:10px 0;border-bottom:1px solid #F4F3F1"><span style="font-weight:500">{{ c.k }}</span><span style="color:#5C5955">{{ c.v }}</span></div></sc-for>
+    </div>
+    <h3 style="margin:8px 0 0;font-size:16px;font-weight:500">Prop groups (fixed order)</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ groups }}" as="g" hint-placeholder-count="7"><span style="height:32px;padding:0 12px;border:1px solid #C9C6C0;border-radius:999px;font-size:13px;display:inline-flex;align-items:center">{{ g }}</span></sc-for></div>
+    <p style="margin:0;font-size:13px;line-height:19px;color:#8A867F">Content first, Advanced last and collapsed. Empty groups are not shown. Mobile group appears only when at least one mobile override exists for the section.</p>
+  </div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const R = (name, control, options, def, scope, resp, dep, desc) => ({ name, control, options, def, scope, resp, dep: dep || '—', desc });
+    const M = (a) => a.map(x => ({ h: x[0], t: x[1] }));
+    const principles = M([
+      ['Semantic, never raw', 'Merchants choose Small / Medium / Large, Narrow / Wide, Portrait / Square. The design system owns pixel values, ratios and shadows. No numeric CSS inputs anywhere.'],
+      ['Global once, local override rarely', 'Type, color, radius, card behavior and image treatment are set once in Global Theme Props. Sections may override only ratio, quick add and visibility toggles — never style.'],
+      ['Intelligent defaults', 'Desktop values drive tablet and mobile through fixed fallback rules. Mobile-specific controls exist only where merchants have a real reason (columns, media order, alignment, separate image).'],
+      ['Conditional and grouped', 'Controls appear only when relevant (carousel settings only for carousel). Every section groups controls as Content · Layout · Media · Appearance · Spacing · Mobile · Advanced.']
+    ]);
+    const tables = [
+      { id: 'global', level: 'Level 1', title: 'Global theme props', intro: 'Affect the entire storefront. Sections never duplicate these.', meta: M([['Scope', 'theme settings'], ['Contrast guard', 'Any color choice that fails 4.5:1 for its paired text role auto-flips the text role and shows a warning in the editor.'], ['Font swap', 'Heading and body families are independent; scale and weights are role-based so hierarchy survives.'], ['Brand slot', 'Primary drives buttons, focus ring, selection and active indicators only.']]), rows: [
+        R('headingFont', 'font picker', 'system + curated Google list', 'Instrument Sans', 'Typography', 'no', '', 'Display, H1–H6, product title on PDP'),
+        R('bodyFont', 'font picker', 'system + curated Google list', 'Instrument Sans', 'Typography', 'no', '', 'Body, labels, buttons, nav'),
+        R('typeScale', 'segmented', 'compact | default | large', 'default', 'Typography', 'yes', '', 'Multiplies heading roles ×0.9 / 1 / 1.1; body unchanged'),
+        R('headingWeight', 'segmented', 'regular | medium | semibold', 'medium', 'Typography', 'no', '', 'Weight of all heading roles'),
+        R('buttonTextStyle', 'segmented', 'default | uppercase', 'default', 'Typography', 'no', '', 'Uppercase adds +0.06em tracking'),
+        R('colorBackground', 'color', 'picker + neutral presets', '#FCFCFB', 'Colors', 'no', '', 'Page canvas'),
+        R('colorText', 'color', 'picker', '#1B1A18', 'Colors', 'no', '', 'Text Primary; Secondary/Muted derive by mixing toward background'),
+        R('colorPrimary', 'color', 'picker', '#1B1A18', 'Colors', 'no', '', 'Brand slot; hover/active derive (−8% / −14% L)'),
+        R('colorSecondarySurface', 'color', 'picker', '#F4F3F1', 'Colors', 'no', '', 'Surface Secondary: media frames, muted blocks'),
+        R('colorBorder', 'color', 'picker', '#E6E4E0', 'Colors', 'no', '', 'Border; Border Strong derives'),
+        R('colorSale', 'color', 'picker (3 presets)', '#B3261E', 'Colors', 'no', '', 'Sale price and badge; must contrast on Surface'),
+        R('pageWidth', 'segmented', 'standard 1200 | wide 1440', 'wide', 'Layout', 'no', '', 'Default container for commerce sections'),
+        R('sectionSpacing', 'segmented', 'small | medium | large', 'medium', 'Layout', 'yes', '', 'Default preset for new sections'),
+        R('buttonRadius', 'segmented', 'none | small | medium | pill', 'small', 'Buttons', 'no', '', '0 / 4 / 8 / 999'),
+        R('buttonBorder', 'segmented', 'default | strong', 'default', 'Buttons', 'no', '', 'Secondary button border role'),
+        R('inputRadius', 'segmented', 'none | small | medium', 'small', 'Inputs', 'no', '', 'Follows buttonRadius when unset'),
+        R('cardRadius', 'segmented', 'none | small | medium', 'small', 'Cards', 'no', '', 'Product/collection media frame radius'),
+        R('cardBorder', 'toggle', '', 'on', 'Cards', 'no', '', 'Subtle border on media frames'),
+        R('cardHoverEffect', 'segmented', 'none | image-swap | zoom | subtle-lift', 'image-swap', 'Cards', 'desktop', '', 'Global ProductCard hover; falls back to zoom when no 2nd image'),
+        R('productImageRatio', 'select', 'adapt | portrait | square | landscape', 'portrait', 'Product media', 'yes', '', 'Default card + gallery frame'),
+        R('productImageFit', 'segmented', 'contain | cover', 'contain', 'Product media', 'no', '', 'Default object-fit'),
+        R('showVendorGlobally', 'toggle', '', 'off', 'Product media', 'no', '', 'Vendor eyebrow on cards and PDP'),
+        R('badgeStyle', 'segmented', 'filled | outline', 'filled', 'Cards', 'no', '', 'Sale/New badge treatment'),
+        R('motion', 'segmented', 'standard | reduced', 'standard', 'Motion', 'no', '', 'Reduced removes transforms and autoplay; OS preference always wins'),
+        R('iconStyle', 'segmented', 'outline | filled', 'outline', 'Icons', 'no', '', 'One family across the theme')
+      ] },
+      { id: 'component-button', level: 'Level 2', title: 'Component props — Button · IconButton · Text Link', intro: 'Design API for the primitive most sections compose. Variants fixed; merchants pick variant per CTA, never style.', meta: null, rows: [
+        R('variant', 'segmented', 'primary | secondary | tertiary | ghost | text | destructive', 'primary', 'component', 'no', '', 'Visual weight; destructive only in cart/account'),
+        R('size', 'segmented', 'small 36 | medium 44 | large 52', 'medium', 'component', 'yes', '', 'Large used for ATC and hero; auto medium on mobile except primary actions'),
+        R('width', 'segmented', 'auto | full', 'auto', 'component', 'yes', '', 'Full on mobile for primary section CTAs'),
+        R('iconPosition', 'segmented', 'none | left | right', 'none', 'component', 'no', '', 'Icon slot'),
+        R('loading', 'state', 'boolean', 'false', 'runtime', 'no', '', 'Spinner replaces label, width held'),
+        R('IconButton.variant', 'segmented', 'ghost | bordered', 'ghost', 'component', 'no', '', 'Header uses ghost, toolbars bordered'),
+        R('IconButton.count', 'state', 'number', '0', 'runtime', 'no', '', 'Pill badge; 99+ overflow'),
+        R('TextLink.style', 'segmented', 'inline | standalone', 'inline', 'component', 'no', '', 'Standalone adds arrow, no underline')
+      ] },
+      { id: 'component-productcard', level: 'Level 2', title: 'Component props — ProductCard', intro: 'Inherits global card props; sections may override the marked props only. Used by featured-collection, product-grid, search-results, product-recommendations, collection pages.', meta: M([['Visual states', 'default · hover · sale · sold out · unavailable · new · single/multi/no image · short/long title · normal/discount/range price · swatches · quick add idle/loading/success · mobile/tablet/desktop'], ['Anatomy', 'media frame → badge → quick add overlay → vendor → title (2-line clamp) → price row → swatches'], ['Inherits globally', 'cardRadius, cardBorder, cardHoverEffect, productImageRatio, productImageFit, badgeStyle, showVendorGlobally']]), rows: [
+        R('layout', 'segmented', 'vertical | horizontal', 'vertical', 'section override', 'yes', '', 'Horizontal for list views and drawers; auto when width < 160'),
+        R('density', 'segmented', 'compact | default', 'default', 'section override', 'yes', '', 'Compact: 14px title, 8px gaps'),
+        R('imageRatio', 'select', 'inherit | adapt | square | portrait | landscape', 'inherit', 'section override', 'yes', '', 'Frame ratio'),
+        R('imageFit', 'segmented', 'inherit | cover | contain', 'inherit', 'section override', 'no', '', 'Object fit'),
+        R('textAlignment', 'segmented', 'left | center', 'left', 'section override', 'yes', '', 'Meta alignment'),
+        R('showVendor', 'toggle', '', 'inherit', 'section override', 'no', '', 'Vendor eyebrow'),
+        R('showPrice', 'toggle', '', 'on', 'component', 'no', '', 'Price row (off for lookbooks)'),
+        R('showCompareAtPrice', 'toggle', '', 'on', 'component', 'no', 'showPrice=on', 'Strikethrough original'),
+        R('showBadges', 'toggle', '', 'on', 'component', 'no', '', 'Sale / Sold out / New'),
+        R('showSwatches', 'toggle', '', 'on', 'section override', 'no', 'product has color option', 'Up to 4 + count'),
+        R('showQuickAdd', 'toggle', '', 'on', 'section override', 'yes', '', 'Hover overlay desktop; icon button touch'),
+        R('quickAddBehavior', 'segmented', 'add-direct | open-picker', 'auto', 'component', 'no', 'showQuickAdd=on', 'Auto: direct for single variant, picker otherwise'),
+        R('hoverEffect', 'segmented', 'inherit | none | image-swap | zoom | subtle-lift', 'inherit', 'section override', 'desktop', '', 'Hover treatment'),
+        R('titleLines', 'segmented', '1 | 2 | 3', '2', 'component', 'no', '', 'Clamp')
+      ] },
+      { id: 'component-collectioncard', level: 'Level 2', title: 'Component props — CollectionCard · SectionHeader · Badge/Chip', intro: 'Small APIs; most values inherit from the section.', meta: null, rows: [
+        R('CollectionCard.imageRatio', 'select', 'adapt | square | portrait | landscape', 'portrait', 'section', 'yes', '', 'Frame ratio'),
+        R('CollectionCard.textStyle', 'segmented', 'below | overlay', 'below', 'section', 'no', '', 'Overlay forces medium scrim + inverse text'),
+        R('CollectionCard.textAlignment', 'segmented', 'left | center', 'left', 'section', 'yes', '', 'Title alignment'),
+        R('CollectionCard.showDescription', 'toggle', '', 'off', 'section', 'no', '', '2-line clamp'),
+        R('CollectionCard.showCount', 'toggle', '', 'off', 'section', 'no', '', 'Product count right of title'),
+        R('SectionHeader.alignment', 'segmented', 'left | center', 'left', 'section', 'yes', '', 'Center moves link below content'),
+        R('SectionHeader.size', 'segmented', 'small h3 | medium h2 | large h1', 'medium', 'section', 'yes', '', 'Heading role'),
+        R('SectionHeader.showEyebrow', 'toggle', '', 'off', 'section', 'no', 'eyebrow text set', 'Eyebrow above heading'),
+        R('SectionHeader.showDescription', 'toggle', '', 'off', 'section', 'no', '', 'Body description'),
+        R('SectionHeader.linkStyle', 'segmented', 'text-link | button', 'text-link', 'section', 'no', 'link set', 'View-all treatment'),
+        R('Badge.tone', 'fixed', 'sale | new | sold-out | info | success | warning', '—', 'runtime', 'no', '', 'Set by data, not merchant'),
+        R('Chip.selected / removable', 'state', 'boolean', 'false', 'runtime', 'no', '', 'Filter chips')
+      ] },
+      { id: 'component-purchase', level: 'Level 2', title: 'Component props — Purchase stack · Gallery · Cart', intro: 'VariantPicker, Swatches, QuantitySelector, AddToCart, InventoryStatus, ProductGallery, CartLineItem, CartSummary.', meta: null, rows: [
+        R('VariantPicker.style', 'segmented (per option)', 'buttons | swatches | select', 'buttons', 'section', 'no', '', 'Color options default to swatches; auto-select above 12 values'),
+        R('VariantPicker.showSoldOut', 'segmented', 'strikethrough | hide', 'strikethrough', 'section', 'no', '', 'Sold-out value treatment'),
+        R('Swatches.size', 'segmented', 'small 16 | medium 32', '32 PDP / 16 card', 'component', 'yes', '', 'Circle size'),
+        R('Swatches.shape', 'segmented', 'circle | square', 'circle', 'global', 'no', '', 'Swatch shape'),
+        R('QuantitySelector.show', 'toggle', '', 'on', 'section', 'no', '', 'Hide for single-quantity products'),
+        R('AddToCart.label', 'text', '', 'Add to cart', 'section', 'no', '', 'Sold out / Unavailable / Pre-order override automatically'),
+        R('AddToCart.showPriceOnMobileBar', 'toggle', '', 'on', 'section', 'mobile', 'stickyPurchase includes mobile', 'Price appended to sticky bar label'),
+        R('InventoryStatus.mode', 'segmented', 'always | low-only | never', 'low-only', 'section', 'no', '', 'Dot + text'),
+        R('ProductGallery.layout', 'visual cards', 'thumbnails-left | thumbnails-below | stacked', 'thumbnails-left', 'section', 'desktop', 'media > 1', 'Desktop only; mobile always swipe'),
+        R('ProductGallery.zoom', 'toggle', '', 'on', 'section', 'no', '', 'Lightbox'),
+        R('ProductGallery.videoAutoplay', 'toggle', '', 'off', 'section', 'no', 'has video', 'Muted inline autoplay'),
+        R('CartLineItem.showCompareAt', 'toggle', '', 'on', 'section', 'no', '', 'Strikethrough line total'),
+        R('CartSummary.showNote', 'toggle', '', 'on', 'section', 'no', '', 'Order note'),
+        R('CartSummary.showPayment', 'toggle', '', 'on', 'section', 'no', '', 'Payment marks')
+      ] },
+      { id: 'shared-section', level: 'Level 3', title: 'Shared section props', intro: 'Every section exposes these (unless marked n/a in 05). Defaults may differ per section; the group order is fixed.', meta: M([['Not exposed', 'padding values, max-width px, font sizes, radii, shadows, colors other than the role list'], ['Spacing collapse', 'Adjacent sections with the same background collapse to the smaller preset'], ['Background roles', 'surface · surface-secondary · primary — primary inverts all text roles inside']]), rows: [
+        R('sectionWidth', 'segmented', 'standard | wide | full', 'wide (commerce) / standard (content)', 'Layout', 'no', '', 'Container preset'),
+        R('contentWidth', 'segmented', 'narrow | content | standard', 'content', 'Layout', 'no', 'text sections', 'Inner text measure'),
+        R('contentAlignment', 'segmented', 'left | center', 'left', 'Layout', 'yes', '', 'Header + text alignment'),
+        R('spacingTop', 'segmented', 'none | small | medium | large | xl', 'medium', 'Spacing', 'yes', '', 'Padding preset (64 / 48 / 40 at medium)'),
+        R('spacingBottom', 'segmented', 'none | small | medium | large | xl', 'medium', 'Spacing', 'yes', '', 'Padding preset'),
+        R('background', 'segmented', 'surface | surface-secondary | primary', 'surface', 'Appearance', 'no', '', 'Section background role'),
+        R('heading / eyebrow / description', 'text / rich text', '', '—', 'Content', 'no', '', 'SectionHeader slots'),
+        R('headerSize', 'segmented', 'small | medium | large', 'medium', 'Appearance', 'yes', 'heading set', 'H3 / H2 / H1'),
+        R('mobileContentAlignment', 'segmented', 'inherit | left | center', 'inherit', 'Mobile', 'mobile', 'contentAlignment=center', 'Overrides on mobile'),
+        R('hideOnMobile', 'toggle', '', 'off', 'Mobile', 'mobile', '', 'Suppress section < 768'),
+        R('anchorId', 'text', '', '—', 'Advanced', 'no', '', 'In-page link target')
+      ] }
+    ];
+    const fallbacks = [{ d: '6', t: '4', m: '2' }, { d: '5', t: '3', m: '2' }, { d: '4', t: '3', m: '2' }, { d: '3', t: '3 (2 if cards < 200px)', m: '2' }, { d: '2', t: '2', m: '1' }, { d: '1', t: '1', m: '1' }];
+    const conditions = [
+      { when: 'layout = carousel', then: 'show showNavigation, navigationStyle; hide columns, mobileColumns, carouselOnMobile' },
+      { when: 'layout = grid', then: 'show columns, mobileColumns, carouselOnMobile; hide carousel controls' },
+      { when: 'image not set', then: 'hide imageRatio, imageFit, mediaPosition, overlay, mobileImage' },
+      { when: 'hero.layout = minimal', then: 'hide size, media group, overlay, contentPosition' },
+      { when: 'hero.layout ≠ image-background', then: 'hide overlay, contentPosition; show mediaPosition (split only)' },
+      { when: 'contentAlignment = left', then: 'hide mobileContentAlignment' },
+      { when: 'showInventory = never', then: 'hide lowStockThreshold' },
+      { when: 'product has ≤ 1 variant', then: 'hide variantStyle, showVariants, quickAddBehavior' },
+      { when: 'media count ≤ 1', then: 'hide galleryLayout, thumbnail settings' },
+      { when: 'slides = 1', then: 'hide autoplay, interval, controls, transition' },
+      { when: 'background = primary', then: 'hide buttonVariant (forced inverse), warn if brand primary is light' },
+      { when: 'filterLayout = none', then: 'hide filter-related settings; columns default 4' }
+    ];
+    const controls = [
+      { k: 'alignment · size · width · spacing · density', v: 'segmented control (2–4 options)' }, { k: 'layout / composition', v: 'visual choice cards with thumbnails; segmented when ≤ 3 text options' }, { k: 'boolean', v: 'toggle' }, { k: 'columns · counts · limits', v: 'stepper (with min/max); range only for productsToShow' }, { k: 'color roles', v: 'color picker with neutral presets and contrast warning' }, { k: 'imageRatio', v: 'visual presets (icons for adapt / square / portrait / landscape)' }, { k: 'contentPosition', v: '3×3 grid picker' }, { k: 'fonts', v: 'font picker with live preview, curated list' }, { k: 'resources (collection, product, menu, image, blog)', v: 'resource picker' }, { k: 'per-option settings (variantStyle)', v: 'repeating row: option name + segmented' }, { k: 'blocks (accordion items, columns, slides)', v: 'block list with drag reorder; each block has its own grouped props' }
+    ];
+    return { principles, tables, fallbacks, conditions, controls, groups: ['Content', 'Layout', 'Media', 'Appearance', 'Spacing', 'Mobile', 'Advanced'] };
+  }
+}
+</script>
+</body>
+</html>

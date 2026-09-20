@@ -6,7 +6,7 @@
   "description": "Reference Tanqory Studio theme — React sections, JSON content tree, runs offline with mock data.",
   "packageManager": "pnpm@9.15.4",
   "engines": {
-    "node": ">=20.0.0",
+    "node": ">=22.6.0",
     "pnpm": ">=9.7.0"
   },
   "scripts": {

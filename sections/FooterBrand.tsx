@@ -1,4 +1,5 @@
-import { defineSection, useBoundText, useData, useSettings, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useBoundText, useData, type SectionProps } from '@tanqory/theme-kit'
+import { useThemeSettings } from '../components/ThemeSettings'
 
 /**
  * Footer BLOCK — brand column (logo/name + tagline). Data-driven: name falls
@@ -9,18 +10,25 @@ import { defineSection, useBoundText, useData, useSettings, type SectionProps } 
  */
 export function FooterBrand({ attributes }: SectionProps): JSX.Element {
   const data = useData()
-  const settings = useSettings()
+  const settings = useThemeSettings()
   const boundTitle = useBoundText(attributes.title)
   const boundTagline = useBoundText(attributes.tagline)
   const name =
-    (boundTitle || (settings.shopName as string) || '').trim() ||
+    (boundTitle || (typeof settings.shopName === 'string' ? settings.shopName : '')).trim() ||
     data.shop?.name?.trim() ||
     'Your store'
-  // Precedence: an explicit block tagline, then the brand slogan the merchant
-  // set in Settings → Brand (it reaches the SDL but nothing rendered it — a
-  // SAVED_ONLY the brand audit flagged, store#510), then the store description.
+  // Precedence: an explicit block tagline, then the theme's own footer tagline,
+  // then the brand slogan the merchant set in Settings → Brand (it reaches the
+  // SDL but nothing rendered it — a SAVED_ONLY the brand audit flagged,
+  // store#510), then the store description. The theme setting comes before the
+  // store's brand for the same reason `shopName` does (nova#14): a theme built
+  // for a brand names that brand — a Thai build's every page but the home page
+  // read the store's English slogan "Where Ideas Come to Life" (build 7270019a).
+  const themeTagline =
+    typeof settings.footerTagline === 'string' ? settings.footerTagline.trim() : ''
   const tagline =
     boundTagline ||
+    themeTagline ||
     (data.shop?.brand?.slogan as string | undefined) ||
     (data.shop?.description as string) ||
     ''
@@ -59,7 +67,11 @@ export default defineSection({
   icon: '◈',
   attributes: {
     title: { type: 'text', label: 'Brand name (blank = store name)', dynamic: true },
-    tagline: { type: 'textarea', label: 'Tagline (blank = store description)', dynamic: true },
+    tagline: {
+      type: 'textarea',
+      label: 'Tagline (blank = theme tagline, then brand slogan)',
+      dynamic: true,
+    },
   },
   component: FooterBrand,
 })

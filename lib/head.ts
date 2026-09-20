@@ -13,7 +13,7 @@
  * page bodySummary → shop description (home only).
  */
 import type { DataApi } from '@tanqory/theme-kit'
-import { matchRoute } from './routes'
+import { matchRoute } from './routes.ts'
 
 /** Build a HeadMeta from a resource's SEO (shared by blog/article, which resolve
  *  their SEO asynchronously rather than from the sync bootstrap). */
@@ -25,7 +25,7 @@ export function headFrom(
   image?: string | null,
 ): HeadMeta {
   return {
-    title: seo?.title?.trim() ? seo.title.trim() : `${resourceTitle} — ${shopName}`,
+    title: documentTitle({ seoTitle: seo?.title, resourceTitle, shopName }),
     description: (seo?.description || fallbackDesc || '').trim(),
     keywords: (seo?.keywords ?? []).filter(Boolean),
     image: absUrl(image),
@@ -69,7 +69,7 @@ export function absUrl(url: string | undefined | null): string {
 export function computeHead(
   pathname: string,
   data: DataApi,
-  settings: { shopName?: string },
+  settings: { shopName?: unknown },
 ): HeadMeta {
   const shop = data.shop as
     | {
@@ -82,7 +82,9 @@ export function computeHead(
         } | null
       }
     | undefined
-  const shopName = (shop?.name || settings.shopName || 'Store').trim()
+  // The theme's shop name first, like the header — never the store ACCOUNT's
+  // name when the theme names its brand (nova#14).
+  const shopName = shopNameOf(settings.shopName, shop?.name)
   let seoTitle: string | null | undefined
   let rawTitle: string | undefined
   let description: string | null | undefined
@@ -113,7 +115,7 @@ export function computeHead(
     type = 'article'
   }
   const isHome = !isDetail.pg && !isDetail.pr && !isDetail.co
-  const title = seoTitle?.trim() ? seoTitle.trim() : rawTitle ? `${rawTitle} — ${shopName}` : shopName
+  const title = documentTitle({ seoTitle, resourceTitle: rawTitle, shopName })
   return {
     title,
     description: (description || (isHome ? shop?.description : '') || '').trim(),
@@ -218,4 +220,30 @@ export function applyHead({ title, description, keywords, image, type, siteName,
       favicon,
     )
   }
+}
+
+// ── Title: the theme's shop name, like the header ───────────────────────
+/**
+ * The shop's name as the storefront shows it: the theme's `shopName` setting
+ * (an AI-built theme names the brand it was built for), else the store's own
+ * name, else 'Store'.
+ */
+export function shopNameOf(themeShopName: unknown, storeName: unknown): string {
+  const text = (v: unknown): string => (typeof v === 'string' ? v.trim() : '')
+  return text(themeShopName) || text(storeName) || 'Store'
+}
+
+/**
+ * A route's title: the resource's SEO title verbatim (the merchant owns it),
+ * else "<resource title> — <shop>", else the shop name alone.
+ */
+export function documentTitle(input: {
+  seoTitle?: string | null
+  resourceTitle?: string | null
+  shopName: string
+}): string {
+  const seo = input.seoTitle?.trim()
+  if (seo) return seo
+  const title = input.resourceTitle?.trim()
+  return title ? `${title} — ${input.shopName}` : input.shopName
 }

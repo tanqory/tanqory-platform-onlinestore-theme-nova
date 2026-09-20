@@ -54,7 +54,7 @@ export default defineSection({
         { value: 'footer-company', label: 'Footer · Company' },
       ],
     },
-    logo: { type: 'text', label: 'Logo text (blank = shop name)' },
+    logo: { type: 'text', label: 'Logo text — shown when there is no logo image (blank = shop name)' },
     transparentOnHero: {
       type: 'boolean',
       default: false,

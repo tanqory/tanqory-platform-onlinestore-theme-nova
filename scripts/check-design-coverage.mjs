@@ -84,6 +84,24 @@ for (const s of spec) {
   if (gaps.length) missing[s.name] = gaps
 }
 
+/** Global settings whose default is carried by a design token rather than the setting. */
+const TOKEN_BACKED = {
+  colorPrimary: '--color-brand',
+  colorBackground: '--color-bg',
+  colorText: '--color-fg',
+  colorSecondarySurface: '--color-bg-muted',
+  colorBorder: '--color-border',
+  colorSale: '--color-sale',
+  headingFont: '--font-display',
+  bodyFont: '--font-body',
+}
+/** Declarations of the FIRST `:root { … }` block in tokens.css — the light-scheme defaults. */
+const rootTokens = (() => {
+  const css = readFileSync(join(ROOT, 'assets', 'tokens.css'), 'utf8')
+  const block = /:root\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+  return new Map([...block.matchAll(/(--[a-z0-9-]+)\s*:\s*([^;]+);/gi)].map((m) => [m[1], m[2].trim()]))
+})()
+
 // ── Level 1: global theme props ──────────────────────────────────────────────
 for (const g of globalSpec) {
   const item = settings.get(g.name)
@@ -104,7 +122,19 @@ for (const g of globalSpec) {
   const wantDef = comparableDefault(g.def)
   if (wantDef !== null) {
     const gotDef = typeof item.default === 'string' ? item.default.toLowerCase() : item.default
-    if (gotDef !== wantDef) add('(global) default differs', `${g.name}: ${gotDef} ≠ ${wantDef}`)
+    // A colour or font setting defaults to '' — "not set" — so the store's
+    // Settings → Brand and the automatic dark scheme keep working. What a
+    // shopper then sees is the TOKEN, so the design's default is checked
+    // where it actually lives: assets/tokens.css.
+    const token = TOKEN_BACKED[g.name]
+    if (gotDef === '' && token) {
+      const tokenValue = (rootTokens.get(token) ?? '').toLowerCase()
+      if (!tokenValue.includes(String(wantDef))) {
+        add('(global) default differs', `${g.name}: token ${token} is "${tokenValue}" ≠ ${wantDef}`)
+      }
+    } else if (gotDef !== wantDef) {
+      add('(global) default differs', `${g.name}: ${gotDef} ≠ ${wantDef}`)
+    }
   }
 }
 

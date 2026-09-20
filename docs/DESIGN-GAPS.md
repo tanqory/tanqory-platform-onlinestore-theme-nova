@@ -68,7 +68,7 @@ The `AttrSpec` vocabulary has 20 field ids. These design controls have no id.
 | **stepper** | `columns`, `productsToShow`, `lowStockThreshold` | `range`. The design distinguishes stepper from range; the distinction is inexpressible. |
 | **segmented** | ~120 props | `select` / `text_alignment`. Values survive, affordance does not. |
 | **per-option control type** | `product-details.variantStyle` | One section-wide choice plus `auto`, which picks swatches for colour and switches to a dropdown past 14 values. Per-option settings are keyed at author time and cannot vary by a product's option names. |
-| **font picker** | global typography | Not implemented; the theme ships one type family. |
+| **font picker** | global typography (`headingFont`, `bodyFont`) | A `select` over the curated Google list in `lib/theme-settings.ts` (`FONT_OPTIONS`), which also loads the stylesheet. The design's "system + curated Google list" is what it offers; an arbitrary family is not reachable. |
 
 ## Behavioural gaps
 
@@ -119,7 +119,7 @@ baseline, so the count cannot grow without someone noticing.
 
 | # | Design | Ships | Why |
 |---|---|---|---|
-| **G1** | `headingFont` / `bodyFont` default `Instrument Sans` | `text` input defaulting to `''` | There is no `font picker` field id in the `AttrSpec` vocabulary. An empty value inherits `--font-display` from `tokens.css`, which **is** Instrument Sans — so the effective default matches; only the control type does not. |
+| **G1** | colour and font globals default to a value (`#FCFCFB`, `Instrument Sans`, …) | every Brand / Colour / font setting defaults to `''` | `''` means "not set": the storefront then uses the store's Settings → Brand where it has a value, else the token — and the token carries the design's default, which is what `check:design` now verifies (`assets/tokens.css`). A non-empty colour default would be written on every store and switch off the automatic dark scheme. |
 | **G2** | `pageWidth: standard \| wide` | adds `full` | A Nova extension. `--container-full` exists in the token ladder and merchants may already have selected it; removing it would silently reset those stores. |
 | **G3** | `sectionSpacing: small \| medium \| large` | adds `none` and `xlarge` | Same: the section-spacing token ladder defines all five rungs, and the design's own shared `spacingTop`/`spacingBottom` use `none … xl`. The global default matches the design. |
 | **G4** | every section exposes the 11 shared props | `announcement-bar`, `header`, `footer`, `divider`, `marquee` expose none | `06` says "unless marked n/a in 05". These five are fixed-height chrome or full-bleed utility sections whose `05` entries specify their own heights, and two carry their own spacing control. Section padding/width/alignment controls on them would change nothing. |
@@ -136,5 +136,14 @@ extensions, not dropped:
   into `product-grid`, but `main-collection` is what a `/collections/<handle>`
   route actually renders. Both now share `components/CollectionBody.tsx`, so
   they cannot diverge.
+- `accent` — a second brand slot for primary (solid) buttons, with AA-checked
+  label colours on the colour and on its hover shade. Not one of the design's 25
+  global props; without it the primary button is the brand colour, as the design
+  says.
+- `logo`, `shopName`, `locale` — brand identity and the theme's own language.
+- `colorBrand`, `fontHeading`, `fontBody` — the names an earlier build saved
+  under. The schema uses the design's names (`colorPrimary`, `headingFont`,
+  `bodyFont`); the old ones are still read by `lib/theme-settings.ts`, accepted
+  by the live preview, and renamed by `scripts/migrate-content.mjs`.
 - `[data-scheme='dark']` — a full dark scheme. The design defines no dark mode.
 - The `--z-*` ladder — the design specifies no z-index system.

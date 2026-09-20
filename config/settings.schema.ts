@@ -1,4 +1,8 @@
-import { defineSettings } from '@tanqory/theme-kit'
+import { defineSettings, type AttrSpec } from '@tanqory/theme-kit'
+import { FONT_OPTIONS } from '../lib/theme-settings'
+
+/** A theme setting: a theme-kit control plus the editor group it sits in. */
+type ThemeSettingSpec = AttrSpec & { group: string }
 
 /**
  * Theme settings schema — the typed, self-describing surface of everything a
@@ -16,26 +20,35 @@ import { defineSettings } from '@tanqory/theme-kit'
  * inline `settings.x || 'fallback'` in the code, invisible to the editor. Each
  * `default` matches the effective value the theme already produced, so making
  * them explicit changes nothing a shopper sees.
+ *
+ * Names follow the approved design package (`design/spec/global.json`). Every
+ * Brand / Colour / font key defaults to '' — "not set": the storefront then
+ * uses Settings → Brand where the store has a value, else the theme's own
+ * token, which carries the design's default (checked by `pnpm check:design`).
+ * A non-empty colour default would be written on every store and switch off
+ * the automatic dark scheme. All of them are applied by lib/theme-settings.ts
+ * and follow the editor's live preview (components/ThemeSettings.tsx).
  */
-export default defineSettings({
+const schema: Record<string, ThemeSettingSpec> = {
   // ── Typography (design system) ───────────────────────────────────────────
-  // The approved default is one sans for heading AND body; a merchant may
-  // replace either. There is no `font picker` field type in the platform
-  // vocabulary, so these are text inputs holding a CSS font-family stack —
-  // documented as a known gap rather than faked with a select of five fonts.
+  // The design asks for a font picker ("system + curated Google list"). The
+  // platform vocabulary has no such field type, so it is a `select` over the
+  // curated list in lib/theme-settings.ts, which also loads the stylesheet.
   headingFont: {
-    type: 'text',
+    type: 'select',
     group: 'Typography',
     label: 'Heading font',
     default: '',
-    info: 'CSS font-family stack. Leave empty for the theme default (Instrument Sans).',
+    options: FONT_OPTIONS,
+    info: 'Display, headings and the product title. Empty = Settings → Brand, else the theme font (Instrument Sans).',
   },
   bodyFont: {
-    type: 'text',
+    type: 'select',
     group: 'Typography',
     label: 'Body font',
     default: '',
-    info: 'CSS font-family stack. Leave empty to match the heading font.',
+    options: FONT_OPTIONS,
+    info: 'Body, labels, buttons and navigation.',
   },
   typeScale: {
     type: 'select',
@@ -80,40 +93,41 @@ export default defineSettings({
     type: 'color',
     group: 'Colour',
     label: 'Primary (brand)',
-    default: '#1b1a18',
-    info: 'Buttons, focus ring, selected states and link hover. Needs 4.5:1 against its label.',
+    default: '',
+    info: 'Buttons, focus ring, selected states and link hover. Empty = the primary colour from Settings → Brand. The label colour on it is chosen for AA contrast automatically.',
   },
   colorBackground: {
     type: 'color',
     group: 'Colour',
     label: 'Page background',
-    default: '#fcfcfb',
+    default: '',
+    info: 'Leave both Background and Text empty to keep the theme palette, including its dark mode.',
   },
   colorText: {
     type: 'color',
     group: 'Colour',
     label: 'Text',
-    default: '#1b1a18',
+    default: '',
     info: 'Secondary and muted text are derived from this.',
   },
   colorSecondarySurface: {
     type: 'color',
     group: 'Colour',
     label: 'Secondary surface',
-    default: '#f4f3f1',
+    default: '',
     info: 'Media wells, skeletons and alternating section backgrounds.',
   },
   colorBorder: {
     type: 'color',
     group: 'Colour',
     label: 'Border',
-    default: '#e6e4e0',
+    default: '',
   },
   colorSale: {
     type: 'color',
     group: 'Colour',
     label: 'Sale',
-    default: '#b3261e',
+    default: '',
     info: 'Reserved for sale prices and the sale badge.',
   },
 
@@ -285,18 +299,43 @@ export default defineSettings({
   },
 
   // ── Brand ────────────────────────────────────────────────────────────────
+  logo: {
+    type: 'image',
+    group: 'Brand',
+    label: 'Logo',
+    default: '',
+    info: 'Shown in the header. Leave empty to use the logo from Settings → Brand.',
+  },
   shopName: {
     type: 'text',
     group: 'Brand',
     label: 'Shop name',
     default: '',
-    info: 'Shown in the header when no logo is set. Leave empty to use the store brand logo/name from Settings → Brand.',
+    placeholder: 'Store name',
+    info: 'Shown in the header when there is no logo, and in the browser tab. Leave empty to use the store name.',
   },
+  // Applied by main.tsx / entry-server.tsx through lib/theme-locale.ts: the
+  // string map (locales/<code>.json) the theme's fixed interface words use
+  // before a visitor picks a language. An AI build sets it to its brief's language.
+  locale: {
+    type: 'select',
+    group: 'Brand',
+    label: 'Theme language',
+    default: '',
+    options: [
+      { value: '', label: 'English' },
+      { value: 'th', label: 'ไทย (Thai)' },
+    ],
+    info: 'The language of the theme’s own words — account menu, contact form, cart and policy headings. Your own text is never changed.',
+  },
+  // Not one of the design's 25 global props: a second brand slot for primary
+  // (solid) buttons, kept as a Nova extension — see docs/DESIGN-GAPS.md.
   accent: {
     type: 'color',
-    group: 'Brand',
+    group: 'Colour',
     label: 'Accent color',
-    default: '#0a0a0a',
+    default: '',
+    info: 'Primary buttons and highlights. Leave empty for the theme default.',
   },
 
   // ── Header & navigation ─────────────────────────────────────────────────
@@ -507,4 +546,6 @@ export default defineSettings({
     label: '"Powered by" label',
     default: 'Made with Tanqory',
   },
-})
+}
+
+export default defineSettings(schema)

@@ -273,11 +273,20 @@ p { max-width: 680px; text-wrap: pretty; }
 }
 
 .btn--primary {
-  background: var(--color-brand);
-  color: var(--color-brand-contrast);
+  /* The design's primary button IS the brand colour: the --color-button* roles
+   * default to the brand tokens (tokens.css). Theme settings → Accent re-points
+   * them, with AA-checked label colours (lib/theme-settings.ts). */
+  background: var(--color-button);
+  color: var(--color-button-text);
 }
-.btn--primary:hover { background: var(--color-brand-hover); }
-.btn--primary:active { background: var(--color-brand-active); }
+.btn--primary:hover {
+  background: var(--color-button-hover);
+  color: var(--color-button-hover-text);
+}
+.btn--primary:active {
+  background: var(--color-button-active);
+  color: var(--color-button-hover-text);
+}
 
 .btn--secondary {
   background: var(--color-bg-elevated);
@@ -486,7 +495,7 @@ p { max-width: 680px; text-wrap: pretty; }
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  background: color-mix(in srgb, var(--color-bg) 86%, transparent);
+  background: var(--header-bg);
   backdrop-filter: saturate(160%) blur(14px);
   -webkit-backdrop-filter: saturate(160%) blur(14px);
   /* Hairline only — the design gives the header no shadow until scrolled. */

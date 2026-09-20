@@ -33,6 +33,17 @@
   --color-brand: #1b1a18;
   --color-brand-hover: #333130;
   --color-brand-active: #0e0d0c;
+
+  /* Primary (solid) button. By default it IS the brand colour (design: "Primary
+     = brand slot"). Theme settings → Accent re-points all five at once, with
+     label colours chosen for AA on each shade (lib/theme-settings.ts). */
+  --color-button: var(--color-brand);
+  --color-button-text: var(--color-brand-contrast);
+  --color-button-hover: var(--color-brand-hover);
+  --color-button-hover-text: var(--color-brand-contrast);
+  --color-button-active: var(--color-brand-active);
+  /* Sticky header backdrop; follows the page background in either scheme. */
+  --header-bg: color-mix(in srgb, var(--color-bg) 86%, transparent);
   /* Label colour on a brand fill. Flips to --color-fg for light brands —
    * the auto-flip itself is not implemented yet (see F2 in the plan). */
   --color-brand-contrast: #ffffff;

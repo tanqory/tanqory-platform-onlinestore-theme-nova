@@ -23,7 +23,7 @@ import {
   type MountOptions,
 } from '@tanqory/theme-kit'
 import { apiBase } from './lib/api-base'
-import { applyHead, computeHead, headFrom } from './lib/head'
+import { applyHead, computeHead, headFrom, shopNameOf } from './lib/head'
 import { emitRoute } from './lib/route-analytics'
 import {
   detailHandles,
@@ -33,25 +33,33 @@ import {
   variantOf as variantOfBase,
 } from './lib/routes'
 import { isEditorPreview, isMockDataAllowed } from './lib/runtime'
-import { applyThemeSettings } from './lib/theme-settings'
+import { localeStrings, themeLocaleOf } from './lib/theme-locale'
 import './assets/styles.css'
 import mockCollections from './lib/collections.json'
 import settings from './config/settings.json'
 
 // All bundled UI-string maps, e.g. { './locales/en.json': {default:{…}}, './locales/th.json': … }.
-// The active locale is chosen at boot from ?locale= / localStorage / default.
+// The active locale is chosen at boot from ?locale= / localStorage / the theme's own.
 const localeModules = import.meta.glob('./locales/*.json', { eager: true }) as Record<
   string,
   { default: Record<string, string> }
 >
-const DEFAULT_LOCALE = 'en'
 const localeMaps: Record<string, Record<string, string>> = Object.fromEntries(
   Object.entries(localeModules).map(([path, mod]) => [
-    path.match(/\/([^/]+)\.json$/)?.[1] ?? DEFAULT_LOCALE,
+    path.match(/\/([^/]+)\.json$/)?.[1] ?? 'en',
     mod.default,
   ]),
 )
-const baseLocale = localeMaps[DEFAULT_LOCALE] ?? {}
+/**
+ * The theme's own language (`config/settings.json` `locale`, blank = English):
+ * the string map a visitor sees before choosing one, and the one the SSG bakes.
+ * A theme built for a Thai shop draws its account menu, contact form and policy
+ * headings in Thai (lib/theme-locale.ts).
+ */
+const DEFAULT_LOCALE = themeLocaleOf(
+  (settings as { locale?: unknown }).locale,
+  Object.keys(localeMaps),
+)
 
 const env = import.meta.env as ImportMetaEnv & {
   VITE_TANQORY_BACKEND?: string
@@ -75,59 +83,11 @@ function variantOf(base: string, suffix: string | null | undefined): string {
   return variantOfBase(base, suffix, templateExists)
 }
 
-/**
- * Read Settings → Brand fonts off the shop record.
- *
- * `Brand.fonts: [String!]!` exists in store-api's storefront SDL, but
- * @tanqory/theme-kit ≤ 0.1.3 neither selects it in the bootstrap query nor
- * declares it on `Shop['brand']` — so on a published storefront this list is
- * empty today and `applyBrandFonts` is a no-op. Both gaps are fixed in the kit
- * repo (`BOOTSTRAP_SHOP_MENU` + `normalizeShop` + the `Shop` type); this reader
- * is written so it starts working the moment that release is installed, without
- * another theme change, and stays correct on older kits.
- */
-function brandFonts(data: DataApi): string[] {
-  const brand: Record<string, unknown> = { ...(data.shop?.brand ?? {}) }
-  const raw = brand.fonts
-  if (!Array.isArray(raw)) return []
-  return raw.filter((f): f is string => typeof f === 'string' && f.trim() !== '')
-}
-
-/**
- * Apply the merchant's Settings → Brand fonts to the storefront (store#510).
- *
- * nova's typography reads `--font-display` / `--font-body` (assets/tokens.css),
- * so we override those two vars on the root element from the brand's font list
- * ([0] → display, [1] → body) and load the families from Google Fonts.
- *
- * Deliberately client-only + applied on the root element (not the React tree):
- * it runs after hydration, so there is no server/client markup mismatch, and
- * `display=swap` means the default font shows until the brand font loads rather
- * than blank text. A store with no brand fonts is a no-op (tokens.css default).
- */
-function applyBrandFonts(data: DataApi): void {
-  if (typeof document === 'undefined') return
-  const fonts = brandFonts(data)
-  if (!fonts.length) return
-  const display = fonts[0]
-  const body = fonts[1] || fonts[0]
-  const root = document.documentElement
-  root.style.setProperty('--font-display', `"${display}", system-ui, sans-serif`)
-  root.style.setProperty('--font-body', `"${body}", system-ui, sans-serif`)
-
-  const families = Array.from(new Set([display, body]))
-    .map((f) => `family=${encodeURIComponent(f).replace(/%20/g, '+')}:wght@400;500;600;700`)
-    .join('&')
-  const href = `https://fonts.googleapis.com/css2?${families}&display=swap`
-  let link = document.getElementById('tq-brand-fonts') as HTMLLinkElement | null
-  if (!link) {
-    link = document.createElement('link')
-    link.id = 'tq-brand-fonts'
-    link.rel = 'stylesheet'
-    document.head.appendChild(link)
-  }
-  if (link.href !== href) link.href = href
-}
+// Settings → Brand fonts (store#510) are no longer applied here, client-only,
+// after hydration. The layout's ThemeSettingsProvider (components/ThemeSettings.tsx)
+// resolves the fonts — Theme settings first, then Settings → Brand — into the
+// same --font-display / --font-body variables inside the rendered tree, so the
+// SSG prerender carries them too and a theme font can override the brand one.
 
 /**
  * Pick the country (ISO 3166 alpha-2) for this page load:
@@ -173,14 +133,12 @@ function resolveLocale(): string {
   return DEFAULT_LOCALE
 }
 
-/** The active locale's strings, with the default locale as the fallback base so
- *  a partially-translated locale shows English (not raw keys). */
-function pickLocale(): Record<string, string> {
-  const code = resolveLocale()
-  return code === DEFAULT_LOCALE ? baseLocale : { ...baseLocale, ...(localeMaps[code] ?? {}) }
-}
+/** The active locale's strings, laid over English so a partially-translated
+ *  locale shows English (not raw keys). */
+const activeLocale = localeStrings(resolveLocale(), localeMaps)
 
-const activeLocale = pickLocale()
+// The page's language for the browser, screen readers and search engines.
+if (typeof document !== 'undefined') document.documentElement.lang = resolveLocale()
 
 /** The locale code to send to the backend (X-Tanqory-Lang) for content
  *  translation — only when non-default, so default-language requests skip the
@@ -320,7 +278,7 @@ if (
   VITE_TANQORY_BACKEND &&
   VITE_TANQORY_STORE_ID &&
   page === (ssgState.page ?? 'index') &&
-  // SSG bakes the DEFAULT locale's strings; a non-default ?locale= would render
+  // SSG bakes the theme's DEFAULT locale's strings; a different ?locale= would render
   // different useT() text than the server did → hydration mismatch (#418). Those
   // visitors take the client-render path below instead.
   resolveLocale() === DEFAULT_LOCALE
@@ -348,8 +306,6 @@ if (
     },
   })
   applyHead(computeHead(window.location.pathname, data, settings))
-  applyThemeSettings(settings)
-  applyBrandFonts(data)
   armConsent(data)
   emitRouteEvents(data)
 } else {
@@ -370,7 +326,7 @@ if (
     // Blog + article are fetched on demand (not in the sync bootstrap), so
     // resolve their template variant + SEO head asynchronously before mount.
     const shop = data.shop as { name?: string } | undefined
-    const shopName = (shop?.name || (settings as { shopName?: string }).shopName || 'Store').trim()
+    const shopName = shopNameOf((settings as { shopName?: unknown }).shopName, shop?.name)
     const route = matchRoute(pathname)
     const am =
       route.resource === 'article' && route.blogHandle && route.handle
@@ -392,8 +348,6 @@ if (
     }
     mount({ ...baseMountOptions(data), page: finalPage, forceClientRender: true })
     applyHead(head)
-    applyThemeSettings(settings)
-  applyBrandFonts(data)
     armConsent(data)
     emitRouteEvents(data)
   })

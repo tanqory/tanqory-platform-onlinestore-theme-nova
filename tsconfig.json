@@ -12,6 +12,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "types": ["vite/client", "node"]
   },
   // Every source file the theme ships must be checked. `sections/` and

@@ -1,12 +1,11 @@
 {
-  "total": 115,
+  "total": 114,
   "missing": {
     "store-locator": [
       "layout"
     ],
     "(global) default differs": [
-      "headingFont:  ≠ instrument sans",
-      "bodyFont:  ≠ instrument sans"
+      "bodyFont: token --font-body is \"var(--font-display)\" ≠ instrument sans"
     ],
     "(global) options not in design": [
       "pageWidth: full",

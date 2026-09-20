@@ -10,7 +10,7 @@
  * Route matching lives here. Anything that needs "what does this URL mean" reads
  * it from this module.
  */
-import { decodeHandle } from './handle'
+import { decodeHandle } from './handle.ts'
 
 /** The resource a URL addresses, if it addresses one. */
 export interface RouteMatch {

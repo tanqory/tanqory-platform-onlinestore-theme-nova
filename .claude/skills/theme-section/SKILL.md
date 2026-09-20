@@ -117,7 +117,7 @@ A template's slot is a group name, or an explicit page-only copy:
 "groups": { "header": { "override": [ { "type": "announcement-bar", … }, { "type": "header", … } ] }, "footer": "footer" }
 ```
 
-`index`, `account` and `policy` override on purpose. Rules:
+Only `index` overrides (it carries the announcement bar); every other template binds both groups. Rules:
 
 - **Changing the site header → edit `groups/header.json`.** That reaches every
   template that binds it (`theme.manifest.json` → `groups[].usedBy`). Editing

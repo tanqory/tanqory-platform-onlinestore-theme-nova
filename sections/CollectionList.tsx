@@ -1,20 +1,31 @@
 import { Children, useEffect, useState } from 'react'
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useData, useT, type SectionProps } from '@tanqory/theme-kit'
 import { matchRoute } from '../lib/routes'
 import { SectionHead } from '../components/SectionHead'
 import { CollectionCard, toCollectionCard } from '../components/CollectionCard'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
+import { localizedCopy } from '../lib/theme-locale'
 
 export function CollectionList({ attributes, children }: SectionProps): JSX.Element {
   const { allCollections } = useData()
+  const t = useT()
   const limit = (attributes.limit as number) ?? 12
-  const heading = (attributes.heading as string) ?? 'Shop by collection'
+  // nova's English defaults follow the theme's language; the merchant's words,
+  // and a heading cleared to '', are kept (lib/theme-locale.ts).
+  const heading =
+    attributes.heading === ''
+      ? ''
+      : localizedCopy(attributes.heading, 'Shop by collection', 'collections.heading', t)
   // The design's shared SectionHeader slot is `description` (06 Configuration
   // System). `subheading` is the key this section used before the conversion
   // and is still honoured, so saved merchant content is not orphaned.
-  const subheading =
+  const rawSub =
     (attributes.description as string | undefined) ??
     (attributes.subheading as string | undefined)
+  const subheading =
+    rawSub === '' || rawSub === undefined
+      ? rawSub
+      : localizedCopy(rawSub, 'Browse every category we carry.', 'collections.subheading', t)
   const columns = (attributes.columns as number) ?? 4
   const imageRatio = (attributes.imageRatio as 'square' | 'portrait' | 'landscape') ?? 'portrait'
   const textStyle = (attributes.textStyle as 'below' | 'overlay') ?? 'below'

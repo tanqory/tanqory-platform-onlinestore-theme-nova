@@ -19,7 +19,15 @@
  * Pure (no DOM, no React) so it is unit-tested directly
  * (lib/live-settings.test.ts); components/ThemeSettings.tsx wires it up.
  */
-import { normalizeColor, normalizeFontFamily, normalizeImageUrl, type ThemeSettings } from './theme-settings.ts'
+import {
+  ENUM_SETTINGS,
+  EXTRA_COLOR_SETTINGS,
+  FLAG_SETTINGS,
+  normalizeColor,
+  normalizeFontFamily,
+  normalizeImageUrl,
+  type ThemeSettings,
+} from './theme-settings.ts'
 
 export const LIVE_SETTINGS_MESSAGE = 'tq:theme-settings'
 
@@ -87,6 +95,22 @@ const LIVE_KEYS: Record<string, (v: unknown) => boolean> = {
   colorText: (v) => optional(v, (s) => normalizeColor(s) !== null),
   fontHeading: (v) => optional(v, (s) => normalizeFontFamily(s) !== null),
   fontBody: (v) => optional(v, (s) => normalizeFontFamily(s) !== null),
+  // The design's names (config/settings.schema.ts). The three above them are
+  // the names an earlier build used and are still accepted.
+  colorPrimary: (v) => optional(v, (s) => normalizeColor(s) !== null),
+  headingFont: (v) => optional(v, (s) => normalizeFontFamily(s) !== null),
+  bodyFont: (v) => optional(v, (s) => normalizeFontFamily(s) !== null),
+  ...Object.fromEntries(
+    EXTRA_COLOR_SETTINGS.map((key) => [key, (v: unknown) => optional(v, (s) => normalizeColor(s) !== null)]),
+  ),
+  // Semantic rungs: only a value the resolver maps to a token.
+  ...Object.fromEntries(
+    Object.entries(ENUM_SETTINGS).map(([key, values]) => [key, (v: unknown) => optional(v, (s) => values.includes(s))]),
+  ),
+  // Behaviour switches → root data-* flags: a boolean, or one short identifier.
+  ...Object.fromEntries(
+    FLAG_SETTINGS.map((key) => [key, (v: unknown) => typeof v === 'boolean' || optional(v, (s) => /^[a-z0-9-]{1,32}$/i.test(s))]),
+  ),
 }
 
 export const LIVE_SETTINGS_KEYS: readonly string[] = Object.keys(LIVE_KEYS)

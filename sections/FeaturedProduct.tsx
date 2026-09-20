@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
-import { apiBase } from '../lib/api-base'
 import { ImageResponsive } from '../components/ImageResponsive'
 import { Money } from '../components/Money'
 import { Button } from '../components/Button'
+import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
 interface ProductData {
   handle: string
@@ -13,7 +13,7 @@ interface ProductData {
 }
 
 export function FeaturedProduct({ attributes }: SectionProps): JSX.Element {
-  const { productByHandle, collectionByHandle } = useData()
+  const { productByHandle, collectionByHandle, fetchProduct } = useData()
   const handle = attributes.product as string | undefined
   const fromHandle = handle ? productByHandle(handle) : null
   const fallback = collectionByHandle('all')?.products?.[0] ?? null
@@ -27,49 +27,15 @@ export function FeaturedProduct({ attributes }: SectionProps): JSX.Element {
       setLiveProduct(null)
       return
     }
-    const env = import.meta.env as ImportMetaEnv & {
-      VITE_TANQORY_BACKEND?: string
-      VITE_TANQORY_STORE_ID?: string
-      VITE_TANQORY_STOREFRONT_TOKEN?: string
-    }
-    if (!env.VITE_TANQORY_BACKEND || !env.VITE_TANQORY_STORE_ID) return
-    const url = `${apiBase(env.VITE_TANQORY_BACKEND)}/api/v1/stores/${encodeURIComponent(
-      env.VITE_TANQORY_STORE_ID,
-    )}/graphql`
+    // `fetchProduct` is the standard way to pull a product outside the
+    // bootstrap window: it shares the request path, headers and error handling
+    // with the rest of the data layer, so a shopper in a non-default market
+    // sees that market's price here too.
+    if (!fetchProduct) return
     let cancelled = false
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        ...(env.VITE_TANQORY_STOREFRONT_TOKEN
-          ? { 'x-publishable-key': env.VITE_TANQORY_STOREFRONT_TOKEN }
-          : {}),
-      },
-      body: JSON.stringify({
-        query: `query P($h: String) {
-          product(handle: $h) {
-            handle
-            title
-            featuredImage { url altText }
-            priceRange { minVariantPrice { amount currencyCode } }
-          }
-        }`,
-        variables: { h: handle },
-      }),
-    })
-      .then((r) => r.json())
-      .then((j: {
-        data?: {
-          product?: {
-            handle: string
-            title: string
-            featuredImage: { url: string; altText: string | null } | null
-            priceRange: { minVariantPrice: { amount: string; currencyCode: string } }
-          } | null
-        }
-      }) => {
+    void fetchProduct(handle)
+      .then((p) => {
         if (cancelled) return
-        const p = j.data?.product
         setLiveProduct(
           p
             ? {
@@ -81,7 +47,7 @@ export function FeaturedProduct({ attributes }: SectionProps): JSX.Element {
                       ...(p.featuredImage.altText ? { altText: p.featuredImage.altText } : {}),
                     }
                   : null,
-                price: p.priceRange.minVariantPrice,
+                price: p.price,
               }
             : null,
         )
@@ -92,7 +58,7 @@ export function FeaturedProduct({ attributes }: SectionProps): JSX.Element {
     return () => {
       cancelled = true
     }
-  }, [handle, fromHandle])
+  }, [handle, fromHandle, fetchProduct])
 
   const product: ProductData | null =
     fromHandle
@@ -114,7 +80,7 @@ export function FeaturedProduct({ attributes }: SectionProps): JSX.Element {
 
   if (!product) {
     return (
-      <section className="section">
+      <section {...sharedRootProps(attributes)} className="section">
         <div className="container">
           <div className="card card--padded card--bordered u-text-center">
             <p className="u-text-muted">Select a product in the editor.</p>
@@ -126,9 +92,23 @@ export function FeaturedProduct({ attributes }: SectionProps): JSX.Element {
 
   const eyebrow = attributes.eyebrow as string | undefined
   const body = attributes.body as string | undefined
+  const mediaPosition = (attributes.mediaPosition as string) ?? 'left'
+  const mediaRatio = (attributes.mediaRatio as string) ?? 'square'
+  const descriptionLines = (attributes.descriptionLines as string) ?? '3'
+  const showViewDetails = attributes.showViewDetails !== false
+  // The section renders a single product card's worth of purchase UI; a full
+  // variant picker needs the fetched variant list, which this section does not
+  // load. `showVariants` therefore decides whether the CTA goes to the product
+  // page (where the picker lives) or adds nothing inline — documented in
+  // docs/DESIGN-GAPS.md rather than faked with a picker that cannot resolve a variant.
+  const showVariants = attributes.showVariants !== false
 
   return (
-    <section className="section section--alt">
+    <section
+      className="section section--alt"
+      data-media={mediaPosition}
+      data-ratio={mediaRatio}
+    >
       <div className="container">
         <div className="featured-product">
           <div className="featured-product__media">
@@ -143,7 +123,14 @@ export function FeaturedProduct({ attributes }: SectionProps): JSX.Element {
             <span className="featured-product__price">
               <Money value={product.price} />
             </span>
-            {body && <p className="u-text-muted" style={{ maxWidth: '50ch' }}>{body}</p>}
+            {body && descriptionLines !== 'none' && (
+              <p
+                className="u-text-muted featured-product__desc"
+                data-clamp={descriptionLines === '3' ? '3' : undefined}
+              >
+                {body}
+              </p>
+            )}
             <div className="cluster">
               <Button
                 label={(attributes.buttonLabel as string) ?? 'Shop now'}
@@ -151,7 +138,13 @@ export function FeaturedProduct({ attributes }: SectionProps): JSX.Element {
                 variant="primary"
                 size="lg"
               />
-              <Button label="View details" link={`/products/${product.handle}`} variant="ghost" />
+              {showViewDetails && (
+                <Button
+                  label={showVariants ? 'Choose options' : 'View details'}
+                  link={`/products/${product.handle}`}
+                  variant="ghost"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -162,15 +155,47 @@ export function FeaturedProduct({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'featured-product',
+  role: 'section',
   title: 'Featured product',
   category: 'commerce',
   icon: '★',
-  attributes: {
+  attributes: withShared({
     eyebrow: { type: 'text', label: 'Eyebrow' },
     product: { type: 'product', label: 'Product' },
     body: { type: 'textarea', label: 'Description' },
     buttonLabel: { type: 'text', default: 'Shop now', label: 'Button label' },
     buttonLink: { type: 'url', label: 'Button link (auto = product page)' },
-  },
+    mediaPosition: {
+      type: 'select',
+      default: 'left',
+      label: 'Media side',
+      options: [
+        { value: 'left', label: 'Left' },
+        { value: 'right', label: 'Right' },
+      ],
+    },
+    mediaRatio: {
+      type: 'select',
+      default: 'square',
+      label: 'Media shape',
+      options: [
+        { value: 'adapt', label: 'Adapt to image' },
+        { value: 'square', label: 'Square' },
+        { value: 'portrait', label: 'Portrait' },
+      ],
+    },
+    showVariants: { type: 'boolean', default: true, label: 'Show variant picker' },
+    descriptionLines: {
+      type: 'select',
+      default: '3',
+      label: 'Description length',
+      options: [
+        { value: 'none', label: 'Hide' },
+        { value: '3', label: 'Three lines' },
+        { value: 'full', label: 'Full' },
+      ],
+    },
+    showViewDetails: { type: 'boolean', default: true, label: 'Show "View details" link' },
+  }),
   component: FeaturedProduct,
 })

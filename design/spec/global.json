@@ -1,0 +1,252 @@
+[
+ {
+  "name": "headingFont",
+  "control": "font picker",
+  "options": "system + curated Google list",
+  "def": "Instrument Sans",
+  "scope": "Typography",
+  "resp": "no",
+  "dep": "",
+  "desc": "Display, H1–H6, product title on PDP"
+ },
+ {
+  "name": "bodyFont",
+  "control": "font picker",
+  "options": "system + curated Google list",
+  "def": "Instrument Sans",
+  "scope": "Typography",
+  "resp": "no",
+  "dep": "",
+  "desc": "Body, labels, buttons, nav"
+ },
+ {
+  "name": "typeScale",
+  "control": "segmented",
+  "options": "compact | default | large",
+  "def": "default",
+  "scope": "Typography",
+  "resp": "yes",
+  "dep": "",
+  "desc": "Multiplies heading roles ×0.9 / 1 / 1.1; body unchanged"
+ },
+ {
+  "name": "headingWeight",
+  "control": "segmented",
+  "options": "regular | medium | semibold",
+  "def": "medium",
+  "scope": "Typography",
+  "resp": "no",
+  "dep": "",
+  "desc": "Weight of all heading roles"
+ },
+ {
+  "name": "buttonTextStyle",
+  "control": "segmented",
+  "options": "default | uppercase",
+  "def": "default",
+  "scope": "Typography",
+  "resp": "no",
+  "dep": "",
+  "desc": "Uppercase adds +0.06em tracking"
+ },
+ {
+  "name": "colorBackground",
+  "control": "color",
+  "options": "picker + neutral presets",
+  "def": "#FCFCFB",
+  "scope": "Colors",
+  "resp": "no",
+  "dep": "",
+  "desc": "Page canvas"
+ },
+ {
+  "name": "colorText",
+  "control": "color",
+  "options": "picker",
+  "def": "#1B1A18",
+  "scope": "Colors",
+  "resp": "no",
+  "dep": "",
+  "desc": "Text Primary; Secondary/Muted derive by mixing toward background"
+ },
+ {
+  "name": "colorPrimary",
+  "control": "color",
+  "options": "picker",
+  "def": "#1B1A18",
+  "scope": "Colors",
+  "resp": "no",
+  "dep": "",
+  "desc": "Brand slot; hover/active derive (−8% / −14% L)"
+ },
+ {
+  "name": "colorSecondarySurface",
+  "control": "color",
+  "options": "picker",
+  "def": "#F4F3F1",
+  "scope": "Colors",
+  "resp": "no",
+  "dep": "",
+  "desc": "Surface Secondary: media frames, muted blocks"
+ },
+ {
+  "name": "colorBorder",
+  "control": "color",
+  "options": "picker",
+  "def": "#E6E4E0",
+  "scope": "Colors",
+  "resp": "no",
+  "dep": "",
+  "desc": "Border; Border Strong derives"
+ },
+ {
+  "name": "colorSale",
+  "control": "color",
+  "options": "picker (3 presets)",
+  "def": "#B3261E",
+  "scope": "Colors",
+  "resp": "no",
+  "dep": "",
+  "desc": "Sale price and badge; must contrast on Surface"
+ },
+ {
+  "name": "pageWidth",
+  "control": "segmented",
+  "options": "standard 1200 | wide 1440",
+  "def": "wide",
+  "scope": "Layout",
+  "resp": "no",
+  "dep": "",
+  "desc": "Default container for commerce sections"
+ },
+ {
+  "name": "sectionSpacing",
+  "control": "segmented",
+  "options": "small | medium | large",
+  "def": "medium",
+  "scope": "Layout",
+  "resp": "yes",
+  "dep": "",
+  "desc": "Default preset for new sections"
+ },
+ {
+  "name": "buttonRadius",
+  "control": "segmented",
+  "options": "none | small | medium | pill",
+  "def": "small",
+  "scope": "Buttons",
+  "resp": "no",
+  "dep": "",
+  "desc": "0 / 4 / 8 / 999"
+ },
+ {
+  "name": "buttonBorder",
+  "control": "segmented",
+  "options": "default | strong",
+  "def": "default",
+  "scope": "Buttons",
+  "resp": "no",
+  "dep": "",
+  "desc": "Secondary button border role"
+ },
+ {
+  "name": "inputRadius",
+  "control": "segmented",
+  "options": "none | small | medium",
+  "def": "small",
+  "scope": "Inputs",
+  "resp": "no",
+  "dep": "",
+  "desc": "Follows buttonRadius when unset"
+ },
+ {
+  "name": "cardRadius",
+  "control": "segmented",
+  "options": "none | small | medium",
+  "def": "small",
+  "scope": "Cards",
+  "resp": "no",
+  "dep": "",
+  "desc": "Product/collection media frame radius"
+ },
+ {
+  "name": "cardBorder",
+  "control": "toggle",
+  "options": "",
+  "def": "on",
+  "scope": "Cards",
+  "resp": "no",
+  "dep": "",
+  "desc": "Subtle border on media frames"
+ },
+ {
+  "name": "cardHoverEffect",
+  "control": "segmented",
+  "options": "none | image-swap | zoom | subtle-lift",
+  "def": "image-swap",
+  "scope": "Cards",
+  "resp": "desktop",
+  "dep": "",
+  "desc": "Global ProductCard hover; falls back to zoom when no 2nd image"
+ },
+ {
+  "name": "productImageRatio",
+  "control": "select",
+  "options": "adapt | portrait | square | landscape",
+  "def": "portrait",
+  "scope": "Product media",
+  "resp": "yes",
+  "dep": "",
+  "desc": "Default card + gallery frame"
+ },
+ {
+  "name": "productImageFit",
+  "control": "segmented",
+  "options": "contain | cover",
+  "def": "contain",
+  "scope": "Product media",
+  "resp": "no",
+  "dep": "",
+  "desc": "Default object-fit"
+ },
+ {
+  "name": "showVendorGlobally",
+  "control": "toggle",
+  "options": "",
+  "def": "off",
+  "scope": "Product media",
+  "resp": "no",
+  "dep": "",
+  "desc": "Vendor eyebrow on cards and PDP"
+ },
+ {
+  "name": "badgeStyle",
+  "control": "segmented",
+  "options": "filled | outline",
+  "def": "filled",
+  "scope": "Cards",
+  "resp": "no",
+  "dep": "",
+  "desc": "Sale/New badge treatment"
+ },
+ {
+  "name": "motion",
+  "control": "segmented",
+  "options": "standard | reduced",
+  "def": "standard",
+  "scope": "Motion",
+  "resp": "no",
+  "dep": "",
+  "desc": "Reduced removes transforms and autoplay; OS preference always wins"
+ },
+ {
+  "name": "iconStyle",
+  "control": "segmented",
+  "options": "outline | filled",
+  "def": "outline",
+  "scope": "Icons",
+  "resp": "no",
+  "dep": "",
+  "desc": "One family across the theme"
+ }
+]

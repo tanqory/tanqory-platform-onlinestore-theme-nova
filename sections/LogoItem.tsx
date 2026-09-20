@@ -9,10 +9,13 @@ export function LogoItem({ attributes }: SectionProps): JSX.Element {
   const src = attributes.src as string | undefined
   const alt = (attributes.alt as string) ?? ''
   const href = attributes.href as string | undefined
+  // An empty slot shows the theme's neutral placeholder, the same one every
+  // other missing image uses. It used to print the literal word "Logo", which
+  // reads as real content on a live shop rather than as "nothing here yet".
   const inner = src ? (
     <img src={src} alt={alt} loading="lazy" decoding="async" />
   ) : (
-    <span>{alt || 'Logo'}</span>
+    <span className="tq-placeholder logo-list__placeholder" role="img" aria-label={alt || 'Logo placeholder'} />
   )
   return href ? (
     <a href={href} className="logo-list__item">
@@ -25,6 +28,7 @@ export function LogoItem({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'logo',
+  role: 'block',
   title: 'Logo',
   category: 'block',
   icon: '◍',

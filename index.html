@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>nova — Tanqory React theme</title>
     <!--
+      Instrument Sans — the approved default for heading AND body
+      (design package, `01 Style System`). It is the platform default, not a
+      brand choice: a merchant who sets Settings → Brand fonts overrides
+      `--font-display` / `--font-body` at runtime (see applyBrandFonts in
+      main.tsx), and this preconnect+stylesheet simply stops the default from
+      flashing a system font first.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <!--
       Cloudflare Web Analytics beacon. Captures Core Web Vitals (LCP, INP,
       CLS), TTFB, page views, and country/referrer breakdowns — no cookies,
       no PII, no consent banner needed. The token is the per-site "Beacon

@@ -1,17 +1,9 @@
 /**
- * Money — formats a `Money` value using the locale/currency the storefront is
- * running in. Wraps theme-kit's `formatMoney`, so sections can drop a `<Money>`
- * anywhere instead of pulling the helper themselves.
+ * Money — alias of `Price`, kept so existing imports keep working.
+ *
+ * The two were functionally identical apart from nullability and a default
+ * class name, and neither class had any CSS. `Price` is now the one
+ * implementation; prefer importing it directly in new code.
  */
-import { formatMoney, type Money as MoneyValue } from '@tanqory/theme-kit'
-
-export function Money({
-  value,
-  className = 'tq-money',
-}: {
-  value?: MoneyValue | null
-  className?: string
-}): JSX.Element | null {
-  if (!value) return null
-  return <span className={className}>{formatMoney(value)}</span>
-}
+export { Price as Money } from './Price'
+export type { PriceProps as MoneyProps } from './Price'

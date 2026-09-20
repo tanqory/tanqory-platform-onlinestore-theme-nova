@@ -12,12 +12,44 @@
  * the theme's own default (tokens.css / ai-tokens.css). An empty theme setting
  * means "not set", never "blank".
  *
+ * Vocabulary: the approved design package names the global props
+ * (`design/spec/global.json` — `colorPrimary`, `headingFont`, `bodyFont`, …)
+ * and those names are the schema. `colorBrand`, `fontHeading` and `fontBody`
+ * are the names an earlier build used; they are still READ (see `pick`) so a
+ * saved value keeps working, and `scripts/migrate-content.mjs` renames them.
+ *
+ * Beyond colour and type, the design's semantic rungs are resolved here too —
+ * `buttonRadius: 'pill'` → `--btn-radius: var(--radius-pill)` — so a merchant
+ * picks a rung, never a pixel, and every one of them follows the editor's live
+ * preview through the same path (components/ThemeSettings.tsx).
+ *
  * Pure: no React, no DOM, no theme-kit import, so the layout (SSR + client) and
  * the section-preview renderer share it, and it is unit-tested directly
  * (lib/theme-settings.test.ts).
  */
 
 export type ThemeSettings = Record<string, unknown>
+
+/**
+ * Design name first, then the name an earlier build saved under. The first key
+ * holding a non-empty value wins, so a store that re-saves under the new name
+ * is not shadowed by its old value.
+ */
+export const LEGACY_KEYS: Readonly<Record<string, string>> = {
+  colorPrimary: 'colorBrand',
+  headingFont: 'fontHeading',
+  bodyFont: 'fontBody',
+}
+function pick(settings: ThemeSettings, key: string): unknown {
+  const v = settings[key]
+  if (v !== undefined && v !== null && v !== '') return v
+  const legacy = LEGACY_KEYS[key]
+  return legacy ? settings[legacy] : v
+}
+const text = (settings: ThemeSettings, key: string): string | null => {
+  const v = pick(settings, key)
+  return typeof v === 'string' && v.trim() !== '' ? v.trim() : null
+}
 
 /** The slice of `shop.brand` (Settings → Brand) that theme settings fall back to. */
 export interface BrandFallback {
@@ -250,8 +282,8 @@ export function resolveFonts(
 ): { heading: string | null; body: string | null } {
   const brandFonts = (brand?.fonts ?? []).map(normalizeFontFamily).filter((f): f is string => !!f)
   return {
-    heading: normalizeFontFamily(settings.fontHeading) ?? brandFonts[0] ?? null,
-    body: normalizeFontFamily(settings.fontBody) ?? brandFonts[1] ?? brandFonts[0] ?? null,
+    heading: normalizeFontFamily(pick(settings, 'headingFont')) ?? brandFonts[0] ?? null,
+    body: normalizeFontFamily(pick(settings, 'bodyFont')) ?? brandFonts[1] ?? brandFonts[0] ?? null,
   }
 }
 
@@ -267,7 +299,7 @@ export function resolveThemeVars(
   const vars: Record<string, string> = {}
 
   // Brand colour — theme setting, else Settings → Brand primary.
-  const themeBrand = normalizeColor(settings.colorBrand)
+  const themeBrand = normalizeColor(pick(settings, 'colorPrimary'))
   const brandPrimary = brand?.colors?.primary?.[0]
   const brandColor = themeBrand ?? normalizeColor(brandPrimary?.background)
   if (brandColor) {
@@ -276,6 +308,14 @@ export function resolveThemeVars(
     // its background.
     const brandForeground = themeBrand ? null : normalizeColor(brandPrimary?.foreground)
     vars['--color-brand'] = brandColor
+    // The design derives hover and active from Primary; tokens.css holds them
+    // as fixed near-blacks, which a custom brand colour would otherwise keep.
+    const brandHover = hoverShade(brandColor)
+    vars['--color-brand-hover'] = brandHover
+    vars['--color-brand-active'] = hoverShade(brandHover)
+    // Darkening can carry a colour across the point where the other label
+    // colour reads better, so the hover label is picked on the hover shade.
+    vars['--color-button-hover-text'] = readableTextOn(brandHover)
     vars['--color-brand-contrast'] =
       brandForeground && contrastRatio(brandForeground, brandColor) >= MIN_TEXT_CONTRAST
         ? brandForeground
@@ -293,6 +333,7 @@ export function resolveThemeVars(
     const hover = hoverShade(accent)
     vars['--color-button-hover'] = hover
     vars['--color-button-hover-text'] = readableTextOn(hover)
+    vars['--color-button-active'] = hoverShade(hover)
   }
 
   // Background + text — always written as a pair, derived into nova's surface
@@ -326,7 +367,124 @@ export function resolveThemeVars(
   if (heading) vars['--font-display'] = fontStack(heading)
   if (body) vars['--font-body'] = fontStack(body)
 
+  // The remaining colour roles the design lets a merchant set. Written AFTER
+  // the background/text pair so an explicit choice beats the derived one.
+  for (const [key, prop] of Object.entries(COLOR_ROLES)) {
+    const c = normalizeColor(settings[key])
+    if (c) vars[prop] = c
+  }
+
+  // Semantic rungs → tokens. An unknown value is ignored, so a stale saved
+  // value falls back to tokens.css instead of writing garbage.
+  for (const [key, { prop, values }] of Object.entries(RUNGS)) {
+    const v = text(settings, key)
+    // The design's default rung IS the token's value in tokens.css, so it is
+    // not written: a store that changed nothing gets no stylesheet at all.
+    if (v && v !== RUNG_DEFAULTS[key] && values[v]) vars[prop] = values[v]
+  }
+  const motion = text(settings, 'motion')
+  if (motion && motion !== RUNG_DEFAULTS.motion && MOTION[motion]) {
+    const [fast, base, slow] = MOTION[motion]
+    vars['--duration-fast'] = fast
+    vars['--duration-base'] = base
+    vars['--duration-slow'] = slow
+  }
+
   return vars
+}
+
+/** Colour settings that write straight to one role. */
+const COLOR_ROLES: Readonly<Record<string, string>> = {
+  colorSecondarySurface: '--color-bg-muted',
+  colorBorder: '--color-border',
+  colorSale: '--color-sale',
+}
+
+/** Semantic preset → the token it resolves to. */
+const RUNGS: Readonly<Record<string, { prop: string; values: Record<string, string> }>> = {
+  pageWidth: { prop: '--container-wide', values: { wide: '1440px', standard: '1200px', full: '100vw' } },
+  sectionSpacing: {
+    prop: '--section-pad-y',
+    values: {
+      none: 'var(--section-none)',
+      small: 'var(--section-sm)',
+      medium: 'var(--section-md)',
+      large: 'var(--section-lg)',
+      xlarge: 'var(--section-xl)',
+    },
+  },
+  buttonRadius: {
+    prop: '--btn-radius',
+    values: { none: 'var(--radius-none)', small: 'var(--radius-sm)', medium: 'var(--radius-md)', pill: 'var(--radius-pill)' },
+  },
+  inputRadius: {
+    prop: '--input-radius',
+    values: { none: 'var(--radius-none)', small: 'var(--radius-sm)', medium: 'var(--radius-md)' },
+  },
+  cardRadius: {
+    prop: '--card-radius',
+    values: { none: 'var(--radius-none)', small: 'var(--radius-sm)', medium: 'var(--radius-md)' },
+  },
+  headingWeight: { prop: '--weight-heading', values: { regular: '400', medium: '500', semibold: '600' } },
+  // `adapt` deliberately has no token — the card omits aspect-ratio instead.
+  productImageRatio: { prop: '--ratio-product', values: { portrait: '4 / 5', square: '1 / 1', landscape: '3 / 2' } },
+}
+
+/** The rung each token already holds in tokens.css — the design's defaults (`pnpm check:design`). */
+const RUNG_DEFAULTS: Readonly<Record<string, string>> = {
+  pageWidth: 'wide',
+  sectionSpacing: 'medium',
+  buttonRadius: 'small',
+  inputRadius: 'small',
+  cardRadius: 'small',
+  headingWeight: 'medium',
+  productImageRatio: 'portrait',
+  motion: 'standard',
+}
+
+/** Motion presets scale the three durations together; the OS preference still wins (tokens.css). */
+const MOTION: Readonly<Record<string, readonly [string, string, string]>> = {
+  standard: ['120ms', '200ms', '320ms'],
+  reduced: ['0ms', '0ms', '0ms'],
+}
+
+/**
+ * Settings that switch BEHAVIOUR rather than a value: `data-*` on the root
+ * element, so CSS branches on them without a second source of truth. Returned
+ * as data, applied by the provider — this module stays DOM-free.
+ */
+const ROOT_FLAGS: Readonly<Record<string, string>> = {
+  cardBorder: 'cardBorder',
+  buttonBorder: 'buttonBorder',
+  cardHoverEffect: 'cardHover',
+  badgeStyle: 'badgeStyle',
+  buttonTextStyle: 'buttonText',
+  typeScale: 'typeScale',
+  productImageFit: 'productFit',
+  iconStyle: 'iconStyle',
+}
+/**
+ * Every enumerated global setting and the values it accepts — derived from the
+ * tables above, so the live-preview allowlist (lib/live-settings.ts) can never
+ * accept a value the resolver would ignore, or miss one it handles.
+ */
+export const ENUM_SETTINGS: Readonly<Record<string, readonly string[]>> = {
+  ...Object.fromEntries(Object.entries(RUNGS).map(([key, { values }]) => [key, [...Object.keys(values), ...(key === 'productImageRatio' ? ['adapt'] : [])]])),
+  motion: Object.keys(MOTION),
+}
+/** Colour settings beyond brand / background / text. */
+export const EXTRA_COLOR_SETTINGS: readonly string[] = Object.keys(COLOR_ROLES)
+/** Settings that become root `data-*` flags (string or boolean). */
+export const FLAG_SETTINGS: readonly string[] = Object.keys(ROOT_FLAGS)
+
+export function resolveRootFlags(settings: ThemeSettings): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const [key, attr] of Object.entries(ROOT_FLAGS)) {
+    const v = settings[key]
+    if (typeof v === 'boolean') out[attr] = String(v)
+    else if (typeof v === 'string' && /^[a-z0-9-]+$/i.test(v)) out[attr] = v
+  }
+  return out
 }
 
 /**

@@ -23,6 +23,8 @@ export function AddToCart({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'add-to-cart',
+  role: 'block',
+  requiresContext: ['product'],
   title: 'Add to cart',
   category: 'block',
   icon: '+',

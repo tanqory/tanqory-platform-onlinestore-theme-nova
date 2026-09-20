@@ -25,5 +25,5 @@ export default defineTheme({
     endpoint: import.meta.env.TANQORY_BACKEND,
     token: import.meta.env.TANQORY_STOREFRONT_TOKEN,
   },
-  tokens: './src/theme/tokens.css',
+  tokens: './assets/tokens.css',
 })

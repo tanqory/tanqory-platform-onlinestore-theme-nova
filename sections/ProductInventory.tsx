@@ -12,6 +12,8 @@ export function ProductInventory({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'product-inventory',
+  role: 'block',
+  requiresContext: ['product'],
   title: 'Product inventory',
   category: 'block',
   icon: '◔',

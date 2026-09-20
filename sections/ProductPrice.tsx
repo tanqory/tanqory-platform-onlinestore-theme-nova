@@ -15,6 +15,8 @@ export function ProductPrice(_props: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'product-price',
+  role: 'block',
+  requiresContext: ['product'],
   title: 'Product price',
   category: 'block',
   icon: '$',

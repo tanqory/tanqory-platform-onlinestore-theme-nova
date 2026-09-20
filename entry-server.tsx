@@ -1,8 +1,14 @@
 // SSG server entry — renders the storefront to an HTML string at build time.
-// Tries live GraphQL first (so cold rebuilds bake real product data into
-// dist/index.html for SEO + instant first paint) and falls back to the
-// bundled mock fixtures if the backend is unreachable / over-budget — same
-// graceful-degradation policy as main.tsx.
+//
+// A build CONFIGURED for a backend (VITE_TANQORY_BACKEND + VITE_TANQORY_STORE_ID)
+// renders live GraphQL data, so cold rebuilds bake real product data into
+// dist/index.html for SEO + instant first paint. If that fetch fails the build
+// FAILS — it does not fall back to fixtures. Prerendering mock products into a
+// real store's index.html ships example products at example prices to shoppers
+// and to crawlers, and the page looks healthy while it does it.
+//
+// An UNCONFIGURED build (offline dev, a theme with no store attached) renders
+// the bundled fixtures, which is the whole point of mock mode.
 import { renderStorefrontHTML } from '@tanqory/theme-kit/ssg'
 import { createMockData, createLiveData, type DataApi } from '@tanqory/theme-kit'
 import collections from './lib/collections.json'
@@ -41,8 +47,14 @@ async function bootData(): Promise<DataApi> {
         token: VITE_TANQORY_STOREFRONT_TOKEN,
       })
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.warn('[ssg] live data fetch failed, falling back to mocks:', (err as Error)?.message ?? err)
+      // Fail the build. A configured store must never be prerendered from
+      // fixtures — that is how "Example product · $99" reaches a real
+      // storefront's HTML and its search-engine snapshot.
+      throw new Error(
+        `[ssg] live data fetch failed for store ${VITE_TANQORY_STORE_ID} at ${VITE_TANQORY_BACKEND}: ` +
+          `${(err as Error)?.message ?? String(err)}. ` +
+          'Refusing to prerender a configured storefront from mock fixtures.',
+      )
     }
   }
   return createMockData(collections)
@@ -67,6 +79,7 @@ export async function render(
   const html = renderStorefrontHTML({
     sections: import.meta.glob('./sections/*.tsx', { eager: true }),
     pages: import.meta.glob('./templates/*.json', { eager: true }),
+    groups: import.meta.glob('./groups/*.json', { eager: true }),
     shell: import.meta.glob('./layouts/*.tsx', { eager: true }),
     data,
     settings,

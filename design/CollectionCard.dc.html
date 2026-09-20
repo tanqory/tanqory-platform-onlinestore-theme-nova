@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>a{color:#1B1A18} a:hover{color:#5C5955}</style>
+</helmet>
+<a href="#" style="font-family:'Instrument Sans',Helvetica,Arial,sans-serif;color:#1B1A18;text-decoration:none;display:flex;flex-direction:column;gap:12px;width:100%;min-width:0">
+  <div style="position:relative;aspect-ratio:{{ imgRatio }};background:#F4F3F1;border-radius:4px;overflow:hidden;border:1px solid #E6E4E0">
+    <sc-if value="{{ hasImage }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#EFEEEB 0 8px,#E8E6E2 8px 16px);display:flex;align-items:center;justify-content:center">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A867F">{{ imgLabel }}</span>
+      </div>
+    </sc-if>
+    <sc-if value="{{ noImage }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center">
+        <span style="font-size:22px;font-weight:500;line-height:1.2;color:#5C5955;letter-spacing:-.01em">{{ title }}</span>
+      </div>
+    </sc-if>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:2px">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline">
+      <span style="font-size:16px;line-height:24px;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ title }}</span>
+      <sc-if value="{{ hasCount }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;line-height:24px;color:#8A867F;white-space:nowrap;font-variant-numeric:tabular-nums">{{ count }}</span></sc-if>
+    </div>
+    <sc-if value="{{ hasDesc }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;line-height:20px;color:#5C5955;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ description }}</span></sc-if>
+  </div>
+</a>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:320,&quot;height&quot;:460},
+&quot;title&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Collection&quot;,&quot;tsType&quot;:&quot;string&quot;},
+&quot;description&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},
+&quot;count&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},
+&quot;image&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;4:5&quot;,&quot;options&quot;:[&quot;4:5&quot;,&quot;1:1&quot;,&quot;3:4&quot;,&quot;3:2&quot;,&quot;16:9&quot;,&quot;none&quot;],&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props; const img = p.image || '4:5';
+    const ratio = { '1:1': '1/1', '3:4': '3/4', '4:5': '4/5', '16:9': '16/9', '3:2': '3/2', 'none': '4/5' }[img] || '4/5';
+    return { title: p.title || 'Collection', hasImage: img !== 'none', noImage: img === 'none', imgRatio: ratio, imgLabel: 'collection image ' + img,
+      hasCount: !!p.count, count: p.count, hasDesc: !!p.description, description: p.description };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,16 +1,15 @@
 {
+  "contentVersion": 2,
   "sections": [
-    {
-      "type": "header",
-      "id": "header",
-      "settings": {},
-      "area": "header"
-    },
     {
       "type": "product-details",
       "id": "main",
       "settings": {
-        "buttonLabel": "Add to cart"
+        "buttonLabel": "Add to cart",
+        "showVendor": false,
+        "showSku": false,
+        "showInventory": "low-only",
+        "showQuantity": true
       }
     },
     {
@@ -19,44 +18,13 @@
       "settings": {
         "heading": "You may also like",
         "collection": "all",
-        "columns": 4,
-        "limit": 4,
-        "showViewAll": false
+        "showViewAll": false,
+        "productsToShow": 4
       }
-    },
-    {
-      "type": "footer",
-      "id": "footer",
-      "settings": {},
-      "area": "footer",
-      "blocks": [
-        {
-          "type": "footer-brand",
-          "id": "footer-brand",
-          "settings": {}
-        },
-        {
-          "type": "footer-menu",
-          "id": "footer-menu-shop",
-          "settings": {
-            "menu": "footer-shop"
-          }
-        },
-        {
-          "type": "footer-menu",
-          "id": "footer-menu-help",
-          "settings": {
-            "menu": "footer-help"
-          }
-        },
-        {
-          "type": "footer-menu",
-          "id": "footer-menu-company",
-          "settings": {
-            "menu": "footer-company"
-          }
-        }
-      ]
     }
-  ]
+  ],
+  "groups": {
+    "header": "header",
+    "footer": "footer"
+  }
 }

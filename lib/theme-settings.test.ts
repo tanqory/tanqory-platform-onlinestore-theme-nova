@@ -15,6 +15,9 @@ import {
   resolveThemeVars,
   themeSettingsCss,
   type BrandFallback,
+  resolveRootFlags,
+  LEGACY_KEYS,
+  resolveFonts,
 } from './theme-settings.ts'
 
 const scaffold = JSON.parse(readFileSync(new URL('../config/settings.json', import.meta.url), 'utf8'))
@@ -67,8 +70,15 @@ test('brand colour: theme setting wins, Settings → Brand is the fallback', () 
 test('hover text: a light brand colour gets dark hover text (the hover no longer keeps --color-bg)', () => {
   const css = readFileSync(new URL('../assets/styles.css', import.meta.url), 'utf8')
   const hover = /\.btn--primary:hover\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
-  assert.match(hover, /background:\s*var\(--color-button-hover, var\(--color-brand\)\)/)
-  assert.match(hover, /color:\s*var\(--color-button-hover-text, var\(--color-brand-contrast\)\)/)
+  // The roles are real tokens now (no var() fallbacks in styles.css): by default
+  // they point at the brand tokens, and an accent re-points the whole set.
+  assert.match(hover, /background:\s*var\(--color-button-hover\)/)
+  assert.match(hover, /color:\s*var\(--color-button-hover-text\)/)
+  const tokens = readFileSync(new URL('../assets/tokens.css', import.meta.url), 'utf8')
+  assert.match(tokens, /--color-button-hover:\s*var\(--color-brand-hover\)/)
+  assert.match(tokens, /--color-button-hover-text:\s*var\(--color-brand-contrast\)/)
+  // …and a light brand colour gets a dark label on its (darker) hover shade too.
+  assert.equal(resolveThemeVars({ colorPrimary: '#fde047' })['--color-button-hover-text'], '#0a0a0a')
   assert.equal(resolveThemeVars({ colorBrand: '#fde047' })['--color-brand-contrast'], '#0a0a0a')
 })
 
@@ -174,7 +184,11 @@ test('values that could break out of the <style> element are refused, not escape
       colorBrand: 'rgb(1, 2, 3)',
     }),
   )
-  assert.equal(css, ':root{--color-brand:#010203 !important;--color-brand-contrast:#ffffff !important;}')
+  assert.equal(
+    css,
+    ':root{--color-brand:#010203 !important;--color-brand-hover:#010203 !important;--color-brand-active:#010203 !important;' +
+      '--color-button-hover-text:#ffffff !important;--color-brand-contrast:#ffffff !important;}',
+  )
   assert.equal(normalizeImageUrl('javascript:alert(1)'), null)
   assert.equal(normalizeImageUrl('"><img src=x onerror=1>'), null)
   assert.equal(normalizeImageUrl('/media/logo.png'), '/media/logo.png')
@@ -192,4 +206,61 @@ test('precedence does not depend on source order: every declaration is !importan
   for (const d of declarations) assert.match(d, / !important$/, d)
   assert.equal(readableTextOn('#000000'), '#ffffff')
   assert.equal(readableTextOn('#ffffff'), '#0a0a0a')
+})
+
+
+// ── the design's vocabulary, one pipeline ────────────────────────────────────
+// The schema follows design/spec/global.json. The names an earlier build saved
+// under are still read, and every global prop — not only colour and type —
+// resolves through this module, so the editor's live preview moves all of them.
+
+test('design names are the schema; the names an earlier build saved under still work', () => {
+  assert.deepEqual(LEGACY_KEYS, { colorPrimary: 'colorBrand', headingFont: 'fontHeading', bodyFont: 'fontBody' })
+  assert.equal(resolveThemeVars({ colorPrimary: '#0055ff' })['--color-brand'], '#0055ff')
+  assert.equal(resolveThemeVars({ colorBrand: '#0055ff' })['--color-brand'], '#0055ff')
+  // A value saved under the new name is not shadowed by a stale old one…
+  assert.equal(resolveThemeVars({ colorPrimary: '#0055ff', colorBrand: '#ff0000' })['--color-brand'], '#0055ff')
+  // …and an EMPTY new value does not hide a real old one.
+  assert.equal(resolveThemeVars({ colorPrimary: '', colorBrand: '#ff0000' })['--color-brand'], '#ff0000')
+  assert.deepEqual(resolveFonts({ headingFont: 'Inter', bodyFont: 'Lora' }), { heading: 'Inter', body: 'Lora' })
+  assert.deepEqual(resolveFonts({ fontHeading: 'Inter', fontBody: 'Lora' }), { heading: 'Inter', body: 'Lora' })
+})
+
+test('hover and active derive from the chosen brand colour instead of staying near-black', () => {
+  const vars = resolveThemeVars({ colorPrimary: '#3366cc' })
+  assert.notEqual(vars['--color-brand-hover'], undefined)
+  assert.notEqual(vars['--color-brand-hover'], vars['--color-brand'])
+  assert.notEqual(vars['--color-brand-active'], vars['--color-brand-hover'])
+  assert.ok(contrastRatio(vars['--color-button-hover-text'], vars['--color-brand-hover']) >= MIN_TEXT_CONTRAST)
+})
+
+test('a semantic rung becomes a token; the design default writes nothing; garbage is ignored', () => {
+  assert.equal(resolveThemeVars({ buttonRadius: 'pill' })['--btn-radius'], 'var(--radius-pill)')
+  assert.equal(resolveThemeVars({ pageWidth: 'standard' })['--container-wide'], '1200px')
+  assert.equal(resolveThemeVars({ sectionSpacing: 'large' })['--section-pad-y'], 'var(--section-lg)')
+  assert.equal(resolveThemeVars({ productImageRatio: 'square' })['--ratio-product'], '1 / 1')
+  assert.deepEqual(resolveThemeVars({ buttonRadius: 'small', pageWidth: 'wide', sectionSpacing: 'medium', motion: 'standard' }), {})
+  assert.deepEqual(resolveThemeVars({ buttonRadius: '19px', cardRadius: 'url(x)', motion: 'fast;}' }), {})
+  const reduced = resolveThemeVars({ motion: 'reduced' })
+  assert.deepEqual([reduced['--duration-fast'], reduced['--duration-base'], reduced['--duration-slow']], ['0ms', '0ms', '0ms'])
+  // Every rung survives the <style> filter — nothing the resolver writes is dropped on the way out.
+  const css = themeSettingsCss(resolveThemeVars({ buttonRadius: 'pill', productImageRatio: 'square', colorSale: '#aa0000' }))
+  assert.match(css, /--btn-radius:var\(--radius-pill\) !important;/)
+  assert.match(css, /--ratio-product:1 \/ 1 !important;/)
+  assert.match(css, /--color-sale:#aa0000 !important;/)
+})
+
+test('an explicit surface or border colour beats the one derived from background + text', () => {
+  const vars = resolveThemeVars({ colorBackground: '#ffffff', colorText: '#111111', colorBorder: '#cccccc', colorSecondarySurface: '#f0f0f0' })
+  assert.equal(vars['--color-border'], '#cccccc')
+  assert.equal(vars['--color-bg-muted'], '#f0f0f0')
+})
+
+test('behaviour switches come back as root data-* flags, and only well-formed ones', () => {
+  assert.deepEqual(
+    resolveRootFlags({ cardHoverEffect: 'image-swap', badgeStyle: 'outline', cardBorder: true, typeScale: 'large', iconStyle: 'filled' }),
+    { cardHover: 'image-swap', badgeStyle: 'outline', cardBorder: 'true', typeScale: 'large', iconStyle: 'filled' },
+  )
+  assert.deepEqual(resolveRootFlags({ cardHoverEffect: '"><script>', badgeStyle: '' }), {})
+  assert.deepEqual(resolveRootFlags(scaffold).cardHover, (scaffold as Record<string, unknown>).cardHoverEffect)
 })

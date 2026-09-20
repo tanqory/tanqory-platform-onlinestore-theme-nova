@@ -18,6 +18,7 @@ export function AccordionBlock({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'accordion',
+  role: 'block',
   title: 'Accordion',
   category: 'block',
   icon: '▽',

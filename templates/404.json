@@ -1,11 +1,6 @@
 {
+  "contentVersion": 2,
   "sections": [
-    {
-      "type": "header",
-      "id": "header",
-      "settings": {},
-      "area": "header"
-    },
     {
       "type": "not-found",
       "id": "404",
@@ -13,7 +8,8 @@
         "heading": "Page not found",
         "body": "The page you're looking for doesn't exist or has moved.",
         "buttonLabel": "Back to home",
-        "buttonLink": "/"
+        "buttonLink": "/",
+        "showSearch": true
       }
     },
     {
@@ -22,44 +18,13 @@
       "settings": {
         "heading": "Popular right now",
         "collection": "all",
-        "columns": 4,
-        "limit": 4,
-        "showViewAll": false
+        "showViewAll": false,
+        "productsToShow": 4
       }
-    },
-    {
-      "type": "footer",
-      "id": "footer",
-      "settings": {},
-      "area": "footer",
-      "blocks": [
-        {
-          "type": "footer-brand",
-          "id": "footer-brand",
-          "settings": {}
-        },
-        {
-          "type": "footer-menu",
-          "id": "footer-menu-shop",
-          "settings": {
-            "menu": "footer-shop"
-          }
-        },
-        {
-          "type": "footer-menu",
-          "id": "footer-menu-help",
-          "settings": {
-            "menu": "footer-help"
-          }
-        },
-        {
-          "type": "footer-menu",
-          "id": "footer-menu-company",
-          "settings": {
-            "menu": "footer-company"
-          }
-        }
-      ]
     }
-  ]
+  ],
+  "groups": {
+    "header": "header",
+    "footer": "footer"
+  }
 }

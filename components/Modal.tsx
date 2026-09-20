@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { closeOverlay } from './useOverlayChannel'
+import { inertWhenClosed } from './inert'
 
 /**
  * Centered modal surface used by `<SearchModal>`. Same focus/scroll/ESC
@@ -9,17 +10,34 @@ import { closeOverlay } from './useOverlayChannel'
  * The shared dim+blur backdrop comes from the `.overlay` class — overlay
  * tokens (z-index, transition timing) live in one place in styles.css.
  */
+const SIZES = { sm: '480px', md: '640px', lg: '800px' } as const
+
 export function Modal({
   open,
-  maxWidth = '640px',
+  maxWidth,
+  size = 'md',
   ariaLabel,
+  title,
+  footer,
+  onClose,
   children,
 }: {
   open: boolean
+  /** Escape hatch; prefer `size`, which carries the design's three widths. */
   maxWidth?: string
-  ariaLabel: string
+  /** 480 / 640 / 800, per the design. */
+  size?: 'sm' | 'md' | 'lg'
+  /** Required unless `title` is given — a dialog must have an accessible name. */
+  ariaLabel?: string
+  /** Renders a sticky header with a close button; also names the dialog. */
+  title?: string
+  /** Sticky footer (actions); the body between header and footer scrolls. */
+  footer?: ReactNode
+  /** Defaults to the global overlay channel, which is what SearchModal uses. */
+  onClose?: () => void
   children: ReactNode
 }): JSX.Element {
+  const close = onClose ?? closeOverlay
   const panelRef = useRef<HTMLDivElement>(null)
   const previouslyFocused = useRef<HTMLElement | null>(null)
 
@@ -54,7 +72,7 @@ export function Modal({
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault()
-        closeOverlay()
+        close()
         return
       }
       if (e.key !== 'Tab' || !panelRef.current) return
@@ -74,14 +92,14 @@ export function Modal({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [open])
+  }, [open, close])
 
   return (
     <div
       className={`overlay overlay--center ${open ? 'overlay--open' : ''}`}
-      aria-hidden={!open}
+      {...inertWhenClosed(open)}
       onClick={(e) => {
-        if (e.target === e.currentTarget) closeOverlay()
+        if (e.target === e.currentTarget) close()
       }}
     >
       <div
@@ -89,10 +107,33 @@ export function Modal({
         className="modal"
         role="dialog"
         aria-modal="true"
-        aria-label={ariaLabel}
-        style={{ maxWidth }}
+        aria-label={ariaLabel ?? title}
+        style={{ maxWidth: maxWidth ?? SIZES[size] }}
       >
-        {children}
+        {/* Drag handle — purely a bottom-sheet affordance on mobile; hidden
+            above 768 where the panel is a centred dialog. */}
+        <span className="modal__handle" aria-hidden />
+        {title && (
+          <header className="modal__header">
+            <h2 className="modal__title">{title}</h2>
+            <button type="button" className="modal__close" aria-label="Close" onClick={close}>
+              ×
+            </button>
+          </header>
+        )}
+        {/* Only the body scrolls; header and footer stay put. */}
+        {/* The body scrolls, so it needs to be reachable by keyboard: someone
+            who cannot drag still has to get to the bottom of a long panel or a
+            zoomed photograph. The arrow keys scroll it once focus lands. */}
+        <div
+          className={title || footer ? 'modal__body' : undefined}
+          tabIndex={0}
+          role="group"
+          aria-label={ariaLabel ?? title ?? 'Dialog content'}
+        >
+          {children}
+        </div>
+        {footer && <footer className="modal__footer">{footer}</footer>}
       </div>
     </div>
   )

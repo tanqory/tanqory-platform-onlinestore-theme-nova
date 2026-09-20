@@ -8,16 +8,26 @@ import { defineSection, useBoundText, type SectionProps } from '@tanqory/theme-k
 export function FooterText({ attributes }: SectionProps): JSX.Element {
   const heading = useBoundText(attributes.heading)
   const body = useBoundText(attributes.body)
+
+  // Nothing to say, no column. With neither field set this returned an empty
+  // div that still took a full grid column — 282px of blank in the middle of
+  // the footer. Same rule as the FAQ item with no answer and the footer menu
+  // with no links.
+  if (!heading && !body) return <></>
+
   return (
     <div className="site-footer__col">
-      {heading && <h6>{heading}</h6>}
-      {body && <p style={{ color: 'color-mix(in srgb, var(--color-fg-inverse) 70%, transparent)', maxWidth: '36ch' }}>{body}</p>}
+      {/* Matches the other footer columns, which are labels rather than
+          headings — an <h6> here jumped four levels from the page h2. */}
+      {heading && <span className="site-footer__col-title">{heading}</span>}
+      {body && <p className="site-footer__muted">{body}</p>}
     </div>
   )
 }
 
 export default defineSection({
   name: 'footer-text',
+  role: 'block',
   title: 'Text',
   category: 'block',
   icon: '¶',

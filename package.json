@@ -4,27 +4,45 @@
   "private": false,
   "type": "module",
   "description": "Reference Tanqory Studio theme — React sections, JSON content tree, runs offline with mock data.",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=22.6.0",
+    "pnpm": ">=9.7.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "node --test --experimental-strip-types 'lib/**/*.test.ts'",
+    "test": "vitest run && pnpm test:lib",
+    "test:lib": "node --test --experimental-strip-types 'lib/**/*.test.ts'",
+    "test:watch": "vitest",
     "manifest": "node scripts/gen-manifest.mjs",
     "manifest:check": "node scripts/gen-manifest.mjs --check",
-    "prebuild": "node scripts/gen-manifest.mjs"
+    "verify": "pnpm typecheck && pnpm manifest:check && pnpm check:spec && pnpm check:inert && pnpm check:design && pnpm check:headings && pnpm test && pnpm build",
+    "prebuild": "node scripts/gen-manifest.mjs",
+    "check:inert": "node scripts/check-inert-settings.mjs",
+    "check:design": "node scripts/check-design-coverage.mjs",
+    "check:headings": "node scripts/check-page-headings.mjs",
+    "check:a11y": "node scripts/check-a11y.mjs",
+    "verify:live": "pnpm check:a11y && pnpm check:layout",
+    "check:layout": "node scripts/check-layout-sanity.mjs",
+    "check:spec": "node scripts/extract-design-spec.mjs"
   },
   "dependencies": {
-    "@tanqory/theme-kit": "^0.1.1",
+    "@tanqory/theme-kit": "file:vendor/tanqory-theme-kit-0.2.0-rc.1.tgz",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^25.0.1",
+    "playwright-core": "^1.63.0",
     "typescript": "^5.6.3",
     "vite": "^5.4.10",
-    "@types/node": "^20.0.0"
+    "vitest": "^2.1.9"
   }
 }

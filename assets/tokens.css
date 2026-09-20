@@ -1,136 +1,316 @@
 /* ============================================================================
  * Design tokens — nova
- * Tanqory design tokens: clean, content-forward,
- * editorial typography, generous whitespace, subtle motion.
  *
- * Token layers (all CSS custom properties — themable per page if needed):
- *   1. Color scheme        (semantic: bg, fg, accent, border, scrim, …)
- *   2. Typography           (serif display + sans body, modular scale)
- *   3. Space + sizing       (8-pt grid; container max-widths; gap scale)
- *   4. Radius + shadow      (subtle, content-respecting)
- *   5. Motion               (ease curves, durations)
- *   6. Layer (z-index)
+ * SOURCE OF TRUTH: the approved Claude Design package,
+ * `tanqory-platform-onlinestore-theme-nova-design/01 Style System.dc.html`.
+ * Values here are transcribed from its `renderVals()` tables. Do not "improve"
+ * them — change the design first.
+ *
+ * A neutral, commerce-first platform default: warm ink on warm off-white, one
+ * brand slot, product imagery as the only saturated thing on the page.
+ *
+ * Three rules the whole system leans on:
+ *   1. BORDERS BEFORE SHADOWS. Cards and inputs are bordered, never shadowed;
+ *      shadows exist only for things that float over content (4 of them).
+ *   2. SEMANTIC, NEVER RAW. Sections pick a role/preset; they never invent a
+ *      colour, a width or a spacing value.
+ *   3. PRIMARY IS THE MERCHANT'S. Brand swap touches Primary + its hover/active,
+ *      the focus ring, selected-variant outline, active tab and link hover.
+ *      Neutrals, feedback colours, borders and overlay stay fixed so the page
+ *      keeps its calm baseline whatever the brand hue.
+ *
+ * NAMING CONTRACT: `--color-*`, `--space-*` and `--z-*` are consumed by the AI
+ * theme generator (ai-api `dna-storefront`, which writes `ai-tokens.css`).
+ * Those prefixes must not be renamed without coordinating with that generator.
  * ============================================================================ */
 
 :root {
-  /* ── Brand color (single accent; flip per-collection if desired) ───────── */
-  --color-brand: #111111;
-  --color-brand-contrast: #ffffff;
-  --color-accent: #1f6feb;
+  /* ── Colour roles ──────────────────────────────────────────────────────
+   * 20 roles. `--color-brand*` is the merchant slot; everything else is fixed.
+   */
 
-  /* ── Surface (foreground / background pairs — light scheme by default) ── */
-  --color-fg: #0a0a0a;
-  --color-fg-muted: #51545a;
-  --color-fg-subtle: #8a8d93;
+  /* Brand slot — the one colour a merchant owns. Accepts hex or oklch(). */
+  --color-brand: #1b1a18;
+  --color-brand-hover: #333130;
+  --color-brand-active: #0e0d0c;
+
+  /* Primary (solid) button. By default it IS the brand colour (design: "Primary
+     = brand slot"). Theme settings → Accent re-points all five at once, with
+     label colours chosen for AA on each shade (lib/theme-settings.ts). */
+  --color-button: var(--color-brand);
+  --color-button-text: var(--color-brand-contrast);
+  --color-button-hover: var(--color-brand-hover);
+  --color-button-hover-text: var(--color-brand-contrast);
+  --color-button-active: var(--color-brand-active);
+  /* Sticky header backdrop; follows the page background in either scheme. */
+  --header-bg: color-mix(in srgb, var(--color-bg) 86%, transparent);
+  /* Label colour on a brand fill. Flips to --color-fg for light brands —
+   * the auto-flip itself is not implemented yet (see F2 in the plan). */
+  --color-brand-contrast: #ffffff;
+
+  /* Ink */
+  --color-fg: #1b1a18;          /* Text Primary   ≥12:1 on bg/surface */
+  /* Text Secondary. Same story as Text Muted below: the style system's rule
+     is ≥7:1, the hex it prints (#5C5955) measures 6.78 / 6.28 / 6.96 on the
+     three surfaces. Roles are the contract, so the default is nudged to the
+     lightest value that clears 7:1 everywhere (7.57 / 7.01 / 7.77). */
+  --color-fg-muted: #55524e;
+  /* Text Muted. The design's rule is "≥ 4.5:1 (never below 12px)" but the hex
+     it prints beside it, #8A867F, measures 3.53:1 on the page and 3.27:1 on
+     the secondary surface. The style system settles which one wins: "Roles
+     are the contract. Hex values shown are the neutral default only." So the
+     role is honoured and the default is darkened to the lightest warm grey
+     that clears 4.5:1 on all three surfaces (4.87 page / 4.51 surface-2 /
+     5.00 elevated), keeping the three-step ink ladder intact. */
+  --color-fg-subtle: #736f68;
   --color-fg-inverse: #ffffff;
 
-  --color-bg: #ffffff;
-  --color-bg-alt: #fafaf8;          /* off-white sections */
-  --color-bg-muted: #f3f3f0;         /* card surfaces */
-  --color-bg-elevated: #ffffff;
-  --color-bg-inverse: #0a0a0a;
+  /* Surfaces */
+  --color-bg: #fcfcfb;              /* page — warm off-white, not pure white */
+  --color-bg-muted: #f4f3f1;        /* Surface Secondary: media wells, skeletons */
+  --color-bg-elevated: #ffffff;     /* cards, popovers, drawers */
 
-  --color-border: rgba(10, 10, 10, 0.10);
-  --color-border-strong: rgba(10, 10, 10, 0.18);
+  /* Lines */
+  --color-border: #e6e4e0;          /* subtle — the default hairline */
+  --color-border-strong: #c9c6c0;
+
+  /* Pressed rungs from the design's button state matrix (02 UI Primitives).
+     `grep ":active" styles.css` returned exactly one line before these
+     existed, so every pressed state the design specifies was unimplemented. */
+  --color-bg-muted-hover: #eceae6;   /* Surface Secondary, hovered */
+  --color-bg-muted-active: #e3e0db;  /* Surface Secondary, pressed */
+  --color-danger-surface: #fbedec;   /* Destructive hover fill */
+  --color-danger-surface-active: #f5d9d6;
+  --color-danger-active: #8e1d17;
+
+  /* Feedback surfaces. These three were raw hex in styles.css, which the
+     design's own principle forbids ("semantic, never raw"). */
+  --color-warning-surface: #fff4e5;
+  --color-warning-ink: #8a4b00;
+  --color-success-surface: #e8f3ec;   /* default — hover, emphasis */
+  --color-border-emphasis: #1b1a18; /* strong — selected, active */
+
+  --color-overlay-scrim: rgba(20, 19, 18, 0.48);
+
+  /* Feedback — fixed, never brand-tinted */
+  --color-success: #1f7a4d;
+  --color-warning: #b2660a;
+  --color-danger: #b3261e;
+
+  /* Commerce state */
+  --color-sale: #b3261e;      /* price + badge only */
+  --color-sold-out: #5c5955;
+
+  /* Focus — follows Primary, so it re-colours on brand swap */
+  --color-focus: var(--color-brand);
+
+  /* ── Typography ────────────────────────────────────────────────────────
+   * One sans for heading and body; the merchant may replace either.
+   * Weight 500 for every heading step — the design uses weight, not size, to
+   * carry hierarchy.
+   */
+  --font-display: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-body: var(--font-display);
+
+  /* Semantic steps. Fluid sizes clamp between 390 and 1440. */
+  --type-display: clamp(2.5rem, 3vw + 1.5rem, 4rem);      /* 40 → 64 */
+  --type-h1: clamp(1.875rem, 1.6vw + 1.125rem, 2.75rem);  /* 30 → 44 */
+  --type-h2: clamp(1.625rem, 1vw + 1rem, 2.125rem);       /* 26 → 34 */
+  --type-h3: clamp(1.25rem, 0.6vw + 0.875rem, 1.5rem);    /* 20 → 24 */
+  --type-h4: 1.25rem;     /* 20 */
+  --type-h5: 1rem;        /* 16 */
+  --type-h6: 0.875rem;    /* 14 */
+
+  --type-body-lg: 1.0625rem; /* 17 — mobile; the 768 breakpoint raises it to 18 */
+  --type-body: 1rem;         /* 16 */
+  --type-body-sm: 0.875rem;  /* 14 */
+  --type-caption: 0.75rem;   /* 12 */
+  --type-label: 0.8125rem;   /* 13 */
+  --type-eyebrow: 0.75rem;   /* 12, uppercase, +0.08em */
+
+  /* Commerce type — price is never larger than the title it sits under. */
+  --type-product-title: 0.9375rem;      /* 15 on a card; H1 on the PDP */
+  --leading-product-title: 1.45;  /* design: Product Title 15 / 1.45 */
+  --type-price: 0.9375rem;              /* 15 card */
+  --type-price-pdp: 1.25rem;            /* 20 PDP */
+  --type-price-compare: 0.875rem;       /* 14 card */
+  --type-price-compare-pdp: 1rem;       /* 16 PDP */
+  --type-button: 0.875rem;              /* 14 md */
+  --type-button-sm: 0.8125rem;          /* 13 */
+  --type-button-lg: 0.9375rem;          /* 15 */
+  --type-nav: 0.875rem;                 /* 14; 18 in the mobile drawer */
+  --type-nav-mobile: 1.125rem;
+
+  /* Line heights, paired to the steps above */
+  --leading-display: 1.05;
+  --leading-h1: 1.1;
+  --leading-h2: 1.15;
+  --leading-h3: 1.2;
+  --leading-h4: 1.3;
+  --leading-h5: 1.4;
+  --leading-h6: 1.4;
+  --leading-caption: 1.35;  /* design: Caption 12 / 1.35 */
+  --leading-tight: 1.3;
+  --leading-snug: 1.45;
+  --leading-base: 1.5;
+  --leading-relaxed: 1.55;
+
+  --tracking-display: -0.025em;
+  --tracking-h1: -0.02em;
+  --tracking-h2: -0.015em;
+  --tracking-h3: -0.01em;
+  --tracking-base: 0;
+  --tracking-button: 0.005em;
+  --tracking-h6: 0.02em;
+  --tracking-eyebrow: 0.08em;
+
+  --weight-body: 400;
+  --weight-medium: 500;
+  --weight-heading: 500;
+  /* The store-name fallback in the header is the one place the design asks
+     for 600 — see "no logo fallback · store name in H4 weight 600". */
+  --weight-strong: 600;
+
+  /* ── Space — 4px base, 10 steps ───────────────────────────────────────
+   * Unchanged from the previous system: the ladders were already identical.
+   */
+  --space-0: 0;
+  --space-1: 0.25rem;   /*   4 */
+  --space-2: 0.5rem;    /*   8 */
+  --space-3: 0.75rem;   /*  12 */
+  --space-4: 1rem;      /*  16 */
+  --space-5: 1.5rem;    /*  24 */
+  --space-6: 2rem;      /*  32 */
+  --space-7: 3rem;      /*  48 */
+  --space-8: 4rem;      /*  64 */
+  --space-9: 6rem;      /*  96 */
+  --space-10: 8rem;     /* 128 */
+
+  /* Semantic spacing roles — what a component should reach for. */
+  --gap-xxs: var(--space-1);  /* icon↔label, swatch gaps */
+  --gap-xs: var(--space-2);   /* inline groups, badge padding */
+  --gap-sm: var(--space-3);   /* card text stack, chip gaps */
+  --gap-md: var(--space-4);   /* form fields, grid gap mobile */
+  --gap-lg: var(--space-5);   /* grid gap desktop, card padding */
+  --gap-xl: var(--space-6);   /* header↔grid, drawer padding */
+  --gap-2xl: var(--space-7);  /* between content groups in a section */
+  --gap-component: var(--space-2);
+  --gap-content: var(--space-4);   /* 16 on mobile; 24 from 768 up */
+
+  /* Page gutter — 16 mobile · 24 tablet · 40 desktop */
+  --page-gutter: 1rem;
+
+  /* Section vertical rhythm — 5 presets × 3 viewports.
+   * Adjacent sections sharing a background collapse to the smaller preset;
+   * full-bleed media sections default to None. */
+  --section-none: 0;
+  --section-sm: 1.5rem;      /* 24 mobile */
+  --section-md: 2.5rem;      /* 40 mobile — the default */
+  --section-lg: 3rem;        /* 48 mobile */
+  --section-xl: 4rem;        /* 64 mobile */
+  --section-pad-y: var(--section-md);
+  --section-pad-x: var(--page-gutter);
+
+  /* ── Containers — sections pick one; they never invent a width ───────── */
+  --container-full: 100vw;
+  --container-wide: 1440px;      /* default: grids, header, footer */
+  --container-standard: 1200px;  /* PDP, multicolumn, image-with-text */
+  --container-content: 840px;    /* rich text, article, page, FAQ */
+  --container-narrow: 560px;     /* forms: contact, account, 404 */
+
+  /* ── Grid ─────────────────────────────────────────────────────────────
+   * 12 columns down to tablet, 4 on mobile. Product-grid counts fall back
+   * 6→4→2, 5→3→2, 4→3→2, 3→3→2, 2→2→1.
+   */
+  --grid-columns: 4;
+  --grid-gap: 0.75rem;   /* 12 mobile */
+  --grid-products: 2;
+
+  /* ── Radius ───────────────────────────────────────────────────────────
+   * 4px is the house radius. 0 on anything full-bleed.
+   */
+  --radius-none: 0;
+  --radius-sm: 4px;     /* buttons, inputs, cards, badges */
+  --radius-md: 8px;     /* popover, toast, drawer panel */
+  --radius-lg: 12px;    /* modal, mega-menu panel */
+  --radius-pill: 999px; /* chips, count badge, toggle */
+  --radius-circle: 50%; /* swatches, avatars */
+
+  /* ── Borders ──────────────────────────────────────────────────────────── */
+  --border-width: 1px;
+  --border-subtle: var(--border-width) solid var(--color-border);
+  --border-default: var(--border-width) solid var(--color-border-strong);
+  --border-strong: var(--border-width) solid var(--color-border-emphasis);
+
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
+  /* ── Shadows — exactly four, named for what floats ───────────────────── */
+  --shadow-popover: 0 4px 16px rgba(27, 26, 24, 0.10);
+  --shadow-drawer: -8px 0 32px rgba(27, 26, 24, 0.14);
+  --shadow-modal: 0 16px 48px rgba(27, 26, 24, 0.18);
+  --shadow-floating: 0 2px 12px rgba(27, 26, 24, 0.12);
+
+  /* ── Motion ───────────────────────────────────────────────────────────
+   * NOTE the easing names: `--ease-standard` here is the design's
+   * cubic-bezier(.2,0,0,1). The previous token of the same name held
+   * Material's (.4,0,.2,1), which this design does not use at all.
+   */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --ease-enter: cubic-bezier(0, 0, 0.2, 1);
+
+  --duration-fast: 120ms;   /* hover colour, focus ring, toggles */
+  --duration-base: 200ms;   /* card image, accordion, tabs, fades, modal */
+  --duration-slow: 320ms;   /* drawer, mega menu, gallery slide */
+
+  /* ── Icons ────────────────────────────────────────────────────────────
+   * One outline set, 1.5px stroke at every size (the stroke does NOT scale).
+   * Icons inherit currentColor.
+   */
+  --icon-sm: 16px;   /* inline / meta */
+  --icon-md: 20px;   /* default UI */
+  --icon-lg: 24px;   /* header / nav */
+  --icon-stroke: 1.5px;
+  --touch-target: 44px;
+  /* Partner logos are normalised to one height so mixed aspect ratios sit on
+     a common baseline — the style system's small 24 / medium 32 / large 40. */
+  --logo-height: 32px;
+
+  /* ── Media ratios ─────────────────────────────────────────────────────
+   * Product media is CONTAIN on Surface Secondary — the product is the
+   * subject, so it is never cropped by default.
+   */
+  --ratio-product: 4 / 5;
+  --ratio-collection: 4 / 5;
+  --ratio-hero: 16 / 9;
+  --ratio-hero-mobile: 4 / 5;
+  --ratio-editorial: 3 / 2;
+  --ratio-logo: 3 / 1;
+  --ratio-square: 1 / 1;
+  --logo-height-header: 32px;
+  --logo-height-footer: 40px;
+  /* Header bar height — 56 mobile · 60 tablet · 72 desktop. */
+  --header-height: 56px;
+
+  /* ── Nova extensions ──────────────────────────────────────────────────
+   * Not in the approved package, but required by surfaces the package does
+   * not cover (an inverted footer, a hero scrim, monospaced figures).
+   * Derived from approved roles so a brand swap still carries through.
+   */
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  --color-bg-inverse: var(--color-fg);
   --color-border-inverse: rgba(255, 255, 255, 0.16);
-
-  --color-overlay-scrim: rgba(10, 10, 10, 0.55);
   --color-overlay-gradient: linear-gradient(
     180deg,
-    rgba(10, 10, 10, 0.10) 0%,
-    rgba(10, 10, 10, 0.65) 100%
+    rgba(20, 19, 18, 0) 0%,
+    rgba(20, 19, 18, 0.48) 100%
   );
 
-  --color-success: #1c7c54;
-  --color-warning: #b87900;
-  --color-danger:  #c0392b;
-
-  /* ── Typography — display serif + body sans (system-stack, swappable) ── */
-  --font-display:
-    'Editorial New', 'Times New Roman', Times, 'PT Serif', Georgia, serif;
-  --font-body:
-    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, sans-serif;
-  --font-mono:
-    ui-monospace, 'SF Mono', 'JetBrains Mono', 'Roboto Mono', Menlo, monospace;
-
-  /* Modular scale — 1.250 (major third), generous on desktop */
-  --type-step--2: clamp(0.75rem,  0.74rem + 0.05vw, 0.78rem);
-  --type-step--1: clamp(0.875rem, 0.85rem + 0.10vw, 0.92rem);
-  --type-step-0:  clamp(1rem,     0.98rem + 0.12vw, 1.08rem);
-  --type-step-1:  clamp(1.125rem, 1.08rem + 0.20vw, 1.25rem);
-  --type-step-2:  clamp(1.375rem, 1.25rem + 0.50vw, 1.625rem);
-  --type-step-3:  clamp(1.75rem,  1.55rem + 0.90vw, 2.25rem);
-  --type-step-4:  clamp(2.25rem,  1.85rem + 1.80vw, 3.25rem);
-  --type-step-5:  clamp(2.75rem,  2.20rem + 2.50vw, 4.50rem);
-  --type-step-6:  clamp(3.5rem,   2.60rem + 4.00vw, 6.50rem);
-
-  --leading-tight: 1.08;
-  --leading-snug:  1.20;
-  --leading-base:  1.55;
-  --leading-loose: 1.75;
-
-  --tracking-tight: -0.03em;
-  --tracking-snug:  -0.01em;
-  --tracking-base:   0;
-  --tracking-wide:   0.02em;
-  --tracking-loose:  0.06em;
-
-  /* ── Space — 8-pt grid; named slots for common rhythm ──────────────── */
-  --space-0:  0;
-  --space-1:  0.25rem;   /*  4px */
-  --space-2:  0.5rem;    /*  8px */
-  --space-3:  0.75rem;   /* 12px */
-  --space-4:  1rem;      /* 16px */
-  --space-5:  1.5rem;    /* 24px */
-  --space-6:  2rem;      /* 32px */
-  --space-7:  3rem;      /* 48px */
-  --space-8:  4rem;      /* 64px */
-  --space-9:  6rem;      /* 96px */
-  --space-10: 8rem;      /* 128px */
-  --space-11: 12rem;     /* 192px */
-
-  /* Section vertical rhythm (consistent breath across sections) */
-  --section-pad-y: clamp(3.5rem, 3rem + 2vw, 6rem);
-  --section-pad-x: clamp(1.25rem, 1rem + 1.5vw, 2rem);
-
-  /* ── Container widths ─────────────────────────────────────────────── */
-  --container-sm:  640px;
-  --container-md:  840px;
-  --container-lg:  1100px;
-  --container-xl:  1320px;
-  --container-2xl: 1480px;
-  --container-prose: 70ch;
-
-  /* ── Radius — restrained ───────────────────────────────────────────── */
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 28px;
-  --radius-pill: 999px;
-  --radius-circle: 50%;
-
-  /* ── Shadows — soft ─────────────────────────────────── */
-  --shadow-xs:  0 1px 2px rgba(10, 10, 10, 0.04);
-  --shadow-sm:  0 2px 4px rgba(10, 10, 10, 0.04), 0 1px 2px rgba(10, 10, 10, 0.04);
-  --shadow-md:  0 6px 14px rgba(10, 10, 10, 0.06), 0 2px 4px rgba(10, 10, 10, 0.04);
-  --shadow-lg:  0 14px 28px rgba(10, 10, 10, 0.08), 0 4px 8px rgba(10, 10, 10, 0.04);
-  --shadow-xl:  0 24px 48px rgba(10, 10, 10, 0.12), 0 8px 16px rgba(10, 10, 10, 0.06);
-  --shadow-ring: 0 0 0 1px var(--color-border);
-
-  /* ── Motion ─────────────────────────────────────────────────────── */
-  --ease-standard:    cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-emphasized:  cubic-bezier(0.2, 0, 0, 1);
-  --ease-decelerate:  cubic-bezier(0, 0, 0.2, 1);
-  --ease-accelerate:  cubic-bezier(0.4, 0, 1, 1);
-
-  --duration-fast:    150ms;
-  --duration-base:    250ms;
-  --duration-slow:    400ms;
-  --duration-slower:  600ms;
-
-  /* ── Layer (z-index ladder) ─────────────────────────────────────── */
+  /* ── Layer (z-index) ──────────────────────────────────────────────────
+   * Not specified by the design — retained as a Nova extension.
+   */
   --z-base: 0;
   --z-raised: 1;
   --z-sticky: 10;
@@ -140,62 +320,75 @@
   --z-toast: 110;
   --z-popover: 120;
 
-  /* ── Component-level (refers to primitives above) ───────────────── */
-  --btn-radius: var(--radius-pill);
-  --btn-pad-y: 0.85rem;
-  --btn-pad-x: 1.5rem;
-  --btn-font-weight: 500;
+  /* ── Component bindings ───────────────────────────────────────────────
+   * Buttons/inputs/cards all sit at 4px. Heights are the design's touch sizes.
+   */
+  --btn-radius: var(--radius-sm);
+  --btn-height: var(--touch-target);  /* 44 md */
+  --btn-height-sm: 36px;
+  --btn-height-lg: 52px;
+  --btn-pad-x: 1.25rem;               /* 20 md */
+  --btn-pad-x-sm: 0.875rem;           /* 14 sm */
+  --btn-pad-x-lg: 1.5rem;             /* 24 lg */
+  --btn-font-weight: var(--weight-medium);
 
   --input-radius: var(--radius-sm);
-  --input-pad-y: 0.85rem;
-  --input-pad-x: 1rem;
-  --input-border: 1px solid var(--color-border-strong);
+  --input-height: 48px;
+  --input-pad-x: 0.875rem;
+  --input-border: var(--border-subtle);
 
-  --card-radius: var(--radius-lg);
-  --card-pad: var(--space-5);
+  --card-radius: var(--radius-sm);
+  --card-pad: var(--gap-lg);
+  --card-border: var(--border-subtle);
 }
 
-/* ── Dark scheme ─────────────────────────────────────────────────── */
-[data-scheme='dark'] {
-  --color-fg: #f5f5f4;
-  --color-fg-muted: #b6b9c0;
-  --color-fg-subtle: #888c94;
-  --color-fg-inverse: #0a0a0a;
-
-  --color-bg: #0c0c0d;
-  --color-bg-alt: #131316;
-  --color-bg-muted: #1c1c1f;
-  --color-bg-elevated: #18181b;
-  --color-bg-inverse: #ffffff;
-
-  --color-border: rgba(255, 255, 255, 0.12);
-  --color-border-strong: rgba(255, 255, 255, 0.20);
-  --color-border-inverse: rgba(10, 10, 10, 0.20);
-
-  --color-overlay-scrim: rgba(0, 0, 0, 0.65);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-scheme]) {
-    --color-fg: #f5f5f4;
-    --color-fg-muted: #b6b9c0;
-    --color-fg-subtle: #888c94;
-    --color-fg-inverse: #0a0a0a;
-
-    --color-bg: #0c0c0d;
-    --color-bg-alt: #131316;
-    --color-bg-muted: #1c1c1f;
-    --color-bg-elevated: #18181b;
-    --color-bg-inverse: #ffffff;
-
-    --color-border: rgba(255, 255, 255, 0.12);
-    --color-border-strong: rgba(255, 255, 255, 0.20);
-    --color-border-inverse: rgba(10, 10, 10, 0.20);
-
-    --color-overlay-scrim: rgba(0, 0, 0, 0.65);
+/* ── Responsive scale ──────────────────────────────────────────────────
+ * Gutter, grid and section spacing step up with the viewport. These are the
+ * design's breakpoints (390 / 768 / 1024 / 1440) — not the ad-hoc 480/600/800
+ * the old stylesheet used.
+ */
+@media (min-width: 768px) {
+  :root {
+    --page-gutter: 1.5rem;   /* 24 */
+    --header-height: 60px;
+    --grid-columns: 8;
+    --grid-gap: 1rem;        /* 16 */
+    --grid-products: 3;
+    --section-sm: 1.5rem;    /* 24 */
+    --section-md: 3rem;      /* 48 */
+    --section-lg: 4rem;      /* 64 */
+    --section-xl: 5rem;      /* 80 */
+    --type-body-lg: 1.125rem;
+    --gap-content: var(--space-5);  /* 24 — "content gap: 16 mobile → 24 desktop" */
   }
 }
 
+@media (min-width: 1024px) {
+  :root {
+    --page-gutter: 2rem;     /* 32 */
+    --header-height: 72px;
+    --grid-columns: 12;
+    --grid-gap: 1.25rem;     /* 20 */
+    --grid-products: 3;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --page-gutter: 2.5rem;   /* 40 */
+    --grid-gap: 1.5rem;      /* 24 */
+    --grid-products: 4;
+    --section-sm: 2rem;      /* 32 */
+    --section-md: 4rem;      /* 64 */
+    --section-lg: 6rem;      /* 96 */
+    --section-xl: 8rem;      /* 128 */
+  }
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────────
+ * The design is explicit: transforms are REMOVED, not just shortened, and
+ * anything that must still read as a change does it with opacity.
+ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -203,6 +396,7 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transform: none !important;
     scroll-behavior: auto !important;
   }
 }

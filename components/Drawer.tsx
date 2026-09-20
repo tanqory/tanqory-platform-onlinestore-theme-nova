@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { closeOverlay } from './useOverlayChannel'
+import { inertWhenClosed } from './inert'
 
 /**
  * Side-anchored slide-over surface. Used by `<CartDrawer>` (right) and
@@ -21,6 +22,7 @@ export function Drawer({
   side = 'right',
   width = '420px',
   ariaLabel,
+  onClose,
   children,
 }: {
   open: boolean
@@ -30,8 +32,11 @@ export function Drawer({
   width?: string
   /** ARIA label for the dialog — read by screen readers. */
   ariaLabel: string
+  /** Defaults to the global overlay channel, which the cart/nav drawers use. */
+  onClose?: () => void
   children: ReactNode
 }): JSX.Element {
+  const close = onClose ?? closeOverlay
   const panelRef = useRef<HTMLDivElement>(null)
   const previouslyFocused = useRef<HTMLElement | null>(null)
 
@@ -72,7 +77,7 @@ export function Drawer({
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault()
-        closeOverlay()
+        close()
         return
       }
       if (e.key !== 'Tab' || !panelRef.current) return
@@ -97,10 +102,10 @@ export function Drawer({
   return (
     <div
       className={`overlay ${open ? 'overlay--open' : ''}`}
-      aria-hidden={!open}
+      {...inertWhenClosed(open)}
       onClick={(e) => {
         // Only close on backdrop click, not clicks inside the panel.
-        if (e.target === e.currentTarget) closeOverlay()
+        if (e.target === e.currentTarget) close()
       }}
     >
       <div

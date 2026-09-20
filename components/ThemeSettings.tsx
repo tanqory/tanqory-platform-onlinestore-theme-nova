@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { useData, useSettings } from '@tanqory/theme-kit'
 import {
   fontStylesheetHref,
+  resolveRootFlags,
   resolveThemeVars,
   themeSettingsCss,
   type BrandFallback,
@@ -10,6 +11,9 @@ import {
 import { isEditorPreview, readLiveSettingsMessage, studioOrigins } from '../lib/live-settings'
 
 const EffectiveSettingsContext = createContext<ThemeSettings | null>(null)
+
+/** Every root `data-*` this theme owns — so an unset flag can be cleared. */
+const ROOT_FLAG_ATTRS = ['cardBorder', 'buttonBorder', 'cardHover', 'badgeStyle', 'buttonText', 'typeScale', 'productFit', 'iconStyle'] as const
 
 /**
  * Theme settings as the storefront should render them right now: the built
@@ -57,6 +61,20 @@ export function ThemeSettingsProvider({ children }: { children: ReactNode }): JS
   }, [])
 
   const settings = useMemo(() => (live ? { ...built, ...live } : built), [built, live])
+
+  // Behaviour switches (card hover, badge style, type scale, …) are `data-*` on
+  // the root element so CSS branches on them. Applied from the EFFECTIVE
+  // settings, so they follow the editor's live preview exactly like the
+  // colours do; a flag that is no longer set is removed, not left stale.
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    const root = document.documentElement
+    const flags = resolveRootFlags(settings)
+    for (const attr of ROOT_FLAG_ATTRS) {
+      if (attr in flags) root.dataset[attr] = flags[attr]
+      else delete root.dataset[attr]
+    }
+  }, [settings])
   const brand = (data.shop as { brand?: BrandFallback | null } | null | undefined)?.brand ?? null
   const css = themeSettingsCss(resolveThemeVars(settings, brand))
   const fontHref = fontStylesheetHref(settings, brand)

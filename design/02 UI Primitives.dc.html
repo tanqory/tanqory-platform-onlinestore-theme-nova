@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#E9E7E3} a{color:#1B1A18} a:hover{color:#5C5955} @keyframes tq-spin{to{transform:rotate(360deg)}} @keyframes tq-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}</style>
+</helmet>
+<div style="font-family:'Instrument Sans',Helvetica,Arial,sans-serif;color:#1B1A18;padding:64px;display:flex;flex-direction:column;gap:48px;width:1440px;box-sizing:border-box">
+
+<header style="display:flex;justify-content:space-between;align-items:flex-end;gap:32px">
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C5955;letter-spacing:.04em">TANQORY NOVA · 02 / 06</span>
+    <h1 style="margin:0;font-size:40px;line-height:1.1;font-weight:500;letter-spacing:-.02em">UI Primitives</h1>
+    <p style="margin:0;font-size:16px;line-height:24px;color:#5C5955;max-width:720px;text-wrap:pretty">Every interactive primitive in all states. Focus is always a 2px ring at 2px offset in Primary; state is never color-only; all touch targets ≥ 44px on mobile.</p>
+  </div>
+  <nav style="display:flex;gap:8px;font-size:13px">
+    <a href="01 Style System.dc.html" style="padding:8px 12px;border:1px solid #C9C6C0;border-radius:4px;text-decoration:none;background:#fff">← 01 Style</a>
+    <a href="03 Commerce Components.dc.html" style="padding:8px 12px;border:1px solid #C9C6C0;border-radius:4px;text-decoration:none;background:#fff">03 Commerce →</a>
+  </nav>
+</header>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;justify-content:space-between;align-items:baseline"><h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Button</h2><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A867F">sizes: sm 36 · md 44 · lg 52 · radius Small · min-width 0 · full-width on mobile where it is the primary action</span></div>
+  <div style="display:grid;grid-template-columns:120px repeat(6,minmax(0,1fr));gap:12px 16px;align-items:center">
+    <span></span>
+    <sc-for list="{{ btnStates }}" as="s" hint-placeholder-count="6"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A867F;text-align:center">{{ s }}</span></sc-for>
+    <sc-for list="{{ buttons }}" as="row" hint-placeholder-count="6">
+      <span style="font-size:14px;font-weight:500">{{ row.name }}</span>
+      <sc-for list="{{ row.cells }}" as="c" hint-placeholder-count="6">
+        <button style="height:44px;padding:0 20px;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.border }};border-radius:4px;font:inherit;font-size:14px;font-weight:500;outline:{{ c.outline }};outline-offset:2px;opacity:{{ c.opacity }};text-decoration:{{ c.td }};text-underline-offset:3px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:default;white-space:nowrap">
+          <sc-if value="{{ c.loading }}" hint-placeholder-val="{{ false }}"><span style="width:14px;height:14px;border:2px solid {{ c.spinTrack }};border-top-color:{{ c.fg }};border-radius:50%;animation:tq-spin 800ms linear infinite"></span></sc-if>
+          <span>{{ c.label }}</span>
+        </button>
+      </sc-for>
+    </sc-for>
+  </div>
+  <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding-top:8px;border-top:1px solid #E6E4E0">
+    <button style="height:36px;padding:0 14px;background:#1B1A18;color:#fff;border:0;border-radius:4px;font:inherit;font-size:13px;font-weight:500">Small</button>
+    <button style="height:44px;padding:0 20px;background:#1B1A18;color:#fff;border:0;border-radius:4px;font:inherit;font-size:14px;font-weight:500">Medium</button>
+    <button style="height:52px;padding:0 24px;background:#1B1A18;color:#fff;border:0;border-radius:4px;font:inherit;font-size:15px;font-weight:500">Large</button>
+    <button style="height:44px;padding:0 20px 0 16px;background:#fff;color:#1B1A18;border:1px solid #C9C6C0;border-radius:4px;font:inherit;font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px"><span style="width:16px;height:16px;border:1.5px solid currentColor;border-radius:3px"></span>Icon left</button>
+    <button style="height:44px;padding:0 16px 0 20px;background:#fff;color:#1B1A18;border:1px solid #C9C6C0;border-radius:4px;font:inherit;font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px">Icon right<span style="width:8px;height:8px;border-right:1.5px solid currentColor;border-top:1.5px solid currentColor;transform:rotate(45deg)"></span></button>
+    <div style="width:300px"><button style="width:100%;height:48px;background:#1B1A18;color:#fff;border:0;border-radius:4px;font:inherit;font-size:15px;font-weight:500">Full width (mobile primary)</button></div>
+    <span style="font-size:13px;color:#5C5955;line-height:18px;max-width:300px">Long label: text wraps to 2 lines inside the min-height rather than truncating. Translations may grow 30%.</span>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:48px">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:20px;font-weight:500">IconButton</h2>
+    <div style="display:flex;gap:12px;align-items:center">
+      <sc-for list="{{ iconBtns }}" as="b" hint-placeholder-count="5">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><span style="width:44px;height:44px;border-radius:4px;display:flex;align-items:center;justify-content:center;background:{{ b.bg }};border:1px solid {{ b.border }};outline:{{ b.outline }};outline-offset:2px;opacity:{{ b.opacity }};position:relative"><span style="width:20px;height:20px;border:1.5px solid #1B1A18;border-radius:4px"></span><sc-if value="{{ b.count }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:2px;right:2px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#1B1A18;color:#fff;font-size:11px;font-weight:500;line-height:18px;text-align:center;font-variant-numeric:tabular-nums">3</span></sc-if></span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8A867F">{{ b.name }}</span></div>
+      </sc-for>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:18px;color:#5C5955">44×44 hit area, 20px glyph. Ghost by default; bordered variant in toolbars. Count badge is pill, Primary, tabular. Tooltip appears on hover and on focus.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:20px;font-weight:500">Text Link</h2>
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:15px">
+      <a href="#" style="text-decoration:underline;text-underline-offset:3px;text-decoration-color:#C9C6C0;width:max-content">Default — underline in Border Strong</a>
+      <a href="#" style="text-decoration:underline;text-underline-offset:3px;text-decoration-color:#1B1A18;width:max-content">Hover — underline turns Text Primary</a>
+      <a href="#" style="text-decoration:underline;text-underline-offset:3px;outline:2px solid #1B1A18;outline-offset:2px;border-radius:2px;width:max-content">Focus — ring</a>
+      <a href="#" style="text-decoration:none;font-weight:500;display:flex;align-items:center;gap:6px;width:max-content">Standalone link (View all)<span style="width:7px;height:7px;border-right:1.5px solid currentColor;border-top:1.5px solid currentColor;transform:rotate(45deg)"></span></a>
+      <a href="#" style="color:#8A867F;text-decoration:underline;text-underline-offset:3px;pointer-events:none;width:max-content">Disabled / visited stays Text Primary</a>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:20px;font-weight:500">Badge · Chip</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <sc-for list="{{ badges }}" as="b" hint-placeholder-count="6"><span style="font-size:12px;font-weight:500;line-height:20px;padding:0 8px;border-radius:4px;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.border }}">{{ b.label }}</span></sc-for>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <sc-for list="{{ chips }}" as="c" hint-placeholder-count="5"><span style="height:36px;padding:0 14px;border-radius:999px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-size:14px;display:inline-flex;align-items:center;gap:8px;outline:{{ c.outline }};outline-offset:2px;opacity:{{ c.opacity }}">{{ c.label }}<sc-if value="{{ c.x }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;line-height:1">×</span></sc-if></span></sc-for>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:18px;color:#5C5955">Badges are informational, never interactive; Sold out uses Surface + Text Secondary so it recedes. Chips are interactive (filters, applied facets); selected = Primary fill, removable chips show × with 44px hit area on touch.</p>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;justify-content:space-between;align-items:baseline"><h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Input · Textarea · Select</h2><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A867F">height 48 · radius Small · border default → Text Primary on focus (+ring) · label above, 13/500 · helper 13 Text Secondary · error 13 Critical with icon</span></div>
+  <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px">
+    <sc-for list="{{ inputs }}" as="i" hint-placeholder-count="6">
+      <label style="display:flex;flex-direction:column;gap:6px;opacity:{{ i.opacity }}">
+        <span style="font-size:13px;font-weight:500;color:{{ i.labelColor }}">{{ i.label }}</span>
+        <span style="height:48px;border:1px solid {{ i.border }};border-radius:4px;background:{{ i.bg }};display:flex;align-items:center;padding:0 14px;font-size:15px;color:{{ i.fg }};outline:{{ i.outline }};outline-offset:2px;justify-content:space-between"><span>{{ i.value }}</span><sc-if value="{{ i.icon }}" hint-placeholder-val="{{ false }}"><span style="width:16px;height:16px;border-radius:50%;background:{{ i.iconBg }};display:inline-block"></span></sc-if></span>
+        <span style="font-size:13px;line-height:18px;color:{{ i.helpColor }}">{{ i.help }}</span>
+      </label>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:16px;align-items:start">
+    <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Message</span><span style="min-height:120px;border:1px solid #C9C6C0;border-radius:4px;padding:12px 14px;font-size:15px;color:#8A867F;display:block">Textarea — resizes vertically only, min 3 rows, character count optional bottom-right</span></label>
+    <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Country</span><span style="height:48px;border:1px solid #C9C6C0;border-radius:4px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:15px">Select<span style="width:8px;height:8px;border-right:1.5px solid #1B1A18;border-bottom:1.5px solid #1B1A18;transform:rotate(45deg) translateY(-3px)"></span></span></label>
+    <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Select open</span><div style="position:relative"><span style="height:48px;border:1px solid #1B1A18;border-radius:4px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:15px;outline:2px solid #1B1A18;outline-offset:2px">Canada<span style="width:8px;height:8px;border-right:1.5px solid #1B1A18;border-top:1.5px solid #1B1A18;transform:rotate(-45deg) translateY(3px)"></span></span><div style="position:absolute;top:56px;left:0;right:0;background:#fff;border:1px solid #E6E4E0;border-radius:8px;box-shadow:0 4px 16px rgba(27,26,24,.10);padding:6px;font-size:14px;z-index:2"><div style="padding:10px 12px;border-radius:4px">Australia</div><div style="padding:10px 12px;border-radius:4px;background:#F4F3F1;font-weight:500;display:flex;justify-content:space-between">Canada<span>✓</span></div><div style="padding:10px 12px;border-radius:4px">Germany</div></div></div></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Search input</span><span style="height:48px;border:1px solid #C9C6C0;border-radius:4px;display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;color:#8A867F"><span style="width:16px;height:16px;border:1.5px solid #5C5955;border-radius:50%"></span>Search products</span><span style="font-size:13px;color:#5C5955">Mobile: type=search, 16px font (prevents zoom), clear button when filled.</span></div>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:48px">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:20px;font-weight:500">Checkbox</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;font-size:15px">
+      <sc-for list="{{ checks }}" as="c" hint-placeholder-count="5">
+        <label style="display:flex;align-items:center;gap:12px;min-height:24px;opacity:{{ c.opacity }}"><span style="width:20px;height:20px;border-radius:4px;border:1.5px solid {{ c.border }};background:{{ c.bg }};display:flex;align-items:center;justify-content:center;outline:{{ c.outline }};outline-offset:2px;flex:none"><sc-if value="{{ c.on }}" hint-placeholder-val="{{ false }}"><span style="width:5px;height:10px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg) translate(-1px,-1px)"></span></sc-if><sc-if value="{{ c.mixed }}" hint-placeholder-val="{{ false }}"><span style="width:10px;height:2px;background:#fff"></span></sc-if></span>{{ c.label }}</label>
+      </sc-for>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:20px;font-weight:500">Radio</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;font-size:15px">
+      <sc-for list="{{ radios }}" as="r" hint-placeholder-count="4">
+        <label style="display:flex;align-items:center;gap:12px;min-height:24px;opacity:{{ r.opacity }}"><span style="width:20px;height:20px;border-radius:50%;border:1.5px solid {{ r.border }};display:flex;align-items:center;justify-content:center;outline:{{ r.outline }};outline-offset:2px;flex:none"><sc-if value="{{ r.on }}" hint-placeholder-val="{{ false }}"><span style="width:10px;height:10px;border-radius:50%;background:#1B1A18"></span></sc-if></span>{{ r.label }}</label>
+      </sc-for>
+    </div>
+    <div style="border:1px solid #1B1A18;border-radius:4px;padding:14px 16px;display:flex;justify-content:space-between;font-size:15px;background:#FCFCFB"><span style="display:flex;gap:12px;align-items:center"><span style="width:20px;height:20px;border-radius:50%;border:1.5px solid #1B1A18;display:flex;align-items:center;justify-content:center"><span style="width:10px;height:10px;border-radius:50%;background:#1B1A18"></span></span>Radio card — shipping method</span><span style="font-variant-numeric:tabular-nums;font-weight:500">$8.00</span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:20px;font-weight:500">Toggle</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;font-size:15px">
+      <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="4">
+        <label style="display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:28px;opacity:{{ t.opacity }}">{{ t.label }}<span style="width:44px;height:26px;border-radius:999px;background:{{ t.bg }};position:relative;outline:{{ t.outline }};outline-offset:2px;flex:none;transition:background 120ms"><span style="position:absolute;top:3px;left:{{ t.knob }}px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)"></span></span></label>
+      </sc-for>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:18px;color:#5C5955">Toggle applies immediately (no save). Label always on the left; state also read as “On/Off” to screen readers.</p>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:48px">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:20px;font-weight:500">Accordion</h2>
+    <div style="border-top:1px solid #E6E4E0">
+      <sc-for list="{{ accordion }}" as="a" hint-placeholder-count="3">
+        <div style="border-bottom:1px solid #E6E4E0">
+          <div style="display:flex;justify-content:space-between;align-items:center;min-height:56px;font-size:16px;font-weight:500;outline:{{ a.outline }};outline-offset:-2px;padding:0 4px"><span>{{ a.title }}</span><span style="width:8px;height:8px;border-right:1.5px solid #1B1A18;border-bottom:1.5px solid #1B1A18;transform:{{ a.chev }};transition:transform 200ms"></span></div>
+          <sc-if value="{{ a.open }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:0 4px 20px;font-size:15px;line-height:22px;color:#5C5955">{{ a.body }}</p></sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:18px;color:#5C5955">Whole row is the button. Chevron rotates 180°. Height animates Standard. Multiple open allowed by default; FAQ may set single-open.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:20px;font-weight:500">Tabs</h2>
+    <div style="display:flex;gap:24px;border-bottom:1px solid #E6E4E0;font-size:15px">
+      <span style="padding:12px 0;border-bottom:2px solid #1B1A18;font-weight:500;margin-bottom:-1px">Description</span><span style="padding:12px 0;color:#5C5955">Details</span><span style="padding:12px 0;color:#5C5955;outline:2px solid #1B1A18;outline-offset:-2px;border-radius:2px">Care</span><span style="padding:12px 0;color:#8A867F">Reviews</span>
+    </div>
+    <div style="display:flex;gap:4px;padding:4px;background:#F4F3F1;border-radius:4px;font-size:14px;width:max-content"><span style="padding:8px 16px;background:#fff;border-radius:3px;font-weight:500;box-shadow:0 1px 2px rgba(27,26,24,.08)">Grid</span><span style="padding:8px 16px;color:#5C5955">List</span></div>
+    <p style="margin:0;font-size:13px;line-height:18px;color:#5C5955">Underline tabs for content; segmented tabs for view switching. Arrow keys move focus; tab list scrolls horizontally on mobile with edge fade — never wraps to two rows.</p>
+    <h2 style="margin:16px 0 0;font-size:20px;font-weight:500">Breadcrumb · Pagination</h2>
+    <div style="display:flex;gap:8px;font-size:13px;color:#5C5955;align-items:center"><a href="#" style="text-decoration:none;color:#5C5955">Home</a><span>/</span><a href="#" style="text-decoration:none;color:#5C5955">Home goods</a><span>/</span><span style="color:#1B1A18">Ceramic mug</span></div>
+    <div style="display:flex;gap:4px;align-items:center;font-size:14px;font-variant-numeric:tabular-nums">
+      <sc-for list="{{ pages }}" as="p" hint-placeholder-count="7"><span style="min-width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;background:{{ p.bg }};color:{{ p.fg }};border:1px solid {{ p.border }};padding:0 6px">{{ p.label }}</span></sc-for>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:18px;color:#5C5955">Mobile: breadcrumb shows “‹ Parent” only. Pagination collapses to Prev · 3 / 12 · Next. Large catalogs prefer “Load more” + count.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:20px;font-weight:500">Tooltip · Popover · Toast</h2>
+    <div style="display:flex;gap:16px;align-items:flex-start">
+      <div style="position:relative;padding-top:36px"><span style="position:absolute;top:0;left:0;background:#1B1A18;color:#fff;font-size:12px;line-height:16px;padding:6px 8px;border-radius:4px;white-space:nowrap">Add to wishlist</span><span style="width:44px;height:44px;border:1px solid #C9C6C0;border-radius:4px;display:flex;align-items:center;justify-content:center"><span style="width:20px;height:20px;border:1.5px solid #1B1A18;border-radius:4px"></span></span></div>
+      <div style="background:#fff;border:1px solid #E6E4E0;border-radius:8px;box-shadow:0 4px 16px rgba(27,26,24,.10);padding:16px;width:220px;font-size:14px;display:flex;flex-direction:column;gap:8px"><strong style="font-weight:500">Size guide</strong><span style="color:#5C5955;line-height:20px">Popover: anchored, 8px offset, closes on Esc and outside click. Focus moves inside.</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ toasts }}" as="t" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:#1B1A18;color:#fff;border-radius:8px;box-shadow:0 2px 12px rgba(27,26,24,.12);font-size:14px"><span style="width:8px;height:8px;border-radius:50%;background:{{ t.dot }};flex:none"></span><span style="flex:1">{{ t.msg }}</span><sc-if value="{{ t.action }}" hint-placeholder-val="{{ false }}"><span style="font-weight:500;text-decoration:underline;text-underline-offset:3px">{{ t.action }}</span></sc-if></div>
+      </sc-for>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:18px;color:#5C5955">Toast bottom-center (mobile: above sticky bar), 5s, pauses on hover/focus, role=status. Only one visible; newer replaces older.</p>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:grid;grid-template-columns:minmax(0,1fr) 380px 390px;gap:32px;align-items:start">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:20px;font-weight:500">Modal</h2>
+    <div style="background:rgba(20,19,18,.48);padding:48px;border-radius:4px;display:flex;justify-content:center">
+      <div style="background:#fff;border-radius:12px;box-shadow:0 16px 48px rgba(27,26,24,.18);width:480px;padding:32px;display:flex;flex-direction:column;gap:20px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px"><h3 style="margin:0;font-size:24px;font-weight:500;line-height:1.2">Size guide</h3><span style="width:44px;height:44px;margin:-12px -12px 0 0;display:flex;align-items:center;justify-content:center;font-size:20px;color:#5C5955">×</span></div>
+        <p style="margin:0;font-size:15px;line-height:22px;color:#5C5955">Modal for short, focused tasks. Width 480 / 640 / 800. Body scrolls; header and footer stay. Mobile: becomes a bottom sheet with 12px top radius and drag handle.</p>
+        <div style="display:flex;gap:8px;justify-content:flex-end"><button style="height:44px;padding:0 20px;background:#fff;color:#1B1A18;border:1px solid #C9C6C0;border-radius:4px;font:inherit;font-size:14px;font-weight:500">Cancel</button><button style="height:44px;padding:0 20px;background:#1B1A18;color:#fff;border:0;border-radius:4px;font:inherit;font-size:14px;font-weight:500">Continue</button></div>
+      </div>
+    </div>
+    <h2 style="margin:16px 0 0;font-size:20px;font-weight:500">Divider · Skeleton · Spinner</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;align-items:center">
+      <div style="display:flex;flex-direction:column;gap:12px"><div style="height:1px;background:#E6E4E0"></div><div style="height:1px;background:#C9C6C0"></div><div style="display:flex;align-items:center;gap:12px;font-size:12px;color:#8A867F"><span style="flex:1;height:1px;background:#E6E4E0"></span>or<span style="flex:1;height:1px;background:#E6E4E0"></span></div></div>
+      <div style="display:flex;flex-direction:column;gap:8px"><div style="aspect-ratio:4/5;max-height:90px;background:linear-gradient(90deg,#F4F3F1 25%,#ECEAE6 50%,#F4F3F1 75%);background-size:200% 100%;animation:tq-shimmer 1.6s linear infinite;border-radius:4px"></div><div style="height:12px;width:80%;background:#F4F3F1;border-radius:2px"></div><div style="height:12px;width:40%;background:#F4F3F1;border-radius:2px"></div></div>
+      <div style="display:flex;gap:16px;align-items:center"><span style="width:16px;height:16px;border:2px solid #E6E4E0;border-top-color:#1B1A18;border-radius:50%;animation:tq-spin 800ms linear infinite"></span><span style="width:24px;height:24px;border:2px solid #E6E4E0;border-top-color:#1B1A18;border-radius:50%;animation:tq-spin 800ms linear infinite"></span><span style="width:32px;height:32px;border:2px solid #E6E4E0;border-top-color:#1B1A18;border-radius:50%;animation:tq-spin 800ms linear infinite"></span><span style="font-size:12px;color:#8A867F">16 · 24 · 32</span></div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:20px;font-weight:500">Drawer (desktop, right)</h2>
+    <div style="background:rgba(20,19,18,.48);height:520px;position:relative;border-radius:4px;overflow:hidden">
+      <div style="position:absolute;top:0;right:0;bottom:0;width:300px;background:#fff;box-shadow:-8px 0 32px rgba(27,26,24,.14);display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #E6E4E0"><span style="font-size:20px;font-weight:500">Filter</span><span style="font-size:20px;color:#5C5955">×</span></div>
+        <div style="flex:1;padding:24px;display:flex;flex-direction:column;gap:16px;font-size:15px;color:#5C5955"><span>Body scrolls independently.</span><span>Panel width 420 (cart), 360 (filters). Slides in Slow / ease-enter. Focus trapped; Esc closes; returns focus to trigger.</span></div>
+        <div style="padding:16px 24px;border-top:1px solid #E6E4E0"><button style="width:100%;height:48px;background:#1B1A18;color:#fff;border:0;border-radius:4px;font:inherit;font-size:15px;font-weight:500">Show 48 results</button></div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:20px;font-weight:500">Empty · Error · Loading (mobile 390)</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:12px">
+      <sc-for list="{{ states }}" as="s" hint-placeholder-count="3">
+        <div style="border:1px solid #E6E4E0;border-radius:4px;padding:32px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px">
+          <span style="width:40px;height:40px;border-radius:50%;border:1.5px solid {{ s.ring }};display:flex;align-items:center;justify-content:center;color:{{ s.ring }};font-size:18px">{{ s.glyph }}</span>
+          <strong style="font-size:18px;font-weight:500">{{ s.title }}</strong>
+          <span style="font-size:14px;line-height:20px;color:#5C5955;max-width:280px">{{ s.body }}</span>
+          <sc-if value="{{ s.cta }}" hint-placeholder-val="{{ false }}"><button style="height:44px;padding:0 20px;background:{{ s.ctaBg }};color:{{ s.ctaFg }};border:1px solid {{ s.ctaBorder }};border-radius:4px;font:inherit;font-size:14px;font-weight:500;margin-top:4px">{{ s.cta }}</button></sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const btnStates = ['Default', 'Hover', 'Focus', 'Active', 'Disabled', 'Loading'];
+    const mk = (name, base, hover, active) => ({ name, cells: btnStates.map((s, i) => {
+      const v = i === 1 ? hover : i === 3 ? active : base;
+      return { label: name === 'Destructive' ? 'Remove' : name, bg: v.bg, fg: v.fg, border: v.border, outline: i === 2 ? '2px solid #1B1A18' : 'none', opacity: i === 4 ? .4 : 1, loading: i === 5, td: v.td || 'none', spinTrack: v.bg === 'transparent' || v.bg === '#FFFFFF' ? '#E6E4E0' : 'rgba(255,255,255,.35)' };
+    }) });
+    const buttons = [
+      mk('Primary', { bg: '#1B1A18', fg: '#fff', border: '#1B1A18' }, { bg: '#333130', fg: '#fff', border: '#333130' }, { bg: '#0E0D0C', fg: '#fff', border: '#0E0D0C' }),
+      mk('Secondary', { bg: '#FFFFFF', fg: '#1B1A18', border: '#C9C6C0' }, { bg: '#F4F3F1', fg: '#1B1A18', border: '#1B1A18' }, { bg: '#ECEAE6', fg: '#1B1A18', border: '#1B1A18' }),
+      mk('Tertiary', { bg: '#F4F3F1', fg: '#1B1A18', border: '#F4F3F1' }, { bg: '#ECEAE6', fg: '#1B1A18', border: '#ECEAE6' }, { bg: '#E3E0DB', fg: '#1B1A18', border: '#E3E0DB' }),
+      mk('Ghost', { bg: 'transparent', fg: '#1B1A18', border: 'transparent' }, { bg: '#F4F3F1', fg: '#1B1A18', border: 'transparent' }, { bg: '#ECEAE6', fg: '#1B1A18', border: 'transparent' }),
+      mk('Text', { bg: 'transparent', fg: '#1B1A18', border: 'transparent', td: 'underline' }, { bg: 'transparent', fg: '#5C5955', border: 'transparent', td: 'underline' }, { bg: 'transparent', fg: '#0E0D0C', border: 'transparent', td: 'underline' }),
+      mk('Destructive', { bg: '#FFFFFF', fg: '#B3261E', border: '#C9C6C0' }, { bg: '#FBEDEC', fg: '#B3261E', border: '#B3261E' }, { bg: '#F5D9D6', fg: '#8E1D17', border: '#8E1D17' })
+    ];
+    const iconBtns = [['default', 'transparent', 'transparent', 'none', 1, false], ['hover', '#F4F3F1', 'transparent', 'none', 1, false], ['focus', 'transparent', 'transparent', '2px solid #1B1A18', 1, false], ['bordered', '#fff', '#C9C6C0', 'none', 1, false], ['with count', 'transparent', 'transparent', 'none', 1, true], ['disabled', 'transparent', 'transparent', 'none', .4, false]].map(a => ({ name: a[0], bg: a[1], border: a[2], outline: a[3], opacity: a[4], count: a[5] }));
+    const badges = [['Sale', '#B3261E', '#fff', '#B3261E'], ['New', '#1B1A18', '#fff', '#1B1A18'], ['Sold out', '#fff', '#5C5955', '#E6E4E0'], ['Low stock', '#FFF4E5', '#8A4B00', '#FFF4E5'], ['In stock', '#E8F3EC', '#1F7A4D', '#E8F3EC'], ['Pre-order', '#F4F3F1', '#1B1A18', '#F4F3F1']].map(a => ({ label: a[0], bg: a[1], fg: a[2], border: a[3] }));
+    const chips = [['Default', '#C9C6C0', '#fff', '#1B1A18', 'none', 1, false], ['Hover', '#1B1A18', '#fff', '#1B1A18', 'none', 1, false], ['Selected', '#1B1A18', '#1B1A18', '#fff', 'none', 1, false], ['Focus', '#C9C6C0', '#fff', '#1B1A18', '2px solid #1B1A18', 1, false], ['Size: M', '#1B1A18', '#1B1A18', '#fff', 'none', 1, true], ['Disabled', '#E6E4E0', '#fff', '#8A867F', 'none', .6, false]].map(a => ({ label: a[0], border: a[1], bg: a[2], fg: a[3], outline: a[4], opacity: a[5], x: a[6] }));
+    const inputs = [
+      ['Default', 'Email address', '#C9C6C0', '#fff', '#8A867F', 'name@example.com', 'none', 'We only use this for your order.', '#5C5955', 1, '#1B1A18', false, ''],
+      ['Hover', 'Email address', '#1B1A18', '#fff', '#8A867F', 'name@example.com', 'none', 'Border → Text Primary', '#5C5955', 1, '#1B1A18', false, ''],
+      ['Focus', 'Email address', '#1B1A18', '#fff', '#1B1A18', 'sam@', '2px solid #1B1A18', 'Ring + strong border', '#5C5955', 1, '#1B1A18', false, ''],
+      ['Filled', 'Email address', '#C9C6C0', '#fff', '#1B1A18', 'sam@example.com', 'none', ' ', '#5C5955', 1, '#1B1A18', false, ''],
+      ['Error', 'Email address', '#B3261E', '#fff', '#1B1A18', 'sam@example', 'none', '⚠ Enter a valid email address', '#B3261E', 1, '#1B1A18', true, '#B3261E'],
+      ['Success / Disabled', 'Email address', '#E6E4E0', '#F4F3F1', '#8A867F', 'sam@example.com', 'none', '✓ Verified · disabled shows Surface Secondary fill', '#1F7A4D', .7, '#8A867F', true, '#1F7A4D']
+    ].map(a => ({ state: a[0], label: a[1], border: a[2], bg: a[3], fg: a[4], value: a[5], outline: a[6], help: a[7], helpColor: a[8], opacity: a[9], labelColor: a[10], icon: a[11], iconBg: a[12] }));
+    const checks = [['Unchecked', '#C9C6C0', '#fff', 'none', 1, false, false], ['Checked', '#1B1A18', '#1B1A18', 'none', 1, true, false], ['Indeterminate', '#1B1A18', '#1B1A18', 'none', 1, false, true], ['Focus', '#1B1A18', '#fff', '2px solid #1B1A18', 1, false, false], ['Disabled', '#E6E4E0', '#F4F3F1', 'none', .5, false, false]].map(a => ({ label: a[0], border: a[1], bg: a[2], outline: a[3], opacity: a[4], on: a[5], mixed: a[6] }));
+    const radios = [['Unselected', '#C9C6C0', 'none', 1, false], ['Selected', '#1B1A18', 'none', 1, true], ['Focus', '#1B1A18', '2px solid #1B1A18', 1, false], ['Disabled', '#E6E4E0', 'none', .5, false]].map(a => ({ label: a[0], border: a[1], outline: a[2], opacity: a[3], on: a[4] }));
+    const toggles = [['Off', '#C9C6C0', 3, 'none', 1], ['On', '#1B1A18', 21, 'none', 1], ['Focus', '#1B1A18', 21, '2px solid #1B1A18', 1], ['Disabled', '#E6E4E0', 3, 'none', .5]].map(a => ({ label: a[0], bg: a[1], knob: a[2], outline: a[3], opacity: a[4] }));
+    const accordion = [{ title: 'Materials and care', open: true, chev: 'rotate(225deg) translateY(-3px)', outline: 'none', body: 'Open state. Body uses Body / Text Secondary. Long content simply grows; no inner scroll.' }, { title: 'Shipping and returns', open: false, chev: 'rotate(45deg) translateY(-3px)', outline: 'none' }, { title: 'Focused item', open: false, chev: 'rotate(45deg) translateY(-3px)', outline: '2px solid #1B1A18' }];
+    const pages = [['‹', '#fff', '#5C5955', '#E6E4E0'], ['1', '#fff', '#1B1A18', '#E6E4E0'], ['2', '#1B1A18', '#fff', '#1B1A18'], ['3', '#fff', '#1B1A18', '#E6E4E0'], ['…', 'transparent', '#8A867F', 'transparent'], ['12', '#fff', '#1B1A18', '#E6E4E0'], ['›', '#fff', '#1B1A18', '#E6E4E0']].map(a => ({ label: a[0], bg: a[1], fg: a[2], border: a[3] }));
+    const toasts = [{ msg: 'Added to cart', dot: '#4CBF7C', action: 'View cart' }, { msg: 'Only 2 left — quantity adjusted', dot: '#E8A045', action: '' }, { msg: 'Could not update cart. Try again.', dot: '#E5675F', action: 'Retry' }];
+    const states = [
+      { glyph: '○', ring: '#C9C6C0', title: 'No products found', body: 'Empty: one sentence, one action. Never an illustration. Optional secondary link.', cta: 'Browse all products', ctaBg: '#1B1A18', ctaFg: '#fff', ctaBorder: '#1B1A18' },
+      { glyph: '!', ring: '#B3261E', title: 'Something went wrong', body: 'Error: plain explanation, retry as secondary button, error is announced via role=alert.', cta: 'Try again', ctaBg: '#fff', ctaFg: '#1B1A18', ctaBorder: '#C9C6C0' },
+      { glyph: '', ring: '#E6E4E0', title: 'Loading', body: 'Loading: skeleton at final layout where structure is known; spinner + label only for indeterminate actions. aria-busy on the region.', cta: '' }
+    ];
+    return { btnStates, buttons, iconBtns, badges, chips, inputs, checks, radios, toggles, accordion, pages, toasts, states };
+  }
+}
+</script>
+</body>
+</html>

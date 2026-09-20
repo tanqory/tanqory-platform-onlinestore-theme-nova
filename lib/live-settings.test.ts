@@ -8,6 +8,7 @@ import {
   isExactOrigin,
   readLiveSettingsMessage,
   studioOrigins,
+  sanitizeLiveSettings,
 } from './live-settings.ts'
 
 const parent = { name: 'studio window' }
@@ -46,10 +47,19 @@ test('a page that frames the store cannot drive it: foreign origins and non-pare
   assert.equal(readLiveSettingsMessage(msg({ accent: '#ff0000' }, { type: 'tq:set-content' }), ctx), null)
 })
 
-test('only the 8 style keys pass, each type-checked; links, copy and non-strings are dropped', () => {
+test('only STYLE keys pass, each type-checked; links, copy and non-strings are dropped', () => {
+  // The whole list, pinned: a key added here is a key an editor frame can set
+  // on a live preview. Brand + the design's global style props — never a link,
+  // a menu handle, copy or a feature toggle.
   assert.deepEqual([...LIVE_SETTINGS_KEYS].sort(), [
-    'accent', 'colorBackground', 'colorBrand', 'colorText', 'fontBody', 'fontHeading', 'logo', 'shopName',
+    'accent', 'badgeStyle', 'bodyFont', 'buttonBorder', 'buttonRadius', 'buttonTextStyle', 'cardBorder', 'cardHoverEffect',
+    'cardRadius', 'colorBackground', 'colorBorder', 'colorBrand', 'colorPrimary', 'colorSale', 'colorSecondarySurface',
+    'colorText', 'fontBody', 'fontHeading', 'headingFont', 'headingWeight', 'iconStyle', 'inputRadius', 'logo', 'motion',
+    'pageWidth', 'productImageFit', 'productImageRatio', 'sectionSpacing', 'shopName', 'typeScale',
   ])
+  for (const key of LIVE_SETTINGS_KEYS) {
+    assert.doesNotMatch(key, /href|link|menu|handle|label|subtext|placeholder|^enable|^account|^cart[A-Z]|^search|^footer|^mobileNav|powered/i, key)
+  }
   const result = readLiveSettingsMessage(
     msg({
       accountPrimaryHref: 'javascript:alert(document.cookie)',
@@ -83,4 +93,22 @@ test('studio origins are exact, configurable, never wildcards', () => {
   assert.deepEqual(studioOrigins('*', false), [...DEFAULT_STUDIO_ORIGINS])
   assert.equal(isExactOrigin('http://studio.localhost:4799'), true)
   assert.equal(isExactOrigin('https://studio.tanqory.com/'), false)
+})
+
+
+test('the live preview accepts every global prop the resolver handles, and nothing else', () => {
+  const ok = sanitizeLiveSettings({
+    colorPrimary: '#0055ff', headingFont: 'Inter', bodyFont: 'Lora', colorSale: '#aa0000', colorBorder: '#cccccc',
+    buttonRadius: 'pill', pageWidth: 'standard', sectionSpacing: 'large', productImageRatio: 'adapt', motion: 'reduced',
+    cardHoverEffect: 'image-swap', badgeStyle: 'outline', cardBorder: true, typeScale: 'large',
+  })
+  assert.deepEqual(Object.keys(ok).sort(), [
+    'badgeStyle', 'bodyFont', 'buttonRadius', 'cardBorder', 'cardHoverEffect', 'colorBorder', 'colorPrimary', 'colorSale',
+    'headingFont', 'motion', 'pageWidth', 'productImageRatio', 'sectionSpacing', 'typeScale',
+  ])
+  // A rung the resolver has no token for, a pixel value, markup in a flag, an unknown key: all dropped.
+  assert.deepEqual(
+    sanitizeLiveSettings({ buttonRadius: '19px', pageWidth: 'huge', cardHoverEffect: '"><script>', colorSale: 'red;}', somethingElse: 'x' }),
+    {},
+  )
 })

@@ -12,6 +12,7 @@ export function IconBlock({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'icon',
+  role: 'block',
   title: 'Icon',
   category: 'block',
   icon: '✶',

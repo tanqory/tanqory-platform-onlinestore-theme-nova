@@ -26,6 +26,7 @@ export function ColumnItem({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'column',
+  role: 'block',
   title: 'Column',
   category: 'block',
   icon: '▥',

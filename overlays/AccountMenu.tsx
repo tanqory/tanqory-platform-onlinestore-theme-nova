@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useT } from '@tanqory/theme-kit'
 import { closeOverlay, useOverlay } from '../components/useOverlayChannel'
+import { inertWhenClosed } from '../components/inert'
+import { Button } from '../components/Button'
 import { parseAccountLinks, safeHref } from '../lib/safe-href'
 import { accountLinkLabel } from '../lib/theme-locale'
 
@@ -136,19 +138,30 @@ export function AccountMenu(props: AccountMenuProps): JSX.Element {
       role="dialog"
       aria-modal="false"
       aria-label={t('account.menuLabel')}
-      aria-hidden={!open}
+      {...inertWhenClosed(open)}
     >
       <div className="account-menu__head">
         <strong>{heading}</strong>
         <p className="u-text-muted">{subtext}</p>
       </div>
-      <a className="account-menu__primary" href={primaryHref}>
-        {primaryLabel}
-      </a>
+      {/* The design system's Button, not a link painted to look like one. Both
+          of these carried their own background, padding and hover rules, so a
+          change to the Button never reached them. */}
+      <Button
+        label={primaryLabel}
+        link={primaryHref}
+        variant="primary"
+        fullWidth
+        className="account-menu__primary"
+      />
       {secondaryLabel && secondaryHref && (
-        <a className="account-menu__secondary" href={secondaryHref}>
-          {secondaryLabel}
-        </a>
+        <Button
+          label={secondaryLabel}
+          link={secondaryHref}
+          variant="secondary"
+          fullWidth
+          className="account-menu__secondary"
+        />
       )}
       {extras.length > 0 && (
         <ul className="account-menu__list">

@@ -20,12 +20,285 @@ type ThemeSettingSpec = AttrSpec & { group: string }
  * inline `settings.x || 'fallback'` in the code, invisible to the editor. Each
  * `default` matches the effective value the theme already produced, so making
  * them explicit changes nothing a shopper sees.
+ *
+ * Names follow the approved design package (`design/spec/global.json`). Every
+ * Brand / Colour / font key defaults to '' — "not set": the storefront then
+ * uses Settings → Brand where the store has a value, else the theme's own
+ * token, which carries the design's default (checked by `pnpm check:design`).
+ * A non-empty colour default would be written on every store and switch off
+ * the automatic dark scheme. All of them are applied by lib/theme-settings.ts
+ * and follow the editor's live preview (components/ThemeSettings.tsx).
  */
 const schema: Record<string, ThemeSettingSpec> = {
+  // ── Typography (design system) ───────────────────────────────────────────
+  // The design asks for a font picker ("system + curated Google list"). The
+  // platform vocabulary has no such field type, so it is a `select` over the
+  // curated list in lib/theme-settings.ts, which also loads the stylesheet.
+  headingFont: {
+    type: 'select',
+    group: 'Typography',
+    label: 'Heading font',
+    default: '',
+    options: FONT_OPTIONS,
+    info: 'Display, headings and the product title. Empty = Settings → Brand, else the theme font (Instrument Sans).',
+  },
+  bodyFont: {
+    type: 'select',
+    group: 'Typography',
+    label: 'Body font',
+    default: '',
+    options: FONT_OPTIONS,
+    info: 'Body, labels, buttons and navigation.',
+  },
+  typeScale: {
+    type: 'select',
+    group: 'Typography',
+    label: 'Type scale',
+    // Design: `compact | default | large`, "multiplies heading roles
+    // ×0.9 / 1 / 1.1; body unchanged".
+    default: 'default',
+    options: [
+      { value: 'compact', label: 'Compact' },
+      { value: 'default', label: 'Default' },
+      { value: 'large', label: 'Large' },
+    ],
+  },
+  headingWeight: {
+    type: 'select',
+    group: 'Typography',
+    label: 'Heading weight',
+    default: 'medium',
+    options: [
+      { value: 'regular', label: 'Regular' },
+      { value: 'medium', label: 'Medium' },
+      { value: 'semibold', label: 'Semibold' },
+    ],
+  },
+  buttonTextStyle: {
+    type: 'select',
+    group: 'Typography',
+    label: 'Button text',
+    // Design: `default | uppercase`; uppercase adds +0.06em tracking.
+    default: 'default',
+    options: [
+      { value: 'default', label: 'Default' },
+      { value: 'uppercase', label: 'Uppercase' },
+    ],
+  },
+
+  // ── Colour (design system) ───────────────────────────────────────────────
+  // Only Primary is the merchant's. Neutrals, feedback colours, borders and
+  // overlay stay fixed so the page keeps its baseline whatever the brand hue.
+  colorPrimary: {
+    type: 'color',
+    group: 'Colour',
+    label: 'Primary (brand)',
+    default: '',
+    info: 'Buttons, focus ring, selected states and link hover. Empty = the primary colour from Settings → Brand. The label colour on it is chosen for AA contrast automatically.',
+  },
+  colorBackground: {
+    type: 'color',
+    group: 'Colour',
+    label: 'Page background',
+    default: '',
+    info: 'Leave both Background and Text empty to keep the theme palette, including its dark mode.',
+  },
+  colorText: {
+    type: 'color',
+    group: 'Colour',
+    label: 'Text',
+    default: '',
+    info: 'Secondary and muted text are derived from this.',
+  },
+  colorSecondarySurface: {
+    type: 'color',
+    group: 'Colour',
+    label: 'Secondary surface',
+    default: '',
+    info: 'Media wells, skeletons and alternating section backgrounds.',
+  },
+  colorBorder: {
+    type: 'color',
+    group: 'Colour',
+    label: 'Border',
+    default: '',
+  },
+  colorSale: {
+    type: 'color',
+    group: 'Colour',
+    label: 'Sale',
+    default: '',
+    info: 'Reserved for sale prices and the sale badge.',
+  },
+
+  // ── Layout (design system) ───────────────────────────────────────────────
+  pageWidth: {
+    type: 'select',
+    group: 'Layout',
+    label: 'Page width',
+    default: 'wide',
+    options: [
+      { value: 'wide', label: 'Wide (1440)' },
+      { value: 'standard', label: 'Standard (1200)' },
+      { value: 'full', label: 'Full width' },
+    ],
+  },
+  sectionSpacing: {
+    type: 'select',
+    group: 'Layout',
+    label: 'Section spacing',
+    default: 'medium',
+    options: [
+      { value: 'none', label: 'None' },
+      { value: 'small', label: 'Small' },
+      { value: 'medium', label: 'Medium' },
+      { value: 'large', label: 'Large' },
+      { value: 'xlarge', label: 'Extra large' },
+    ],
+  },
+
+  // ── Components (design system) ───────────────────────────────────────────
+  buttonRadius: {
+    type: 'select',
+    group: 'Components',
+    label: 'Button corners',
+    default: 'small',
+    // Design: 0 / 4 / 8 / 999. `medium` was missing, so the 8px rung the
+    // radius ladder defines was unreachable from the editor.
+    options: [
+      { value: 'none', label: 'Square' },
+      { value: 'small', label: 'Slightly rounded' },
+      { value: 'medium', label: 'Rounded' },
+      { value: 'pill', label: 'Pill' },
+    ],
+  },
+  buttonBorder: {
+    type: 'select',
+    group: 'Components',
+    label: 'Secondary button border',
+    // Design: segmented `default | strong`, a border ROLE, not an on/off. A
+    // boolean could not express the strong role at all.
+    default: 'default',
+    options: [
+      { value: 'default', label: 'Default' },
+      { value: 'strong', label: 'Strong' },
+    ],
+  },
+  inputRadius: {
+    type: 'select',
+    group: 'Components',
+    label: 'Input corners',
+    default: 'small',
+    options: [
+      { value: 'none', label: 'Square' },
+      { value: 'small', label: 'Slightly rounded' },
+      { value: 'medium', label: 'Rounded' },
+    ],
+  },
+  cardRadius: {
+    type: 'select',
+    group: 'Components',
+    label: 'Card corners',
+    default: 'small',
+    options: [
+      { value: 'none', label: 'Square' },
+      { value: 'small', label: 'Slightly rounded' },
+      { value: 'medium', label: 'Rounded' },
+    ],
+  },
+  cardBorder: {
+    type: 'boolean',
+    group: 'Components',
+    label: 'Outline cards',
+    default: true,
+    info: 'The approved system uses borders rather than shadows.',
+  },
+  cardHoverEffect: {
+    type: 'select',
+    group: 'Components',
+    label: 'Card hover',
+    // Design: `none | image-swap | zoom | subtle-lift`, default image-swap,
+    // "falls back to zoom when no 2nd image". `border` was invented here and
+    // the two image-led effects were missing.
+    default: 'image-swap',
+    options: [
+      { value: 'none', label: 'None' },
+      { value: 'image-swap', label: 'Show second image' },
+      { value: 'zoom', label: 'Zoom image' },
+      { value: 'subtle-lift', label: 'Subtle lift' },
+    ],
+  },
+  badgeStyle: {
+    type: 'select',
+    group: 'Components',
+    label: 'Badge treatment',
+    // Design: `filled | outline` — a FILL, not a shape. Badge radius is fixed
+    // at Small by the radius ladder and is not a merchant choice.
+    default: 'filled',
+    options: [
+      { value: 'filled', label: 'Filled' },
+      { value: 'outline', label: 'Outline' },
+    ],
+  },
+  iconStyle: {
+    type: 'select',
+    group: 'Components',
+    label: 'Icon style',
+    // Design: `outline | filled`, "one family across the theme" — a FAMILY,
+    // not a stroke weight. Stroke is fixed at 1.5px by the design.
+    default: 'outline',
+    options: [
+      { value: 'outline', label: 'Outline' },
+      { value: 'filled', label: 'Filled' },
+    ],
+  },
+  motion: {
+    type: 'select',
+    group: 'Components',
+    label: 'Motion',
+    // Design: `standard | reduced`. `none` and `subtle` were extra rungs; the
+    // design's `reduced` is what "removes transforms and autoplay".
+    default: 'standard',
+    options: [
+      { value: 'standard', label: 'Standard' },
+      { value: 'reduced', label: 'Reduced' },
+    ],
+    info: 'Reduced-motion preferences always win regardless of this setting.',
+  },
+
+  // ── Product media (design system) ────────────────────────────────────────
+  productImageRatio: {
+    type: 'select',
+    group: 'Product media',
+    label: 'Product image shape',
+    default: 'portrait',
+    options: [
+      { value: 'adapt', label: 'Adapt to image' },
+      { value: 'portrait', label: 'Portrait (4:5)' },
+      { value: 'square', label: 'Square' },
+      // Design: `landscape`. `tall` (3:4) was a fourth portrait rung the
+      // design does not define, and left the theme with no wide frame at all.
+      { value: 'landscape', label: 'Landscape (3:2)' },
+    ],
+  },
+  productImageFit: {
+    type: 'select',
+    group: 'Product media',
+    label: 'Product image fit',
+    default: 'contain',
+    options: [
+      { value: 'contain', label: 'Fit whole product' },
+      { value: 'cover', label: 'Fill and crop' },
+    ],
+  },
+  showVendorGlobally: {
+    type: 'boolean',
+    group: 'Product media',
+    label: 'Show vendor on product cards',
+    default: false,
+  },
+
   // ── Brand ────────────────────────────────────────────────────────────────
-  // Applied by lib/theme-settings.ts. Every Brand / Colors / Typography key
-  // defaults to '' — "not set": the storefront then uses Settings → Brand where
-  // the store has a value, else the theme's own design tokens.
   logo: {
     type: 'image',
     group: 'Brand',
@@ -55,50 +328,14 @@ const schema: Record<string, ThemeSettingSpec> = {
     ],
     info: 'The language of the theme’s own words — account menu, contact form, cart and policy headings. Your own text is never changed.',
   },
-
-  // ── Colors ───────────────────────────────────────────────────────────────
-  colorBrand: {
-    type: 'color',
-    group: 'Colors',
-    label: 'Brand color',
-    default: '',
-    info: 'Button hover and brand accents. Leave empty to use the primary color from Settings → Brand.',
-  },
+  // Not one of the design's 25 global props: a second brand slot for primary
+  // (solid) buttons, kept as a Nova extension — see docs/DESIGN-GAPS.md.
   accent: {
     type: 'color',
-    group: 'Colors',
+    group: 'Colour',
     label: 'Accent color',
     default: '',
     info: 'Primary buttons and highlights. Leave empty for the theme default.',
-  },
-  colorBackground: {
-    type: 'color',
-    group: 'Colors',
-    label: 'Background',
-    default: '',
-    info: 'Page background. Leave both Background and Text empty to keep the theme palette, including its dark mode.',
-  },
-  colorText: {
-    type: 'color',
-    group: 'Colors',
-    label: 'Text',
-    default: '',
-  },
-
-  // ── Typography ───────────────────────────────────────────────────────────
-  fontHeading: {
-    type: 'select',
-    group: 'Typography',
-    label: 'Heading font',
-    default: '',
-    options: FONT_OPTIONS,
-  },
-  fontBody: {
-    type: 'select',
-    group: 'Typography',
-    label: 'Body font',
-    default: '',
-    options: FONT_OPTIONS,
   },
 
   // ── Header & navigation ─────────────────────────────────────────────────
@@ -295,7 +532,7 @@ const schema: Record<string, ThemeSettingSpec> = {
     group: 'Footer',
     label: 'Footer tagline',
     default: '',
-    info: 'Shown under the shop name in the footer. Leave empty to use the brand slogan, else the store description.',
+    info: 'Leave empty to use the store description.',
   },
   showPoweredBy: {
     type: 'boolean',

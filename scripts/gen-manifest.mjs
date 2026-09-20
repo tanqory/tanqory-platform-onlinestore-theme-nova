@@ -41,10 +41,17 @@ function renderCatalog(m) {
     lines.push(`- **${cat}** (${byCat[cat].length}): ${byCat[cat].sort().join(', ')}`)
   }
   lines.push('')
+  lines.push('### Shared groups')
+  for (const g of m.groups ?? []) {
+    lines.push(`- **${g.name}** (${g.type}): ${g.sectionTypes.join(', ')} — used by ${g.usedBy.length} template(s)`)
+  }
+  lines.push('')
   lines.push('### Templates')
-  lines.push('| template | sections |')
-  lines.push('| --- | --- |')
-  for (const t of m.templates) lines.push(`| \`${t.name}\` | ${t.sectionTypes.join(', ') || '—'} |`)
+  lines.push('| template | header | footer | sections |')
+  lines.push('| --- | --- | --- | --- |')
+  const slot = (s) => (s.mode === 'ref' ? `↗ ${s.group}` : s.mode)
+  for (const t of m.templates)
+    lines.push(`| \`${t.name}\` | ${slot(t.groups.header)} | ${slot(t.groups.footer)} | ${t.sectionTypes.join(', ') || '—'} |`)
   lines.push('')
   lines.push('### Theme settings')
   for (const g of m.settingsSchema) {
@@ -62,6 +69,28 @@ function spliceReadme(current, catalog) {
     throw new Error(`README.md is missing the ${CATALOG_START} / ${CATALOG_END} markers`)
   }
   return current.slice(0, a + CATALOG_START.length) + '\n' + catalog + '\n' + current.slice(b)
+}
+
+/** Print every integrity warning the manifest carries. */
+function reportWarnings(w, log) {
+  for (const d of w.danglingTemplateRefs) log(`⚠ template ${d.template} → unknown section ${d.type}`)
+  for (const d of w.danglingGroupRefs ?? []) log(`⚠ template ${d.template} → unknown group ${d.group} (groups/${d.group}.json)`)
+  for (const u of w.unknownTemplateSettings ?? [])
+    log(`⚠ template ${u.template} → ${u.type} sets '${u.setting}', which that section does not declare`)
+  for (const b of w.disallowedTemplateBlocks ?? [])
+    log(`⚠ template ${b.template} → ${b.parent} nests '${b.type}', not in its allowedBlocks`)
+  for (const k of w.settingsUndeclared) log(`⚠ settings.json key '${k}' has no schema entry`)
+  for (const k of w.settingsMissingValue) log(`⚠ schema key '${k}' has no value in settings.json`)
+}
+
+/** Drift that must fail CI (content that cannot work as written). */
+function countDrift(w) {
+  return (
+    w.danglingTemplateRefs.length +
+    (w.danglingGroupRefs ?? []).length +
+    (w.unknownTemplateSettings ?? []).length +
+    (w.disallowedTemplateBlocks ?? []).length
+  )
 }
 
 const server = await createServer({
@@ -85,6 +114,16 @@ try {
     const curReadme = readFileSync(readmeFile, 'utf8')
     const staleJson = curJson !== json
     const staleReadme = curReadme !== newReadme
+    // Template drift is a CI failure, not a warning: a template that sets a
+    // setting the section does not declare, nests a block the parent forbids,
+    // or points at a section that no longer exists is broken content shipped
+    // as if it worked.
+    const drift = countDrift(manifest.warnings)
+    if (drift > 0) {
+      reportWarnings(manifest.warnings, console.error)
+      console.error(`✗ ${drift} template/settings drift problem(s). Fix the template or declare the setting.`)
+      process.exitCode = 1
+    }
     if (staleJson || staleReadme) {
       const what = [staleJson && 'theme.manifest.json', staleReadme && 'README.md catalog']
         .filter(Boolean)
@@ -101,10 +140,7 @@ try {
     console.log(
       `✓ theme.manifest.json + README catalog — ${sections} sections, ${templates} templates, ${layouts} layouts`,
     )
-    const { danglingTemplateRefs, settingsUndeclared, settingsMissingValue } = manifest.warnings
-    for (const d of danglingTemplateRefs) console.warn(`⚠ template ${d.template} → unknown section ${d.type}`)
-    for (const k of settingsUndeclared) console.warn(`⚠ settings.json key '${k}' has no schema entry`)
-    for (const k of settingsMissingValue) console.warn(`⚠ schema key '${k}' has no value in settings.json`)
+    reportWarnings(manifest.warnings, console.warn)
   }
 } finally {
   await server.close()

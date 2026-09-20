@@ -47,6 +47,8 @@ export function Swatches(_props: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'swatches',
+  role: 'block',
+  requiresContext: ['product'],
   title: 'Swatches',
   category: 'block',
   icon: '●',

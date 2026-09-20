@@ -1,54 +1,19 @@
 {
+  "contentVersion": 2,
   "sections": [
-    {
-      "type": "header",
-      "id": "header",
-      "settings": {},
-      "area": "header"
-    },
     {
       "type": "collection-list",
       "id": "all-collections",
       "settings": {
         "heading": "Shop by collection",
+        "pageHeading": true,
         "subheading": "Browse every category we carry.",
-        "columns": 3,
         "limit": 12
       }
-    },
-    {
-      "type": "footer",
-      "id": "footer",
-      "settings": {},
-      "area": "footer",
-      "blocks": [
-        {
-          "type": "footer-brand",
-          "id": "footer-brand",
-          "settings": {}
-        },
-        {
-          "type": "footer-menu",
-          "id": "footer-menu-shop",
-          "settings": {
-            "menu": "footer-shop"
-          }
-        },
-        {
-          "type": "footer-menu",
-          "id": "footer-menu-help",
-          "settings": {
-            "menu": "footer-help"
-          }
-        },
-        {
-          "type": "footer-menu",
-          "id": "footer-menu-company",
-          "settings": {
-            "menu": "footer-company"
-          }
-        }
-      ]
     }
-  ]
+  ],
+  "groups": {
+    "header": "header",
+    "footer": "footer"
+  }
 }

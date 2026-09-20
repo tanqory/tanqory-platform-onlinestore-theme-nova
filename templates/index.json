@@ -1,229 +1,635 @@
 {
+  "contentVersion": 2,
   "sections": [
     {
-      "type": "header",
-      "id": "header",
-      "settings": {
-        "menu": "main-menu"
-      },
-      "area": "header"
-    },
-    {
       "type": "slideshow",
-      "id": "hero-slides",
+      "id": "s-slideshow",
       "settings": {
-        "intervalMs": 6000
+        "slideHeight": "large",
+        "autoplay": true,
+        "interval": "6s",
+        "controls": "arrows+counter",
+        "transition": "fade",
+        "controlsPosition": "bottom-right"
       },
       "area": "template",
       "blocks": [
         {
           "type": "slide",
-          "id": "slide-1",
+          "id": "b-slide-1",
           "settings": {
-            "image": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%271600%27%20height%3D%27700%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%231f2937%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%234b5563%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3C/svg%3E",
             "heading": "Modern essentials",
-            "body": "A clean starter storefront powered by Tanqory sections.",
+            "contentPosition": "bottom",
+            "contentAlignment": "left",
+            "textWidth": "narrow",
+            "overlay": "medium",
+            "image": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221600%22%20height%3D%22700%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22s%22%20width%3D%2222.63%22%20height%3D%2222.63%22%20patternUnits%3D%22userSpaceOnUse%22%20patternTransform%3D%22rotate%2845%29%22%3E%3Crect%20width%3D%2222.63%22%20height%3D%2222.63%22%20fill%3D%22%236E6B66%22/%3E%3Crect%20width%3D%2211.31%22%20height%3D%2222.63%22%20fill%3D%22%235F5C58%22/%3E%3C/pattern%3E%3C/defs%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url%28%23s%29%22/%3E%3C/svg%3E",
+            "eyebrow": "New season",
+            "body": "Every section this theme ships, on one page.",
             "buttonLabel": "Shop the collection",
-            "buttonLink": "/collections/all"
+            "buttonLink": "/collections/all",
+            "secondaryLabel": "Explore collections",
+            "secondaryLink": "/collections"
           }
         },
         {
           "type": "slide",
-          "id": "slide-2",
+          "id": "b-slide-2",
           "settings": {
-            "image": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%271600%27%20height%3D%27700%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%233b3a55%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%236b6a8f%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3C/svg%3E",
             "heading": "New season, new staples",
+            "contentPosition": "bottom",
+            "contentAlignment": "left",
+            "textWidth": "narrow",
+            "overlay": "medium",
+            "image": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221600%22%20height%3D%22700%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22s%22%20width%3D%2222.63%22%20height%3D%2222.63%22%20patternUnits%3D%22userSpaceOnUse%22%20patternTransform%3D%22rotate%2845%29%22%3E%3Crect%20width%3D%2222.63%22%20height%3D%2222.63%22%20fill%3D%22%236E6B66%22/%3E%3Crect%20width%3D%2211.31%22%20height%3D%2222.63%22%20fill%3D%22%235F5C58%22/%3E%3C/pattern%3E%3C/defs%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url%28%23s%29%22/%3E%3C/svg%3E",
+            "eyebrow": "Just in",
             "body": "Limited-run pieces drop weekly.",
             "buttonLabel": "Browse new",
-            "buttonLink": "/collections/all"
+            "buttonLink": "/collections/all",
+            "secondaryLabel": "All collections",
+            "secondaryLink": "/collections"
           }
         }
       ]
     },
     {
-      "type": "multicolumn",
-      "id": "usp",
+      "type": "marquee",
+      "id": "s-marquee",
       "settings": {
-        "heading": "Why shop with us",
-        "subheading": "Built for the long run.",
-        "columns": 3
+        "text": "New season just dropped",
+        "speed": "standard",
+        "direction": "left",
+        "pauseOnHover": true,
+        "background": "surface"
       },
-      "area": "template",
-      "blocks": [
-        {
-          "type": "column",
-          "id": "col-1",
-          "settings": {
-            "icon": "truck",
-            "heading": "Free shipping",
-            "body": "On orders over $50."
-          }
-        },
-        {
-          "type": "column",
-          "id": "col-2",
-          "settings": {
-            "icon": "return",
-            "heading": "Easy returns",
-            "body": "30 days, no questions asked."
-          }
-        },
-        {
-          "type": "column",
-          "id": "col-3",
-          "settings": {
-            "icon": "chat",
-            "heading": "Real support",
-            "body": "Chat with us 24/7."
-          }
-        }
-      ]
+      "area": "template"
     },
     {
-      "type": "featured-collection",
-      "id": "best-sellers",
+      "type": "divider",
+      "id": "s-divider",
       "settings": {
-        "heading": "Best sellers",
-        "subheading": "Loved by everyone.",
-        "collection": "all",
-        "columns": 4,
-        "limit": 4
+        "style": "line-subtle",
+        "width": "wide",
+        "spacing": "md"
+      },
+      "area": "template"
+    },
+    {
+      "type": "rich-text",
+      "id": "s-rich-text",
+      "settings": {
+        "heading": "Rich text",
+        "body": "Tell your story here. A short paragraph about who you are, what you make, and why it matters — three or four sentences is plenty.",
+        "headingSize": "h2",
+        "contentAlignment": "center",
+        "mobileContentAlignment": "left",
+        "contentWidth": "content",
+        "buttonVariant": "secondary"
       },
       "area": "template"
     },
     {
       "type": "image-with-text",
-      "id": "story",
+      "id": "s-image-with-text",
       "settings": {
-        "image": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27700%27%20height%3D%27900%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23374a40%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%235e7d6a%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3C/svg%3E",
-        "imageAlt": "Our workshop",
-        "imageRight": false,
-        "eyebrow": "Our story",
-        "heading": "Crafted with care",
-        "body": "Every piece is built in small batches by people who care about the details.",
-        "buttonLabel": "Read more",
-        "buttonLink": "/pages/about"
+        "image": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221200%22%20height%3D%22800%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22s%22%20width%3D%2222.63%22%20height%3D%2222.63%22%20patternUnits%3D%22userSpaceOnUse%22%20patternTransform%3D%22rotate%2845%29%22%3E%3Crect%20width%3D%2222.63%22%20height%3D%2222.63%22%20fill%3D%22%23EFEEEB%22/%3E%3Crect%20width%3D%2211.31%22%20height%3D%2222.63%22%20fill%3D%22%23E8E6E2%22/%3E%3C/pattern%3E%3C/defs%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url%28%23s%29%22/%3E%3C/svg%3E",
+        "mediaPosition": "left",
+        "mediaRatio": "adapt",
+        "contentVerticalAlign": "center",
+        "mobileMediaPosition": "before",
+        "buttonVariant": "link",
+        "heading": "Image with text",
+        "body": "Crafted in small batches with materials that age well. Every piece earns its place in your routine.",
+        "eyebrow": "Our story"
+      },
+      "area": "template"
+    },
+    {
+      "type": "multicolumn",
+      "id": "s-multicolumn",
+      "settings": {
+        "heading": "Multicolumn",
+        "columns": 3,
+        "showImage": true,
+        "imageRatio": "landscape",
+        "textAlignment": "left",
+        "carouselOnMobile": false
+      },
+      "area": "template",
+      "blocks": [
+        {
+          "type": "column",
+          "id": "b-column-3",
+          "settings": {
+            "icon": "star",
+            "heading": "Column one"
+          }
+        },
+        {
+          "type": "column",
+          "id": "b-column-4",
+          "settings": {
+            "icon": "star",
+            "heading": "Column two"
+          }
+        },
+        {
+          "type": "column",
+          "id": "b-column-5",
+          "settings": {
+            "icon": "star",
+            "heading": "Column three"
+          }
+        }
+      ]
+    },
+    {
+      "type": "feature-grid-blocks",
+      "id": "s-feature-grid-blocks",
+      "settings": {
+        "heading": "Why shop with us",
+        "columns": 3,
+        "preset": "1+4",
+        "rowHeight": "medium",
+        "blockBackground": "surface-secondary"
+      },
+      "area": "template",
+      "blocks": [
+        {
+          "type": "icon",
+          "id": "b-icon-6",
+          "settings": {
+            "icon": "star",
+            "size": 32,
+            "align": "left"
+          }
+        },
+        {
+          "type": "heading",
+          "id": "b-heading-7",
+          "settings": {
+            "text": "Feature grid",
+            "level": "h2",
+            "align": "left"
+          }
+        },
+        {
+          "type": "text",
+          "id": "b-text-8",
+          "settings": {
+            "text": "Add your text here.",
+            "align": "left"
+          }
+        },
+        {
+          "type": "column",
+          "id": "b-column-9",
+          "settings": {
+            "icon": "star",
+            "heading": "Feature"
+          }
+        }
+      ]
+    },
+    {
+      "type": "feature-highlights",
+      "id": "s-feature-highlights",
+      "settings": {
+        "features": "[{\"icon\": \"truck\", \"title\": \"Delivery\", \"description\": \"Describe how and when you ship.\"}, {\"icon\": \"shield\", \"title\": \"Warranty\", \"description\": \"Describe the cover you offer.\"}, {\"icon\": \"clock\", \"title\": \"Returns\", \"description\": \"Describe your returns window.\"}, {\"icon\": \"gift\", \"title\": \"Gifting\", \"description\": \"Describe your gift options.\"}]",
+        "background": "surface",
+        "columns": "4",
+        "iconStyle": "outline",
+        "textAlignment": "center"
+      },
+      "area": "template"
+    },
+    {
+      "type": "featured-collection",
+      "id": "s-featured-collection",
+      "settings": {
+        "heading": "Featured collection",
+        "collection": "all",
+        "productsToShow": 4,
+        "mobileColumns": "2",
+        "showNavigation": true,
+        "cardImageRatio": "inherit",
+        "showViewAll": true,
+        "layout": "grid",
+        "columns": 4,
+        "carouselOnMobile": false,
+        "headerAlignment": "left"
+      },
+      "area": "template"
+    },
+    {
+      "type": "product-grid",
+      "id": "s-product-grid",
+      "settings": {
+        "heading": "Product grid",
+        "collection": "all",
+        "columns": "3",
+        "mobileColumns": "2",
+        "filterLayout": "sidebar",
+        "showSort": true,
+        "showCount": true,
+        "pagination": "load-more",
+        "productsPerPage": "24",
+        "showQuickAdd": true
       },
       "area": "template"
     },
     {
       "type": "featured-product",
-      "id": "drop",
+      "id": "s-featured-product",
       "settings": {
-        "eyebrow": "Just launched",
-        "product": "example-product-1",
-        "buttonLabel": "Shop now"
+        "buttonLabel": "Shop now",
+        "mediaPosition": "left",
+        "mediaRatio": "square",
+        "showVariants": true,
+        "descriptionLines": "3",
+        "showViewDetails": true,
+        "product": "classic-double-breasted-blazer",
+        "eyebrow": "Featured product"
       },
       "area": "template"
     },
     {
       "type": "collection-list",
-      "id": "shop-by",
+      "id": "s-collection-list",
       "settings": {
-        "heading": "Shop by collection",
-        "columns": 3,
-        "limit": 3
+        "heading": "Collection list",
+        "limit": 6,
+        "carouselOnMobile": true,
+        "layout": "grid",
+        "columns": 4,
+        "imageRatio": "portrait",
+        "textStyle": "below",
+        "showCount": true,
+        "showDescription": false,
+        "headerAlignment": "center"
       },
-      "blocks": [
-        {
-          "type": "collection-item",
-          "id": "collection-1",
-          "settings": {
-            "collection": "test-collection"
-          }
-        },
-        {
-          "type": "collection-item",
-          "id": "collection-2",
-          "settings": {
-            "collection": "blazer"
-          }
-        },
-        {
-          "type": "collection-item",
-          "id": "collection-3",
-          "settings": {
-            "collection": "christmas-collection"
-          }
-        }
-      ],
       "area": "template"
     },
     {
-      "type": "logo-list",
-      "id": "press",
+      "type": "collection-links",
+      "id": "s-collection-links",
       "settings": {
-        "heading": "As seen in"
+        "heading": "Collection links",
+        "columns": 3,
+        "limit": 6,
+        "style": "chips",
+        "listSize": "large"
+      },
+      "area": "template"
+    },
+    {
+      "type": "product-recommendations",
+      "id": "s-product-recommendations",
+      "settings": {
+        "heading": "You may also like",
+        "limit": 4,
+        "layout": "carousel",
+        "intent": "related"
+      },
+      "area": "template"
+    },
+    {
+      "type": "group",
+      "id": "s-group",
+      "settings": {
+        "background": "surface-secondary",
+        "innerGap": "medium",
+        "sectionWidth": "wide"
+      },
+      "area": "template",
+      "blocks": [
+        {
+          "type": "text",
+          "id": "b-text-13",
+          "settings": {
+            "text": "A paragraph block, for copy that belongs between other blocks.",
+            "align": "left"
+          }
+        },
+        {
+          "type": "heading",
+          "id": "b-heading-14",
+          "settings": {
+            "text": "Heading block",
+            "level": "h2",
+            "align": "left"
+          }
+        },
+        {
+          "type": "button",
+          "id": "b-button-15",
+          "settings": {
+            "label": "Button block",
+            "variant": "primary",
+            "align": "left",
+            "link": "/collections"
+          }
+        },
+        {
+          "type": "image",
+          "id": "b-image-16",
+          "settings": {
+            "ratio": "editorial",
+            "rounded": true,
+            "image": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221200%22%20height%3D%22800%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22s%22%20width%3D%2222.63%22%20height%3D%2222.63%22%20patternUnits%3D%22userSpaceOnUse%22%20patternTransform%3D%22rotate%2845%29%22%3E%3Crect%20width%3D%2222.63%22%20height%3D%2222.63%22%20fill%3D%22%23EFEEEB%22/%3E%3Crect%20width%3D%2211.31%22%20height%3D%2222.63%22%20fill%3D%22%23E8E6E2%22/%3E%3C/pattern%3E%3C/defs%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url%28%23s%29%22/%3E%3C/svg%3E",
+            "alt": "Studio still life"
+          }
+        },
+        {
+          "type": "icon",
+          "id": "b-icon-17",
+          "settings": {
+            "icon": "truck",
+            "size": 32,
+            "align": "left"
+          }
+        },
+        {
+          "type": "spacer",
+          "id": "b-spacer-18",
+          "settings": {
+            "height": 24
+          }
+        },
+        {
+          "type": "video",
+          "id": "b-video-19",
+          "settings": {
+            "captionsLang": "en",
+            "autoplay": false,
+            "loop": false,
+            "controls": true,
+            "url": "https://www.w3schools.com/html/mov_bbb.mp4",
+            "poster": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221200%22%20height%3D%22800%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22s%22%20width%3D%2222.63%22%20height%3D%2222.63%22%20patternUnits%3D%22userSpaceOnUse%22%20patternTransform%3D%22rotate%2845%29%22%3E%3Crect%20width%3D%2222.63%22%20height%3D%2222.63%22%20fill%3D%22%23EFEEEB%22/%3E%3Crect%20width%3D%2211.31%22%20height%3D%2222.63%22%20fill%3D%22%23E8E6E2%22/%3E%3C/pattern%3E%3C/defs%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url%28%23s%29%22/%3E%3C/svg%3E",
+            "captions": "data:text/vtt,WEBVTT%0A%0A00%3A00.000%20--%3E%2000%3A10.000%0ASample%20caption%20track."
+          }
+        },
+        {
+          "type": "accordion",
+          "id": "b-accordion-20",
+          "settings": {
+            "heading": "An accordion block",
+            "body": "Its answer sits here.",
+            "open": false
+          }
+        },
+        {
+          "type": "jumbo-text",
+          "id": "b-jumbo-text-21",
+          "settings": {
+            "text": "Jumbo text",
+            "align": "center"
+          }
+        },
+        {
+          "type": "social-links",
+          "id": "b-social-links-22",
+          "settings": {
+            "instagram": "https://instagram.com/vauclair",
+            "facebook": "https://facebook.com/vauclair",
+            "tiktok": "https://tiktok.com/@vauclair"
+          }
+        },
+        {
+          "type": "payment-icons",
+          "id": "b-payment-icons-23",
+          "settings": {
+            "methods": "VISA, Mastercard, Amex, PayPal, Apple Pay"
+          }
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "id": "s-faq",
+      "settings": {
+        "heading": "FAQ",
+        "singleOpen": false,
+        "firstOpen": true,
+        "headerAlignment": "left"
+      },
+      "area": "template",
+      "blocks": [
+        {
+          "type": "faq-item",
+          "id": "b-faq-item-24",
+          "settings": {
+            "question": "Do you ship internationally?",
+            "answer": "Yes. Delivery times and charges are shown at checkout once you enter an address."
+          }
+        },
+        {
+          "type": "faq-item",
+          "id": "b-faq-item-25",
+          "settings": {
+            "question": "How do returns work?",
+            "answer": "Start a return from your account within the returns window and post it back with the label provided."
+          }
+        },
+        {
+          "type": "faq-item",
+          "id": "b-faq-item-26",
+          "settings": {
+            "question": "Can I change my order?",
+            "answer": "Get in touch as soon as you can — an order can be changed until it has been packed."
+          }
+        }
+      ]
+    },
+    {
+      "type": "logo-list",
+      "id": "s-logo-list",
+      "settings": {
+        "heading": "Logo list",
+        "grayscale": true,
+        "columns": "6",
+        "logoHeight": "medium"
       },
       "area": "template",
       "blocks": [
         {
           "type": "logo",
-          "id": "logo-1",
-          "settings": {
-            "src": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27200%27%20height%3D%2780%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%234a3b36%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%237d6457%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3C/svg%3E",
-            "alt": "Press 1"
-          }
+          "id": "b-logo-27",
+          "settings": {}
         },
         {
           "type": "logo",
-          "id": "logo-2",
-          "settings": {
-            "src": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27200%27%20height%3D%2780%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%232d3e50%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%2356708c%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3C/svg%3E",
-            "alt": "Press 2"
-          }
+          "id": "b-logo-28",
+          "settings": {}
         },
         {
           "type": "logo",
-          "id": "logo-3",
-          "settings": {
-            "src": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27200%27%20height%3D%2780%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23433850%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%236f5e85%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3C/svg%3E",
-            "alt": "Press 3"
-          }
+          "id": "b-logo-29",
+          "settings": {}
         },
         {
           "type": "logo",
-          "id": "logo-4",
-          "settings": {
-            "src": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27200%27%20height%3D%2780%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%231f2937%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%234b5563%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3C/svg%3E",
-            "alt": "Press 4"
-          }
+          "id": "b-logo-30",
+          "settings": {}
         }
       ]
     },
     {
-      "type": "footer",
-      "id": "footer",
-      "settings": {},
-      "area": "footer",
-      "blocks": [
+      "type": "store-locator",
+      "id": "s-store-locator",
+      "settings": {
+        "heading": "Visit us",
+        "columns": "2",
+        "showHours": true,
+        "showPhone": true,
+        "showImage": false
+      },
+      "area": "template"
+    },
+    {
+      "type": "contact-form",
+      "id": "s-contact-form",
+      "settings": {
+        "heading": "Get in touch",
+        "subheading": "We'll reply within one business day.",
+        "layout": "stacked",
+        "fields": "name,email,message",
+        "successMessage": "Thanks — we’ll reply soon.",
+        "buttonLabel": "Send message"
+      },
+      "area": "template"
+    },
+    {
+      "type": "newsletter",
+      "id": "s-newsletter",
+      "settings": {
+        "heading": "Join the newsletter",
+        "body": "Be the first to hear about new arrivals and member-only sales — and get 10% off your first order.",
+        "placeholder": "you@example.com",
+        "buttonLabel": "Subscribe",
+        "note": "No spam. Unsubscribe anytime.",
+        "layout": "centered",
+        "background": "surface-secondary",
+        "showConsent": false
+      },
+      "area": "template"
+    }
+  ],
+  "groups": {
+    "header": {
+      "override": [
         {
-          "type": "footer-brand",
-          "id": "footer-brand",
-          "settings": {}
+          "type": "announcement-bar",
+          "id": "s-announcement-bar",
+          "settings": {
+            "background": "primary",
+            "rotation": false,
+            "showArrows": true,
+            "dismissible": false,
+            "text": "Welcome to the store"
+          },
+          "area": "header"
         },
         {
-          "type": "footer-menu",
-          "id": "footer-menu-shop",
+          "type": "header",
+          "id": "s-header",
           "settings": {
-            "menu": "main-menu"
-          }
-        },
+            "layout": "logo-center",
+            "sticky": "always",
+            "menu": "main-menu",
+            "transparentOnHero": false,
+            "logoHeight": "medium",
+            "showSearch": true,
+            "searchStyle": "icon",
+            "cartAction": "drawer",
+            "showCart": true,
+            "showAccount": true,
+            "showLocale": false
+          },
+          "area": "header"
+        }
+      ]
+    },
+    "footer": {
+      "override": [
         {
-          "type": "footer-menu",
-          "id": "footer-menu-help",
+          "type": "footer",
+          "id": "s-footer",
           "settings": {
-            "menu": "footer-help"
-          }
-        },
-        {
-          "type": "footer-menu",
-          "id": "footer-menu-company",
-          "settings": {
-            "menu": "footer-company"
-          }
+            "background": "surface-secondary",
+            "showSocial": true,
+            "showPayment": true,
+            "showLocale": true,
+            "mobileMenus": "accordion",
+            "showPoweredBy": true,
+            "poweredByLabel": "Made with Tanqory"
+          },
+          "area": "footer",
+          "blocks": [
+            {
+              "type": "footer-brand",
+              "id": "b-footer-brand-31",
+              "settings": {}
+            },
+            {
+              "type": "footer-menu",
+              "id": "b-footer-menu-32",
+              "settings": {
+                "menu": "main-menu"
+              }
+            },
+            {
+              "type": "footer-menu",
+              "id": "b-footer-menu-33",
+              "settings": {
+                "menu": "footer-help"
+              }
+            },
+            {
+              "type": "footer-menu",
+              "id": "b-footer-menu-34",
+              "settings": {
+                "menu": "footer-company"
+              }
+            },
+            {
+              "type": "footer-text",
+              "id": "b-footer-text-35",
+              "settings": {}
+            },
+            {
+              "type": "social-links",
+              "id": "b-social-links-36",
+              "settings": {
+                "instagram": "https://instagram.com/vauclair",
+                "facebook": "https://facebook.com/vauclair",
+                "tiktok": "https://tiktok.com/@vauclair"
+              }
+            },
+            {
+              "type": "payment-icons",
+              "id": "b-payment-icons-37",
+              "settings": {
+                "methods": "VISA, Mastercard, Amex, PayPal, Apple Pay"
+              }
+            },
+            {
+              "type": "newsletter",
+              "id": "b-newsletter-38",
+              "settings": {
+                "heading": "Join the newsletter",
+                "body": "Be the first to hear about new arrivals and member-only sales — and get 10% off your first order.",
+                "placeholder": "you@example.com",
+                "buttonLabel": "Subscribe",
+                "note": "No spam. Unsubscribe anytime.",
+                "layout": "centered",
+                "background": "surface-secondary",
+                "showConsent": false
+              }
+            }
+          ]
         }
       ]
     }
-  ]
+  }
 }

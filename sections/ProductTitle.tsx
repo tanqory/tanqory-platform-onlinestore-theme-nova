@@ -10,6 +10,8 @@ export function ProductTitle(_props: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'product-title',
+  role: 'block',
+  requiresContext: ['product'],
   title: 'Product title',
   category: 'block',
   icon: 'T',

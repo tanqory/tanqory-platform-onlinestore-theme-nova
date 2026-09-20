@@ -1,0 +1,2015 @@
+[
+ {
+  "name": "announcement-bar",
+  "group": "Layout",
+  "purpose": "Single-line store-wide notice; optional rotation of up to 3 messages.",
+  "components": "Text, Text Link, IconButton (prev/next, dismiss)",
+  "slots": "messages[] {text, link?}; background role",
+  "responsive": "36px desktop / 32px mobile; one line, ellipsis on mobile; arrows hidden < 768 (swipe or auto-rotate).",
+  "edge": "No messages → section hidden. Very long text → ellipsis + full text on tap (tooltip/expand). Dismiss persists per session.",
+  "props": [
+   {
+    "name": "background",
+    "control": "segmented",
+    "options": "primary | surface-secondary",
+    "def": "primary",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "",
+    "desc": "Bar color role; text auto-inverts"
+   },
+   {
+    "name": "rotation",
+    "control": "toggle",
+    "options": "on | off",
+    "def": "off",
+    "group": "Content",
+    "resp": "no",
+    "dep": "messages > 1",
+    "desc": "Auto-rotate messages every 6s, pauses on hover"
+   },
+   {
+    "name": "showArrows",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "rotation=on",
+    "desc": "Prev/next controls on desktop"
+   },
+   {
+    "name": "dismissible",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Advanced",
+    "resp": "no",
+    "dep": "",
+    "desc": "Adds close button; hides for session"
+   }
+  ]
+ },
+ {
+  "name": "header",
+  "group": "Layout",
+  "purpose": "Quiet orientation bar: logo, navigation, search, account, cart.",
+  "components": "NavigationMenu, MobileNavigation, SearchInterface, AccountTrigger, CartTrigger, IconButton, Badge",
+  "slots": "logo image (or store name), menu (resource), search enabled, account enabled, cart count",
+  "responsive": "≥1024 full nav (72px); 768–1023 hamburger + centered logo (60px); <768 56px bar. Sticky per setting; announcement never sticky.",
+  "edge": "Long labels overflow into “More”. No logo → store name H4/600. Transparent-over-hero variant inverts and needs overlay ≥ medium. Cart ≥100 → 99+.",
+  "props": [
+   {
+    "name": "layout",
+    "control": "visual cards",
+    "options": "logo-center | logo-left",
+    "def": "logo-center",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "",
+    "desc": "Desktop arrangement; mobile is fixed"
+   },
+   {
+    "name": "sticky",
+    "control": "segmented",
+    "options": "always | on-scroll-up | none",
+    "def": "always",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Sticky behavior; scrolled state adds hairline + floating shadow"
+   },
+   {
+    "name": "transparentOnHero",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Appearance",
+    "resp": "yes",
+    "dep": "first section = hero image-background",
+    "desc": "Overlays header on hero until scrolled"
+   },
+   {
+    "name": "searchStyle",
+    "control": "segmented",
+    "options": "icon | inline-field",
+    "def": "icon",
+    "group": "Content",
+    "resp": "desktop",
+    "dep": "showSearch=on",
+    "desc": "Icon expands to 560 field; inline shows field permanently"
+   },
+   {
+    "name": "showAccount",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Account trigger visibility"
+   },
+   {
+    "name": "cartAction",
+    "control": "segmented",
+    "options": "drawer | page",
+    "def": "drawer",
+    "group": "Advanced",
+    "resp": "no",
+    "dep": "",
+    "desc": "What the cart trigger opens"
+   },
+   {
+    "name": "menu",
+    "control": "resource",
+    "options": "menu",
+    "def": "main-menu",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Navigation source; children render mega menu (≥ 9 links or has images) or dropdown"
+   },
+   {
+    "name": "logoHeight",
+    "control": "segmented",
+    "options": "small 24 | medium 32 | large 40",
+    "def": "medium",
+    "group": "Appearance",
+    "resp": "yes",
+    "dep": "logo set",
+    "desc": "Desktop logo height; mobile −8px"
+   }
+  ]
+ },
+ {
+  "name": "hero",
+  "group": "Layout",
+  "purpose": "One message, up to two actions; media sets the mood.",
+  "components": "Button ×0–2, Eyebrow, Display/H1, Body Large, image slot",
+  "slots": "heading, eyebrow?, body?, buttons[0–2], image, mobileImage?, focalPoint",
+  "responsive": "Split → stacked < 768; image-background 4:5 on mobile; CTAs stack full width < 480; size steps down one tier per breakpoint.",
+  "edge": "Long heading steps Display→H1. No CTA/body collapse gaps. Auto-raise overlay for contrast. Portrait image in split adapts ratio.",
+  "props": [
+   {
+    "name": "layout",
+    "control": "visual cards",
+    "options": "image-background | split | contained | minimal",
+    "def": "image-background",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Composition preset"
+   },
+   {
+    "name": "size",
+    "control": "segmented",
+    "options": "small | medium | large | fullscreen",
+    "def": "large",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "layout≠minimal",
+    "desc": "Min-height 400 / 480 / 640 / 100svh"
+   },
+   {
+    "name": "contentPosition",
+    "control": "9-grid picker",
+    "options": "top/center/bottom × left/center/right",
+    "def": "bottom-left",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "layout=image-background",
+    "desc": "Content anchor inside media"
+   },
+   {
+    "name": "contentAlignment",
+    "control": "segmented",
+    "options": "left | center | right",
+    "def": "left",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Text alignment"
+   },
+   {
+    "name": "textWidth",
+    "control": "segmented",
+    "options": "narrow | medium | wide",
+    "def": "medium",
+    "group": "Layout",
+    "resp": "no",
+    "dep": "",
+    "desc": "480 / 640 / 840 max text width"
+   },
+   {
+    "name": "mediaPosition",
+    "control": "segmented",
+    "options": "left | right",
+    "def": "right",
+    "group": "Media",
+    "resp": "desktop",
+    "dep": "layout=split",
+    "desc": "Media column side"
+   },
+   {
+    "name": "imageRatio",
+    "control": "select",
+    "options": "adapt | landscape | square | portrait",
+    "def": "adapt",
+    "group": "Media",
+    "resp": "yes",
+    "dep": "layout=split|contained",
+    "desc": "Media frame ratio"
+   },
+   {
+    "name": "imageFit",
+    "control": "segmented",
+    "options": "cover | contain",
+    "def": "cover",
+    "group": "Media",
+    "resp": "no",
+    "dep": "image set",
+    "desc": "Cropping behavior"
+   },
+   {
+    "name": "overlay",
+    "control": "segmented",
+    "options": "none | light | medium | strong",
+    "def": "medium",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "layout=image-background",
+    "desc": "Scrim strength 0 / .24 / .48 / .64"
+   },
+   {
+    "name": "mobileImage",
+    "control": "resource",
+    "options": "image",
+    "def": "—",
+    "group": "Mobile",
+    "resp": "mobile",
+    "dep": "image set",
+    "desc": "Separate crop for < 768"
+   },
+   {
+    "name": "mobileMediaPosition",
+    "control": "segmented",
+    "options": "before | after",
+    "def": "before",
+    "group": "Mobile",
+    "resp": "mobile",
+    "dep": "layout=split",
+    "desc": "Stack order on mobile"
+   },
+   {
+    "name": "mobileContentAlignment",
+    "control": "segmented",
+    "options": "left | center",
+    "def": "left",
+    "group": "Mobile",
+    "resp": "mobile",
+    "dep": "",
+    "desc": "Overrides alignment on mobile"
+   }
+  ]
+ },
+ {
+  "name": "slideshow",
+  "group": "Layout",
+  "purpose": "Sequence of hero compositions with controls.",
+  "components": "hero composition per slide, IconButton (prev/next/pause), counter",
+  "slots": "slides[] {hero slots}; autoplay settings",
+  "responsive": "Same as hero per slide; controls bottom-right desktop, bottom-center mobile; counter replaces dots ≥ 6 slides.",
+  "edge": "1 slide → renders as hero without controls. Autoplay pauses on hover/focus and under reduced motion. Mixed slide heights lock to the tallest.",
+  "props": [
+   {
+    "name": "slideHeight",
+    "control": "segmented",
+    "options": "small | medium | large | adapt-first",
+    "def": "medium",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Fixed height or first slide’s ratio"
+   },
+   {
+    "name": "autoplay",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Content",
+    "resp": "no",
+    "dep": "slides > 1",
+    "desc": "Auto-advance"
+   },
+   {
+    "name": "interval",
+    "control": "segmented",
+    "options": "4s | 6s | 8s",
+    "def": "6s",
+    "group": "Content",
+    "resp": "no",
+    "dep": "autoplay=on",
+    "desc": "Delay between slides"
+   },
+   {
+    "name": "controls",
+    "control": "segmented",
+    "options": "arrows+counter | dots | none",
+    "def": "arrows+counter",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "slides > 1",
+    "desc": "Navigation UI"
+   },
+   {
+    "name": "transition",
+    "control": "segmented",
+    "options": "fade | slide",
+    "def": "fade",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "",
+    "desc": "Motion Standard; fade under reduced motion"
+   }
+  ]
+ },
+ {
+  "name": "divider",
+  "group": "Layout",
+  "purpose": "Visual break or pure space between sections.",
+  "components": "Divider",
+  "slots": "none",
+  "responsive": "Spacing preset steps down per breakpoint.",
+  "edge": "Two adjacent dividers collapse to one.",
+  "props": [
+   {
+    "name": "style",
+    "control": "segmented",
+    "options": "line-subtle | line-strong | space",
+    "def": "line-subtle",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "",
+    "desc": "Line role or invisible spacer"
+   },
+   {
+    "name": "width",
+    "control": "segmented",
+    "options": "standard | wide | full",
+    "def": "wide",
+    "group": "Layout",
+    "resp": "no",
+    "dep": "style≠space",
+    "desc": "Line length"
+   },
+   {
+    "name": "spacing",
+    "control": "segmented",
+    "options": "sm | md | lg | xl",
+    "def": "md",
+    "group": "Spacing",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Vertical padding around the line"
+   }
+  ]
+ },
+ {
+  "name": "group",
+  "group": "Layout",
+  "purpose": "Wraps child sections in a shared background, width and spacing.",
+  "components": "container only",
+  "slots": "children sections",
+  "responsive": "Children inherit container; their outer spacing collapses to the group’s inner gap.",
+  "edge": "Empty group → hidden. Nested group not allowed.",
+  "props": [
+   {
+    "name": "background",
+    "control": "segmented",
+    "options": "surface | surface-secondary | primary",
+    "def": "surface-secondary",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "",
+    "desc": "Shared background role"
+   },
+   {
+    "name": "innerGap",
+    "control": "segmented",
+    "options": "small | medium | large",
+    "def": "medium",
+    "group": "Spacing",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Gap between children"
+   },
+   {
+    "name": "sectionWidth",
+    "control": "segmented",
+    "options": "standard | wide | full",
+    "def": "wide",
+    "group": "Layout",
+    "resp": "no",
+    "dep": "",
+    "desc": "Container children inherit"
+   }
+  ]
+ },
+ {
+  "name": "footer",
+  "group": "Layout",
+  "purpose": "Wayfinding, newsletter, trust, legal.",
+  "components": "footer-brand, footer-menu ×n, footer-text, NewsletterForm, SocialLinks, PaymentIcons, locale selector, Text Link",
+  "slots": "brand {logo?, text}, menus[] (resource), newsletter?, social urls, payment marks, legal menu, copyright",
+  "responsive": "5 col → 3 → 2 → 1 with fixed mobile order; menus become accordion on mobile.",
+  "edge": "Missing blocks collapse. > 4 menus wrap. Primary background inverts text. Success replaces newsletter form.",
+  "props": [
+   {
+    "name": "background",
+    "control": "segmented",
+    "options": "surface | surface-secondary | primary",
+    "def": "surface-secondary",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "",
+    "desc": "Footer background role"
+   },
+   {
+    "name": "showSocial",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "social urls set",
+    "desc": "Social icon row"
+   },
+   {
+    "name": "showPayment",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Payment marks in legal row"
+   },
+   {
+    "name": "showLocale",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "multiple locales/currencies",
+    "desc": "Language / currency selector"
+   },
+   {
+    "name": "mobileMenus",
+    "control": "segmented",
+    "options": "accordion | stacked",
+    "def": "accordion",
+    "group": "Mobile",
+    "resp": "mobile",
+    "dep": "menus ≥ 2",
+    "desc": "Menu presentation < 768"
+   },
+   {
+    "name": "legalMenu",
+    "control": "resource",
+    "options": "menu",
+    "def": "footer-legal",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Links in the legal row"
+   }
+  ]
+ },
+ {
+  "name": "featured-collection",
+  "group": "Commerce",
+  "purpose": "Merchandise one collection on any page.",
+  "components": "SectionHeader, ProductCard, Text Link / Button (View all), carousel controls",
+  "slots": "collection (resource), heading?, description?, productsToShow",
+  "responsive": "Columns 6→4→2, 5→3→2, 4→3→2, 3→3→2, 2→2→1. Carousel 4.3 / 2.5 / 1.2 visible.",
+  "edge": "Fewer products than columns → grid left-aligned, no stretch. Carousel with ≤ columns → grid. Empty collection → hidden in storefront, placeholder in editor.",
+  "props": [
+   {
+    "name": "collection",
+    "control": "resource",
+    "options": "collection",
+    "def": "—",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Source"
+   },
+   {
+    "name": "layout",
+    "control": "segmented",
+    "options": "grid | carousel",
+    "def": "grid",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Product presentation"
+   },
+   {
+    "name": "columns",
+    "control": "stepper",
+    "options": "2–6",
+    "def": "4",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "layout=grid",
+    "desc": "Desktop columns; tablet/mobile derive"
+   },
+   {
+    "name": "mobileColumns",
+    "control": "segmented",
+    "options": "1 | 2",
+    "def": "2",
+    "group": "Mobile",
+    "resp": "mobile",
+    "dep": "layout=grid",
+    "desc": "Override derived mobile columns"
+   },
+   {
+    "name": "productsToShow",
+    "control": "stepper",
+    "options": "2–12",
+    "def": "4",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Max products rendered"
+   },
+   {
+    "name": "headerAlignment",
+    "control": "segmented",
+    "options": "left | center",
+    "def": "left",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Header alignment; centered moves View all below grid"
+   },
+   {
+    "name": "showViewAll",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "View all link/button with count"
+   },
+   {
+    "name": "showNavigation",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "layout=carousel",
+    "desc": "Arrow buttons"
+   },
+   {
+    "name": "carouselOnMobile",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Mobile",
+    "resp": "mobile",
+    "dep": "layout=grid",
+    "desc": "Swipe row instead of grid on mobile"
+   },
+   {
+    "name": "cardImageRatio",
+    "control": "select",
+    "options": "inherit | adapt | square | portrait | landscape",
+    "def": "inherit",
+    "group": "Media",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Overrides global ProductCard ratio for this section"
+   }
+  ]
+ },
+ {
+  "name": "featured-product",
+  "group": "Commerce",
+  "purpose": "Compact merchandising of one product with purchase.",
+  "components": "ProductMedia (single), ProductTitle, ProductPrice, Swatches/VariantPicker, AddToCart, Text Link, Eyebrow",
+  "slots": "product (resource); block order",
+  "responsive": "Split → stacked < 768; ATC full width on mobile.",
+  "edge": "No media → frame kept. Many variants → Select. Sold out → button state + notify link.",
+  "props": [
+   {
+    "name": "product",
+    "control": "resource",
+    "options": "product",
+    "def": "—",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Source"
+   },
+   {
+    "name": "mediaPosition",
+    "control": "segmented",
+    "options": "left | right",
+    "def": "left",
+    "group": "Media",
+    "resp": "desktop",
+    "dep": "",
+    "desc": "Media column side"
+   },
+   {
+    "name": "mediaRatio",
+    "control": "select",
+    "options": "adapt | square | portrait",
+    "def": "square",
+    "group": "Media",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Frame ratio"
+   },
+   {
+    "name": "showVariants",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "product has variants",
+    "desc": "Variant picker inline"
+   },
+   {
+    "name": "descriptionLines",
+    "control": "segmented",
+    "options": "none | 3 | full",
+    "def": "3",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Clamp for description"
+   },
+   {
+    "name": "showViewDetails",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Link to product page"
+   }
+  ]
+ },
+ {
+  "name": "product-details",
+  "group": "Commerce",
+  "purpose": "The product page core: gallery + purchase column.",
+  "components": "ProductGallery, ProductTitle, ProductPrice, CompareAtPrice, SaleBadge, VariantPicker, Swatches, QuantitySelector, AddToCart, InventoryStatus, SKU, ProductDescription, ProductAccordion, Breadcrumb",
+  "slots": "product (media[], title, vendor, price, compareAt, options[], variants[], inventory, sku, description, metafields for accordion)",
+  "responsive": "7/5 → 6/6 → stacked; gallery becomes 1:1 swipe < 768; sticky column desktop, sticky bar mobile.",
+  "edge": "Long title balanced, no clamp. > 12 option values → Select. Sold out / unavailable states. No media, video media, price range until resolved.",
+  "props": [
+   {
+    "name": "galleryLayout",
+    "control": "visual cards",
+    "options": "thumbnails-left | thumbnails-below | stacked",
+    "def": "thumbnails-left",
+    "group": "Media",
+    "resp": "desktop",
+    "dep": "media > 1",
+    "desc": "Desktop gallery layout"
+   },
+   {
+    "name": "mediaRatio",
+    "control": "select",
+    "options": "adapt | portrait | square",
+    "def": "portrait",
+    "group": "Media",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Main media frame"
+   },
+   {
+    "name": "enableZoom",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Media",
+    "resp": "no",
+    "dep": "",
+    "desc": "Lightbox zoom"
+   },
+   {
+    "name": "stickyPurchase",
+    "control": "segmented",
+    "options": "desktop | mobile | both | none",
+    "def": "both",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Sticky column / bar"
+   },
+   {
+    "name": "variantStyle",
+    "control": "per option",
+    "options": "buttons | swatches | select",
+    "def": "buttons (color→swatches)",
+    "group": "Content",
+    "resp": "no",
+    "dep": "options exist",
+    "desc": "Control type per option"
+   },
+   {
+    "name": "showVendor",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Eyebrow vendor"
+   },
+   {
+    "name": "showSku",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "SKU line"
+   },
+   {
+    "name": "showInventory",
+    "control": "segmented",
+    "options": "always | low-only | never",
+    "def": "low-only",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "InventoryStatus visibility"
+   },
+   {
+    "name": "lowStockThreshold",
+    "control": "stepper",
+    "options": "1–20",
+    "def": "5",
+    "group": "Advanced",
+    "resp": "no",
+    "dep": "showInventory≠never",
+    "desc": "Threshold for low-stock message"
+   },
+   {
+    "name": "showQuantity",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Quantity selector"
+   },
+   {
+    "name": "accordionItems",
+    "control": "blocks",
+    "options": "title + rich text | metafield",
+    "def": "—",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Additional information rows"
+   }
+  ]
+ },
+ {
+  "name": "product-grid",
+  "group": "Commerce",
+  "purpose": "Collection page body with filters, sort and pagination.",
+  "components": "ProductCard, Chip (applied filters), Checkbox, Accordion (filter groups), Popover (sort), Drawer (mobile filters), Skeleton, Pagination / Button (load more), Empty State",
+  "slots": "collection products, filters (facets), sort options, total count",
+  "responsive": "Sidebar 260 → drawer < 1024; columns 4/3 → 3 → 2; toolbar sticky on mobile.",
+  "edge": "2 products fine. 30+ → load more with progress. Empty → clear filters. Loading skeletons at ratio.",
+  "props": [
+   {
+    "name": "columns",
+    "control": "segmented",
+    "options": "3 | 4",
+    "def": "3 with sidebar / 4 without",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "",
+    "desc": "Desktop columns"
+   },
+   {
+    "name": "mobileColumns",
+    "control": "segmented",
+    "options": "1 | 2",
+    "def": "2",
+    "group": "Mobile",
+    "resp": "mobile",
+    "dep": "",
+    "desc": "Mobile columns"
+   },
+   {
+    "name": "filterLayout",
+    "control": "segmented",
+    "options": "sidebar | drawer | none",
+    "def": "sidebar",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Where filters live on desktop"
+   },
+   {
+    "name": "showSort",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Sort control"
+   },
+   {
+    "name": "showCount",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Result count"
+   },
+   {
+    "name": "pagination",
+    "control": "segmented",
+    "options": "load-more | pages",
+    "def": "load-more",
+    "group": "Layout",
+    "resp": "no",
+    "dep": "",
+    "desc": "Paging pattern"
+   },
+   {
+    "name": "productsPerPage",
+    "control": "segmented",
+    "options": "12 | 24 | 48",
+    "def": "24",
+    "group": "Advanced",
+    "resp": "no",
+    "dep": "",
+    "desc": "Page size"
+   },
+   {
+    "name": "showQuickAdd",
+    "control": "toggle",
+    "options": "",
+    "def": "inherit",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Overrides global card quick add"
+   }
+  ]
+ },
+ {
+  "name": "collection-list",
+  "group": "Commerce",
+  "purpose": "Navigate into collections with imagery.",
+  "components": "SectionHeader, CollectionCard, carousel controls",
+  "slots": "collections[] (resource), heading?",
+  "responsive": "Columns as product grid; editorial featured spans 2×2 → full width; carousel default on mobile ≥ 4.",
+  "edge": "No image → title fallback. < 3 collections in editorial → grid. Mixed ratios cover-cropped.",
+  "props": [
+   {
+    "name": "collections",
+    "control": "resource list",
+    "options": "collections",
+    "def": "—",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Items"
+   },
+   {
+    "name": "layout",
+    "control": "visual cards",
+    "options": "grid | carousel | editorial",
+    "def": "grid",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Composition"
+   },
+   {
+    "name": "columns",
+    "control": "stepper",
+    "options": "2–5",
+    "def": "4",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "layout=grid",
+    "desc": "Desktop columns"
+   },
+   {
+    "name": "imageRatio",
+    "control": "select",
+    "options": "adapt | square | portrait | landscape",
+    "def": "portrait",
+    "group": "Media",
+    "resp": "yes",
+    "dep": "layout≠editorial",
+    "desc": "Card media ratio"
+   },
+   {
+    "name": "textStyle",
+    "control": "segmented",
+    "options": "below | overlay",
+    "def": "below",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "",
+    "desc": "Title placement; overlay forces scrim"
+   },
+   {
+    "name": "showCount",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Product count"
+   },
+   {
+    "name": "showDescription",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Collection description"
+   },
+   {
+    "name": "carouselOnMobile",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Mobile",
+    "resp": "mobile",
+    "dep": "layout=grid",
+    "desc": "Swipe row on mobile"
+   }
+  ]
+ },
+ {
+  "name": "cart-items",
+  "group": "Commerce",
+  "purpose": "Cart page body; establishes drawer language.",
+  "components": "CartLineItem, QuantitySelector, CartSummary, Button, Text Link, Textarea (note), PaymentIcons, Empty State, Toast",
+  "slots": "cart lines (image, title, variant, unit price, qty, line total, compareAt), subtotal, discounts, note",
+  "responsive": "Lines + sticky summary 380 → 320 → below → mobile stacked with sticky checkout bar.",
+  "edge": "Updating row dims; error reverts + toast; remove → Undo toast; empty → Narrow state.",
+  "props": [
+   {
+    "name": "showLineCompareAt",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Strikethrough on discounted lines"
+   },
+   {
+    "name": "showVendor",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Vendor under title"
+   },
+   {
+    "name": "enableNote",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Order note textarea"
+   },
+   {
+    "name": "showPaymentIcons",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Marks under checkout"
+   },
+   {
+    "name": "emptyStateCollection",
+    "control": "resource",
+    "options": "collection",
+    "def": "—",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Optional products under empty state"
+   },
+   {
+    "name": "summaryPosition",
+    "control": "segmented",
+    "options": "right | below",
+    "def": "right",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "",
+    "desc": "Summary placement on desktop"
+   }
+  ]
+ },
+ {
+  "name": "search-results",
+  "group": "Commerce",
+  "purpose": "Query page for products and content.",
+  "components": "Input (search), Tabs, ProductCard, SearchResultCard, product-grid toolbar, Skeleton, Empty State, collection-links",
+  "slots": "query, results by type with counts, sort options, popular collections",
+  "responsive": "Tabs scroll on mobile; grid follows product-grid rules.",
+  "edge": "No results: echo query, spelling hint, popular chips. Loading skeletons. Content-only results → rows.",
+  "props": [
+   {
+    "name": "resultTypes",
+    "control": "chips",
+    "options": "products | articles | pages",
+    "def": "all",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Which types are searched"
+   },
+   {
+    "name": "showTabs",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Layout",
+    "resp": "no",
+    "dep": "resultTypes > 1",
+    "desc": "Type tabs with counts"
+   },
+   {
+    "name": "showSort",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Sort control"
+   },
+   {
+    "name": "noResultsCollections",
+    "control": "resource list",
+    "options": "collections",
+    "def": "—",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Chips shown when empty"
+   },
+   {
+    "name": "columns",
+    "control": "segmented",
+    "options": "3 | 4",
+    "def": "4",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "",
+    "desc": "Desktop columns"
+   }
+  ]
+ },
+ {
+  "name": "product-recommendations",
+  "group": "Other",
+  "purpose": "Related / complementary products after PDP and in cart.",
+  "components": "SectionHeader, ProductCard, carousel controls",
+  "slots": "recommendation API result, heading",
+  "responsive": "As featured-collection.",
+  "edge": "0 results → hidden. Fewer than columns → grid.",
+  "props": [
+   {
+    "name": "heading",
+    "control": "text",
+    "options": "",
+    "def": "You may also like",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Section title"
+   },
+   {
+    "name": "intent",
+    "control": "segmented",
+    "options": "related | complementary",
+    "def": "related",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Recommendation type"
+   },
+   {
+    "name": "limit",
+    "control": "stepper",
+    "options": "2–8",
+    "def": "4",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Max products"
+   },
+   {
+    "name": "layout",
+    "control": "segmented",
+    "options": "grid | carousel",
+    "def": "carousel",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Presentation"
+   }
+  ]
+ },
+ {
+  "name": "account",
+  "group": "Commerce",
+  "purpose": "Customer area: orders, addresses, details; login/register.",
+  "components": "Tabs / side nav, table→cards, Button, Input, Empty State, Badge (status)",
+  "slots": "customer, orders[], addresses[]",
+  "responsive": "Side nav → tabs < 1024; table → cards < 768; login split → stacked.",
+  "edge": "No orders → Empty State. Many addresses → grid of cards with default badge.",
+  "props": [
+   {
+    "name": "showOrderHistory",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Orders tab"
+   },
+   {
+    "name": "ordersPerPage",
+    "control": "segmented",
+    "options": "10 | 20",
+    "def": "10",
+    "group": "Advanced",
+    "resp": "no",
+    "dep": "",
+    "desc": "Paging"
+   },
+   {
+    "name": "loginLayout",
+    "control": "segmented",
+    "options": "split | stacked",
+    "def": "split",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "",
+    "desc": "Sign in / register arrangement"
+   }
+  ]
+ },
+ {
+  "name": "policy-page",
+  "group": "Commerce",
+  "purpose": "Legal/policy reading page.",
+  "components": "H1, Caption (updated), rich text, optional sticky TOC",
+  "slots": "policy title, body, updated date",
+  "responsive": "Content 840; TOC hides < 1024.",
+  "edge": "Long policy → TOC when ≥ 6 headings.",
+  "props": [
+   {
+    "name": "showLastUpdated",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Date line"
+   },
+   {
+    "name": "showTableOfContents",
+    "control": "toggle",
+    "options": "",
+    "def": "auto",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "headings ≥ 6",
+    "desc": "Sticky in-page nav"
+   }
+  ]
+ },
+ {
+  "name": "store-locator",
+  "group": "Commerce",
+  "purpose": "Find physical stores.",
+  "components": "Input (search), StoreLocatorCard, map embed slot, Empty State",
+  "slots": "stores[] {name, address, hours?, phone?, coords?}, map provider",
+  "responsive": "3 → 2 → 1 columns; map above list on mobile at 4:3.",
+  "edge": "No map → list only. Missing hours/phone collapse. No match → Empty State.",
+  "props": [
+   {
+    "name": "layout",
+    "control": "segmented",
+    "options": "list | list+map",
+    "def": "list",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Map presence"
+   },
+   {
+    "name": "columns",
+    "control": "segmented",
+    "options": "2 | 3",
+    "def": "2",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "",
+    "desc": "Card columns"
+   },
+   {
+    "name": "showHours",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Hours rows"
+   },
+   {
+    "name": "showPhone",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Call link"
+   },
+   {
+    "name": "showImage",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Media",
+    "resp": "no",
+    "dep": "",
+    "desc": "Store photo 3:2 above card"
+   }
+  ]
+ },
+ {
+  "name": "rich-text",
+  "group": "Content",
+  "purpose": "Heading + paragraph + optional button in reading measure.",
+  "components": "Eyebrow, H1–H3, Body Large / Body, Button",
+  "slots": "eyebrow?, heading, body (rich), button?",
+  "responsive": "Content width caps at 840; left-aligned on mobile unless overridden.",
+  "edge": "Long heading steps down. Body only → no heading gap.",
+  "props": [
+   {
+    "name": "headingSize",
+    "control": "segmented",
+    "options": "h1 | h2 | h3",
+    "def": "h2",
+    "group": "Appearance",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Heading role"
+   },
+   {
+    "name": "contentAlignment",
+    "control": "segmented",
+    "options": "left | center",
+    "def": "center",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Alignment"
+   },
+   {
+    "name": "contentWidth",
+    "control": "segmented",
+    "options": "narrow | content | standard",
+    "def": "content",
+    "group": "Layout",
+    "resp": "no",
+    "dep": "",
+    "desc": "Max text width"
+   },
+   {
+    "name": "buttonVariant",
+    "control": "segmented",
+    "options": "primary | secondary | text",
+    "def": "secondary",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "button set",
+    "desc": "CTA style"
+   },
+   {
+    "name": "mobileContentAlignment",
+    "control": "segmented",
+    "options": "left | center",
+    "def": "left",
+    "group": "Mobile",
+    "resp": "mobile",
+    "dep": "",
+    "desc": "Override on mobile"
+   }
+  ]
+ },
+ {
+  "name": "page-body",
+  "group": "Content",
+  "purpose": "Generic page content in reading layout.",
+  "components": "H1, rich text, images",
+  "slots": "page title, body",
+  "responsive": "Content 840 / text 680.",
+  "edge": "Wide tables scroll horizontally.",
+  "props": [
+   {
+    "name": "showTitle",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Render page title as H1"
+   },
+   {
+    "name": "textWidth",
+    "control": "segmented",
+    "options": "content | standard",
+    "def": "content",
+    "group": "Layout",
+    "resp": "no",
+    "dep": "",
+    "desc": "Measure"
+   }
+  ]
+ },
+ {
+  "name": "article-body",
+  "group": "Content",
+  "purpose": "Blog article reading layout.",
+  "components": "Eyebrow (blog · date), H1, hero image, rich text, tags, share links",
+  "slots": "article {title, date, author?, image?, body, tags?}",
+  "responsive": "Content 840 / text 680; hero image 16:9 → 3:2 mobile.",
+  "edge": "No image → skip frame. Very long → no TOC, just spacing rhythm.",
+  "props": [
+   {
+    "name": "showDate",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Meta row date"
+   },
+   {
+    "name": "showAuthor",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Author in meta"
+   },
+   {
+    "name": "showFeaturedImage",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Media",
+    "resp": "no",
+    "dep": "image set",
+    "desc": "Hero image"
+   },
+   {
+    "name": "showShare",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Share links at end"
+   },
+   {
+    "name": "showTags",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "tags exist",
+    "desc": "Tag chips at end"
+   }
+  ]
+ },
+ {
+  "name": "blog-posts",
+  "group": "Content",
+  "purpose": "Grid of recent articles.",
+  "components": "SectionHeader, BlogCard, Text Link",
+  "slots": "blog (resource), posts limit",
+  "responsive": "3 → 2 → 1 (first featured, rest rows).",
+  "edge": "No image → text card with top border. 1 post → single featured card.",
+  "props": [
+   {
+    "name": "blog",
+    "control": "resource",
+    "options": "blog",
+    "def": "—",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Source"
+   },
+   {
+    "name": "columns",
+    "control": "segmented",
+    "options": "2 | 3 | 4",
+    "def": "3",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "",
+    "desc": "Desktop columns"
+   },
+   {
+    "name": "postsToShow",
+    "control": "stepper",
+    "options": "1–9",
+    "def": "3",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Count"
+   },
+   {
+    "name": "showExcerpt",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Two-line excerpt"
+   },
+   {
+    "name": "showDate",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Date in meta"
+   },
+   {
+    "name": "imageRatio",
+    "control": "select",
+    "options": "landscape | square | adapt",
+    "def": "landscape",
+    "group": "Media",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Card image ratio"
+   }
+  ]
+ },
+ {
+  "name": "image-with-text",
+  "group": "Content",
+  "purpose": "Media beside copy.",
+  "components": "image slot, Eyebrow, H2/H3, Body, Button / Text Link",
+  "slots": "image, eyebrow?, heading, body, button?",
+  "responsive": "50/50 → stacked < 768 (media first by default).",
+  "edge": "No image → single column rich-text. Long body → top-aligned content.",
+  "props": [
+   {
+    "name": "mediaPosition",
+    "control": "segmented",
+    "options": "left | right",
+    "def": "left",
+    "group": "Media",
+    "resp": "desktop",
+    "dep": "",
+    "desc": "Media side"
+   },
+   {
+    "name": "mediaRatio",
+    "control": "select",
+    "options": "adapt | portrait | square | landscape",
+    "def": "adapt",
+    "group": "Media",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Frame ratio"
+   },
+   {
+    "name": "contentVerticalAlign",
+    "control": "segmented",
+    "options": "top | center",
+    "def": "center",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "",
+    "desc": "Copy alignment against media"
+   },
+   {
+    "name": "mobileMediaPosition",
+    "control": "segmented",
+    "options": "before | after",
+    "def": "before",
+    "group": "Mobile",
+    "resp": "mobile",
+    "dep": "",
+    "desc": "Stack order"
+   },
+   {
+    "name": "buttonVariant",
+    "control": "segmented",
+    "options": "secondary | text",
+    "def": "text",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "button set",
+    "desc": "CTA style"
+   }
+  ]
+ },
+ {
+  "name": "multicolumn",
+  "group": "Content",
+  "purpose": "Equal columns with optional image, heading, text, link.",
+  "components": "SectionHeader, image slot, H4, Body Small, Text Link",
+  "slots": "columns[] {image?, heading, text, link?}",
+  "responsive": "3→2→2, 4→2→2; 1 column on mobile if text-heavy.",
+  "edge": "Missing image → text-only column, alignment kept. Uneven text → top aligned.",
+  "props": [
+   {
+    "name": "columns",
+    "control": "stepper",
+    "options": "2–4",
+    "def": "3",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "",
+    "desc": "Desktop columns"
+   },
+   {
+    "name": "showImage",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Media",
+    "resp": "no",
+    "dep": "",
+    "desc": "Column images"
+   },
+   {
+    "name": "imageRatio",
+    "control": "select",
+    "options": "landscape | square | portrait",
+    "def": "landscape",
+    "group": "Media",
+    "resp": "yes",
+    "dep": "showImage=on",
+    "desc": "Column image ratio"
+   },
+   {
+    "name": "textAlignment",
+    "control": "segmented",
+    "options": "left | center",
+    "def": "left",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Column text alignment"
+   },
+   {
+    "name": "carouselOnMobile",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Mobile",
+    "resp": "mobile",
+    "dep": "",
+    "desc": "Swipe row on mobile"
+   }
+  ]
+ },
+ {
+  "name": "feature-highlights",
+  "group": "Content",
+  "purpose": "Icon + short claim rows.",
+  "components": "icon slot, H5, Body Small",
+  "slots": "items[] {icon, title, text?, link?}",
+  "responsive": "4→2→2; icons 44 circle → 20 plain on mobile.",
+  "edge": "No claims by default — merchant supplies. 2 items → centered pair.",
+  "props": [
+   {
+    "name": "columns",
+    "control": "segmented",
+    "options": "3 | 4",
+    "def": "4",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "",
+    "desc": "Desktop columns"
+   },
+   {
+    "name": "iconStyle",
+    "control": "segmented",
+    "options": "outline | filled-circle",
+    "def": "outline",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "",
+    "desc": "Icon treatment"
+   },
+   {
+    "name": "textAlignment",
+    "control": "segmented",
+    "options": "left | center",
+    "def": "center",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Alignment"
+   }
+  ]
+ },
+ {
+  "name": "feature-grid-blocks",
+  "group": "Content",
+  "purpose": "Bento of image and text blocks.",
+  "components": "image block (overlay text), text block (Surface Secondary / Primary), Text Link",
+  "slots": "blocks[] {type, image?, heading, link?, background}",
+  "responsive": "Preset grid → large block full width, small 2-up on mobile.",
+  "edge": "Fewer blocks than preset → preset degrades to next smaller. Overlay text always Medium scrim.",
+  "props": [
+   {
+    "name": "preset",
+    "control": "visual cards",
+    "options": "1+4 | 2+2 | 3-equal | 1+2",
+    "def": "1+4",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Grid arrangement"
+   },
+   {
+    "name": "rowHeight",
+    "control": "segmented",
+    "options": "small | medium | large",
+    "def": "medium",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "240 / 280 / 320 row height"
+   },
+   {
+    "name": "blockBackground",
+    "control": "segmented (per block)",
+    "options": "surface-secondary | primary | image",
+    "def": "surface-secondary",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "",
+    "desc": "Text block background role"
+   }
+  ]
+ },
+ {
+  "name": "faq",
+  "group": "Content",
+  "purpose": "Question/answer accordion.",
+  "components": "SectionHeader, Accordion (faq-item)",
+  "slots": "items[] {question, answer rich}",
+  "responsive": "Content width; 60px rows → 56 mobile.",
+  "edge": "1 item → open. Very long answer grows.",
+  "props": [
+   {
+    "name": "singleOpen",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Only one item open"
+   },
+   {
+    "name": "firstOpen",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "First item expanded by default"
+   },
+   {
+    "name": "headerAlignment",
+    "control": "segmented",
+    "options": "left | center",
+    "def": "left",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Header alignment"
+   }
+  ]
+ },
+ {
+  "name": "collection-links",
+  "group": "Content",
+  "purpose": "Quick links to collections as chips or large rows.",
+  "components": "Chip (link) or large Text Link rows",
+  "slots": "links[] (resource) or menu",
+  "responsive": "Chips wrap; list rows full width.",
+  "edge": "Long labels wrap inside chip. Used in not-found, search empty, group.",
+  "props": [
+   {
+    "name": "style",
+    "control": "segmented",
+    "options": "chips | list",
+    "def": "chips",
+    "group": "Appearance",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Presentation"
+   },
+   {
+    "name": "source",
+    "control": "resource",
+    "options": "menu | collections",
+    "def": "—",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Link source"
+   },
+   {
+    "name": "listSize",
+    "control": "segmented",
+    "options": "medium | large",
+    "def": "large",
+    "group": "Appearance",
+    "resp": "yes",
+    "dep": "style=list",
+    "desc": "Row type size (H4 / H3)"
+   }
+  ]
+ },
+ {
+  "name": "marquee",
+  "group": "Content",
+  "purpose": "Continuous horizontal text strip.",
+  "components": "Text, dot separators",
+  "slots": "items[] text",
+  "responsive": "One line all sizes; speed constant px/s.",
+  "edge": "1 item → static. Reduced motion → static wrapped row. Pauses on hover/focus.",
+  "props": [
+   {
+    "name": "speed",
+    "control": "segmented",
+    "options": "slow | standard | fast",
+    "def": "standard",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "",
+    "desc": "40 / 60 / 90 px/s"
+   },
+   {
+    "name": "direction",
+    "control": "segmented",
+    "options": "left | right",
+    "def": "left",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "",
+    "desc": "Scroll direction"
+   },
+   {
+    "name": "pauseOnHover",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Advanced",
+    "resp": "no",
+    "dep": "",
+    "desc": "Pause interaction"
+   },
+   {
+    "name": "background",
+    "control": "segmented",
+    "options": "surface | surface-secondary | primary",
+    "def": "surface",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "",
+    "desc": "Strip background"
+   }
+  ]
+ },
+ {
+  "name": "logo-list",
+  "group": "Other",
+  "purpose": "Row of partner/press logos.",
+  "components": "logo image slots",
+  "slots": "logos[] {image, link?}",
+  "responsive": "Grid ≤ 6 → 3-up mobile; > 6 → scroll row.",
+  "edge": "Mixed aspect normalised by 32px height. Grayscale optional.",
+  "props": [
+   {
+    "name": "grayscale",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "",
+    "desc": "Monochrome logos"
+   },
+   {
+    "name": "columns",
+    "control": "segmented",
+    "options": "4 | 5 | 6",
+    "def": "6",
+    "group": "Layout",
+    "resp": "desktop",
+    "dep": "logos ≤ 6",
+    "desc": "Grid columns"
+   },
+   {
+    "name": "logoHeight",
+    "control": "segmented",
+    "options": "small 24 | medium 32 | large 40",
+    "def": "medium",
+    "group": "Appearance",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Uniform height"
+   }
+  ]
+ },
+ {
+  "name": "newsletter",
+  "group": "Other",
+  "purpose": "Email capture.",
+  "components": "SectionHeader, NewsletterForm, Caption",
+  "slots": "heading, text?, consent text?, success text",
+  "responsive": "Inline form → stacked < 480.",
+  "edge": "Success replaces form. Error inline. Split layout needs image.",
+  "props": [
+   {
+    "name": "layout",
+    "control": "segmented",
+    "options": "centered | split",
+    "def": "centered",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "With optional image column"
+   },
+   {
+    "name": "background",
+    "control": "segmented",
+    "options": "surface | surface-secondary | primary",
+    "def": "surface-secondary",
+    "group": "Appearance",
+    "resp": "no",
+    "dep": "",
+    "desc": "Section background"
+   },
+   {
+    "name": "showConsent",
+    "control": "toggle",
+    "options": "",
+    "def": "off",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Consent caption line"
+   },
+   {
+    "name": "buttonLabel",
+    "control": "text",
+    "options": "",
+    "def": "Subscribe",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "CTA label"
+   }
+  ]
+ },
+ {
+  "name": "contact-form",
+  "group": "Other",
+  "purpose": "Contact form with optional side copy.",
+  "components": "Input, Textarea, Button, inline errors, success state",
+  "slots": "fields config, recipient, success text",
+  "responsive": "Narrow 560; split → stacked < 1024.",
+  "edge": "Errors: per-field + summary; success replaces form.",
+  "props": [
+   {
+    "name": "layout",
+    "control": "segmented",
+    "options": "stacked | split",
+    "def": "stacked",
+    "group": "Layout",
+    "resp": "yes",
+    "dep": "",
+    "desc": "Form alone or beside text"
+   },
+   {
+    "name": "fields",
+    "control": "chips",
+    "options": "name | email | phone | message",
+    "def": "name, email, message",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Enabled fields"
+   },
+   {
+    "name": "successMessage",
+    "control": "text",
+    "options": "",
+    "def": "Thanks — we’ll reply soon.",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Post-submit copy"
+   }
+  ]
+ },
+ {
+  "name": "not-found",
+  "group": "Other",
+  "purpose": "404 message with recovery actions.",
+  "components": "Eyebrow, H1, Body, Button ×1–2, Input (search)?, collection-links?",
+  "slots": "heading, text, buttons",
+  "responsive": "Narrow; buttons stack < 480.",
+  "edge": "Without search → single primary. Optional links below.",
+  "props": [
+   {
+    "name": "showSearch",
+    "control": "toggle",
+    "options": "",
+    "def": "on",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Search button/field"
+   },
+   {
+    "name": "collectionLinks",
+    "control": "resource list",
+    "options": "collections",
+    "def": "—",
+    "group": "Content",
+    "resp": "no",
+    "dep": "",
+    "desc": "Chips under message"
+   }
+  ]
+ }
+]

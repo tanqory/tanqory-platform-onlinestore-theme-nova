@@ -31,9 +31,9 @@ export function FooterBrand({ attributes }: SectionProps): JSX.Element {
   return (
     <div className="site-footer__brand">
       <h2>{name}</h2>
-      {tagline && <p style={{ color: 'rgba(255,255,255,0.7)', maxWidth: '36ch' }}>{tagline}</p>}
+      {tagline && <p className="site-footer__muted">{tagline}</p>}
       {(email || phone) && (
-        <p className="site-footer__contact" style={{ color: 'rgba(255,255,255,0.7)' }}>
+        <p className="site-footer__contact site-footer__muted">
           {email && (
             <a href={`mailto:${email}`} style={{ color: 'inherit' }}>
               {email}
@@ -53,6 +53,7 @@ export function FooterBrand({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'footer-brand',
+  role: 'block',
   title: 'Brand information',
   category: 'block',
   icon: '◈',

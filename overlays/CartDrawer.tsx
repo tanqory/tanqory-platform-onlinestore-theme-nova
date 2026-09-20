@@ -1,6 +1,8 @@
 import { getAnalytics, useCart, useT } from '@tanqory/theme-kit'
 import { useEffect } from 'react'
 import { Drawer } from '../components/Drawer'
+import { showToast } from '../components/Overlays'
+import { QuantityStepper } from '../components/QuantityStepper'
 import { ImageResponsive } from '../components/ImageResponsive'
 import { Money } from '../components/Money'
 import { Button } from '../components/Button'
@@ -27,7 +29,9 @@ interface CartDrawerProps {
 export function CartDrawer(props: CartDrawerProps): JSX.Element {
   const open = useOverlay('cart')
   const { width: widthAttr, emptyHeading, emptySubtext, checkoutLabel, viewCartLabel } = props
-  const { lines, subtotal, checkoutUrl, updateQuantity, remove } = useCart()
+  // Same contract as the cart page: the drawer must not quote a different
+  // total from the page it links to.
+  const { lines, subtotal, total, discountAmount, totalQuantity, checkoutUrl, error, updateQuantity, remove } = useCart()
   const t = useT()
 
   // The mini-cart is nova's primary cart surface (auto-opens after add-to-cart),
@@ -39,7 +43,10 @@ export function CartDrawer(props: CartDrawerProps): JSX.Element {
 
   return (
     <Drawer open={open} side="right" width={widthAttr} ariaLabel="Cart">
-      <header className="drawer__head">
+      {/* A div, not <header>: a bare <header> outside a sectioning element is a
+          `banner` landmark, and the page already has one. Every route was
+          reporting two. */}
+      <div className="drawer__head">
         <h2 className="drawer__title">{t('cart.title')}</h2>
         <button
           type="button"
@@ -49,7 +56,7 @@ export function CartDrawer(props: CartDrawerProps): JSX.Element {
         >
           ✕
         </button>
-      </header>
+      </div>
 
       {lines.length === 0 ? (
         <div className="drawer__empty">
@@ -70,23 +77,12 @@ export function CartDrawer(props: CartDrawerProps): JSX.Element {
                   {l.variantTitle && (
                     <span className="u-text-muted drawer__variant">{l.variantTitle}</span>
                   )}
-                  <div className="drawer__qty" role="group" aria-label="Quantity">
-                    <button
-                      type="button"
-                      aria-label="Decrease quantity"
-                      onClick={() => void updateQuantity(l.id, l.quantity - 1)}
-                    >
-                      −
-                    </button>
-                    <span aria-live="polite">{l.quantity}</span>
-                    <button
-                      type="button"
-                      aria-label="Increase quantity"
-                      onClick={() => void updateQuantity(l.id, l.quantity + 1)}
-                    >
-                      +
-                    </button>
-                  </div>
+                  <QuantityStepper
+                    value={l.quantity}
+                    onChange={(q) => void updateQuantity(l.id, q)}
+                    label={`Quantity for ${l.title}`}
+                    size="sm"
+                  />
                 </div>
                 <div className="drawer__line-price">
                   <Money value={l.lineSubtotal} />
@@ -102,6 +98,7 @@ export function CartDrawer(props: CartDrawerProps): JSX.Element {
                         ...(l.productHandle ? { handle: l.productHandle } : {}),
                       })
                       void remove(l.id)
+                      showToast(`${l.title} removed`)
                     }}
                   >
                     {t('cart.remove')}
@@ -112,9 +109,26 @@ export function CartDrawer(props: CartDrawerProps): JSX.Element {
           </ul>
 
           <footer className="drawer__foot">
+            {error && (
+              <p className="u-text-error" role="alert">
+                {error}
+              </p>
+            )}
             <div className="drawer__row">
               <span>{t('cart.subtotal')}</span>
-              <strong><Money value={subtotal} /></strong>
+              <Money value={subtotal} />
+            </div>
+            {discountAmount && (
+              <div className="drawer__row cart-summary__row--discount">
+                <span>{t('cart.discount')}</span>
+                <span>
+                  − <Money value={discountAmount} />
+                </span>
+              </div>
+            )}
+            <div className="drawer__row drawer__row--total">
+              <strong>{t('cart.total')}</strong>
+              <strong><Money value={total ?? subtotal} /></strong>
             </div>
             <p className="u-text-muted drawer__shipping-note">
               {t('cart.shippingNote')}
@@ -127,7 +141,11 @@ export function CartDrawer(props: CartDrawerProps): JSX.Element {
               fullWidth
               onClick={() => {
                 const a = getAnalytics()
-                a.track('CHECKOUT_STARTED', { value: subtotal, lineCount: lines.length })
+                a.track('CHECKOUT_STARTED', {
+                  value: total ?? subtotal,
+                  lineCount: lines.length,
+                  itemCount: totalQuantity,
+                })
                 a.flush()
               }}
             />

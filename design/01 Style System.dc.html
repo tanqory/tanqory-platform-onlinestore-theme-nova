@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#E9E7E3} a{color:#1B1A18} a:hover{color:#5C5955} @keyframes tq-spin{to{transform:rotate(360deg)}}</style>
+</helmet>
+<div style="font-family:'Instrument Sans',Helvetica,Arial,sans-serif;color:#1B1A18;padding:64px;display:flex;flex-direction:column;gap:48px;width:1440px;box-sizing:border-box">
+
+<header style="display:flex;justify-content:space-between;align-items:flex-end;gap:32px">
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C5955;letter-spacing:.04em">TANQORY NOVA · 01 / 06</span>
+    <h1 style="margin:0;font-size:40px;line-height:1.1;font-weight:500;letter-spacing:-.02em">Style System</h1>
+    <p style="margin:0;font-size:16px;line-height:24px;color:#5C5955;max-width:720px;text-wrap:pretty">The neutral foundation every primitive, commerce component and section inherits. The theme stays quiet: merchant brand supplies personality, product imagery supplies focus.</p>
+  </div>
+  <nav style="display:flex;gap:8px;font-size:13px">
+    <a href="00 Index.dc.html" style="padding:8px 12px;border:1px solid #C9C6C0;border-radius:4px;text-decoration:none;background:#fff">Index</a>
+    <a href="02 UI Primitives.dc.html" style="padding:8px 12px;border:1px solid #C9C6C0;border-radius:4px;text-decoration:none;background:#fff">02 Primitives →</a>
+  </nav>
+</header>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;justify-content:space-between;align-items:baseline"><h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Color — semantic roles</h2><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A867F">Roles are the contract. Hex values shown are the neutral default only.</span></div>
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px">
+    <sc-for list="{{ colors }}" as="c" hint-placeholder-count="8">
+      <div style="border:1px solid #E6E4E0;border-radius:4px;overflow:hidden;display:flex;flex-direction:column">
+        <div style="height:64px;background:{{ c.hex }};border-bottom:1px solid #E6E4E0"></div>
+        <div style="padding:12px 14px;display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:14px;font-weight:500">{{ c.role }}</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">{{ c.token }} · {{ c.hex }}</span>
+          <span style="font-size:12px;color:#8A867F;line-height:16px">{{ c.use }}</span>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;font-size:14px;line-height:20px;color:#5C5955">
+    <div style="display:flex;flex-direction:column;gap:8px"><strong style="color:#1B1A18">Contrast rules</strong><span>Text Primary on Background / Surface ≥ 12:1. Text Secondary ≥ 7:1. Text Muted ≥ 4.5:1 (never below 12px). Button label on Primary ≥ 4.5:1 — if a merchant brand fails, Text Inverse flips automatically to Text Primary. Sale and Critical share a hue family but Sale is reserved for price and badge; Critical for errors.</span></div>
+    <div style="display:flex;flex-direction:column;gap:8px"><strong style="color:#1B1A18">What brand replacement touches</strong><span>Primary, Primary Hover, Primary Active, focus ring, selected-variant outline, active tab indicator, link hover. Neutrals, feedback colors, borders and overlay stay fixed so the page keeps its calm baseline regardless of brand hue.</span></div>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:flex;flex-direction:column;gap:24px">
+  <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Brand color replacement</h2>
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px">
+    <sc-for list="{{ brands }}" as="b" hint-placeholder-count="3">
+      <div style="border:1px solid #E6E4E0;border-radius:4px;padding:24px;display:flex;flex-direction:column;gap:20px;background:#FCFCFB">
+        <div style="display:flex;justify-content:space-between"><span style="font-size:14px;font-weight:500">{{ b.name }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A867F">primary {{ b.p }}</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button style="height:44px;padding:0 20px;background:{{ b.p }};color:{{ b.fg }};border:0;border-radius:4px;font:inherit;font-size:14px;font-weight:500">Add to cart</button>
+          <button style="height:44px;padding:0 20px;background:transparent;color:#1B1A18;border:1px solid #C9C6C0;border-radius:4px;font:inherit;font-size:14px;font-weight:500">Secondary</button>
+        </div>
+        <div style="display:flex;gap:16px;align-items:center;font-size:14px">
+          <a href="#" style="color:{{ b.p }};text-decoration:underline;text-underline-offset:3px">Text link</a>
+          <span style="display:flex;gap:6px"><span style="width:20px;height:20px;border-radius:50%;background:#C9C6C0;outline:2px solid {{ b.p }};outline-offset:2px"></span><span style="width:20px;height:20px;border-radius:50%;background:#1B1A18"></span></span>
+          <span style="display:flex;gap:8px;align-items:baseline;font-variant-numeric:tabular-nums"><span style="font-weight:500;color:#B3261E">$36.00</span><span style="color:#8A867F;text-decoration:line-through;font-size:13px">$48.00</span></span>
+        </div>
+        <div style="height:1px;background:#E6E4E0"></div>
+        <div style="display:flex;gap:16px;font-size:14px"><span style="padding-bottom:8px;border-bottom:2px solid {{ b.p }};font-weight:500">Details</span><span style="padding-bottom:8px;color:#5C5955">Shipping</span></div>
+        <span style="font-size:12px;color:#8A867F;line-height:16px">{{ b.note }}</span>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;justify-content:space-between;align-items:baseline"><h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Typography</h2><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A867F">Default family: Instrument Sans (heading + body, merchant-replaceable). Fluid sizes clamp between 390 and 1440.</span></div>
+  <div style="display:flex;flex-direction:column">
+    <sc-for list="{{ type }}" as="t" hint-placeholder-count="10">
+      <div style="display:grid;grid-template-columns:180px minmax(0,1fr) 420px;gap:32px;padding:20px 0;border-top:1px solid #E6E4E0;align-items:baseline">
+        <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:500">{{ t.name }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A867F">{{ t.token }}</span></div>
+        <div style="font-size:{{ t.size }};line-height:{{ t.lh }};font-weight:{{ t.w }};letter-spacing:{{ t.ls }};text-transform:{{ t.tt }};text-decoration:{{ t.td }};color:{{ t.color }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums">{{ t.sample }}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:16px;color:#5C5955;display:flex;flex-direction:column;gap:2px"><span>{{ t.spec }}</span><span style="color:#8A867F">{{ t.behavior }}</span></div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;font-size:14px;line-height:20px;color:#5C5955">
+    <div><strong style="color:#1B1A18;display:block;margin-bottom:6px">Wrapping</strong>Headings use text-wrap: balance up to 3 lines; body uses text-wrap: pretty. Product titles clamp at 2 lines in cards, unlimited on product details.</div>
+    <div><strong style="color:#1B1A18;display:block;margin-bottom:6px">Numerals</strong>All prices, quantities and counts use tabular numerals so columns and updating totals do not shift.</div>
+    <div><strong style="color:#1B1A18;display:block;margin-bottom:6px">Font swap</strong>Merchants may replace heading and body families independently. Scale, weights and line heights are defined per role so hierarchy survives a font change; letter-spacing resets to 0 for non-default fonts.</div>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:48px">
+  <div style="display:flex;flex-direction:column;gap:24px">
+    <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Spacing scale</h2>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <sc-for list="{{ space }}" as="s" hint-placeholder-count="10">
+        <div style="display:grid;grid-template-columns:64px 48px minmax(0,1fr);gap:16px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C5955">
+          <span style="color:#1B1A18;font-weight:500">{{ s.name }}</span><span>{{ s.px }}px</span>
+          <div style="height:16px;width:{{ s.px }}px;background:#1B1A18;border-radius:2px;max-width:100%"></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px;font-size:14px;line-height:20px">
+    <h3 style="margin:0;font-size:16px;font-weight:500">Semantic spacing roles</h3>
+    <sc-for list="{{ spaceRoles }}" as="r" hint-placeholder-count="6">
+      <div style="display:grid;grid-template-columns:140px minmax(0,1fr);gap:12px;padding:10px 0;border-top:1px solid #E6E4E0"><span style="font-weight:500">{{ r.name }}</span><span style="color:#5C5955">{{ r.val }}</span></div>
+    </sc-for>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;justify-content:space-between;align-items:baseline"><h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Containers &amp; grid</h2><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A867F">One page frame. Sections pick a container; they never invent a width.</span></div>
+  <div style="position:relative;background:#F4F3F1;border:1px solid #E6E4E0;height:260px;overflow:hidden">
+    <sc-for list="{{ containers }}" as="k" hint-placeholder-count="5">
+      <div style="position:absolute;top:{{ k.top }}px;bottom:0;left:50%;transform:translateX(-50%);width:{{ k.w }};background:{{ k.bg }};border:1px solid {{ k.border }};border-bottom:0;display:flex;justify-content:space-between;padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1B1A18"><span>{{ k.name }}</span><span style="color:#5C5955">{{ k.max }}</span></div>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;font-size:13px;line-height:18px;color:#5C5955">
+    <sc-for list="{{ containers }}" as="k" hint-placeholder-count="5">
+      <div style="display:flex;flex-direction:column;gap:4px;border-top:2px solid #1B1A18;padding-top:10px"><strong style="color:#1B1A18">{{ k.name }} · {{ k.max }}</strong><span>{{ k.use }}</span></div>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px">
+    <sc-for list="{{ breakpoints }}" as="bp" hint-placeholder-count="4">
+      <div style="border:1px solid #E6E4E0;border-radius:4px;padding:16px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:16px;font-weight:500">{{ bp.w }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A867F">{{ bp.name }}</span></div>
+        <div style="display:flex;gap:{{ bp.gap }}px;padding:0 {{ bp.gutterVis }}px;background:#F4F3F1;height:40px;align-items:stretch">
+          <sc-for list="{{ bp.cols }}" as="c" hint-placeholder-count="4"><div style="flex:1;background:#DDDAD4"></div></sc-for>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:16px;color:#5C5955"><div>gutter {{ bp.gutter }}px · gap {{ bp.gap }}px</div><div>{{ bp.colsLabel }} columns · product grid {{ bp.pg }}</div></div>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px">
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Section spacing presets</h2>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ sectionSpacing }}" as="s" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:100px 80px 80px 80px minmax(0,1fr);gap:12px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C5955;padding:8px 0;border-top:1px solid #E6E4E0">
+          <span style="font-family:'Instrument Sans',sans-serif;font-size:14px;color:#1B1A18;font-weight:500">{{ s.name }}</span><span>{{ s.d }}</span><span>{{ s.t }}</span><span>{{ s.m }}</span>
+          <div style="height:{{ s.bar }}px;background:#1B1A18;width:100%;border-radius:2px"></div>
+        </div>
+      </sc-for>
+      <div style="display:grid;grid-template-columns:100px 80px 80px 80px minmax(0,1fr);gap:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A867F"><span></span><span>1440</span><span>768</span><span>390</span></div>
+    </div>
+    <p style="margin:0;font-size:14px;line-height:20px;color:#5C5955">Presets apply as padding-block on the section. Adjacent sections sharing a background collapse to the smaller of the two values. Default is Medium. Full-bleed media sections default to None.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Radius · Borders · Shadows</h2>
+    <div style="display:flex;gap:16px;align-items:flex-end">
+      <sc-for list="{{ radii }}" as="r" hint-placeholder-count="5">
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955;text-align:center"><div style="width:56px;height:56px;border:1px solid #1B1A18;border-radius:{{ r.css }};background:#F4F3F1"></div><span style="color:#1B1A18">{{ r.name }}</span><span>{{ r.val }}</span><span style="color:#8A867F;max-width:96px;line-height:14px">{{ r.use }}</span></div>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+      <sc-for list="{{ borders }}" as="b" hint-placeholder-count="4">
+        <div style="height:56px;border:{{ b.css }};border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955;outline:{{ b.outline }};outline-offset:2px">{{ b.name }} · {{ b.val }}</div>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:16px;background:#F4F3F1;border-radius:4px">
+      <sc-for list="{{ shadows }}" as="s" hint-placeholder-count="4">
+        <div style="height:64px;background:#fff;border-radius:{{ s.r }};box-shadow:{{ s.css }};border:1px solid #E6E4E0;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">{{ s.name }}</div>
+      </sc-for>
+    </div>
+    <p style="margin:0;font-size:14px;line-height:20px;color:#5C5955">Borders before shadows. Product cards, collection cards and inputs are bordered, never shadowed. Shadows exist only for elements that float over content.</p>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:48px">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Motion</h2>
+    <sc-for list="{{ motion }}" as="m" hint-placeholder-count="3">
+      <div style="display:grid;grid-template-columns:80px 90px minmax(0,1fr);gap:12px;padding:10px 0;border-top:1px solid #E6E4E0;font-size:14px;line-height:20px"><span style="font-weight:500">{{ m.name }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C5955">{{ m.ms }}</span><span style="color:#5C5955">{{ m.use }}</span></div>
+    </sc-for>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C5955;line-height:18px">ease-standard cubic-bezier(.2,0,0,1)<br>ease-exit cubic-bezier(.4,0,1,1)<br>ease-enter cubic-bezier(0,0,.2,1)</div>
+    <ul style="margin:0;padding-left:16px;font-size:13px;line-height:20px;color:#5C5955"><li>Hover: color/border only, Fast. Card image scale ≤ 1.03 or image swap crossfade, Standard.</li><li>Buttons: background Fast; loading spinner replaces label, width held.</li><li>Drawer: translateX 100% → 0, Slow, ease-enter; overlay fades Standard.</li><li>Modal: opacity + scale .98 → 1, Standard.</li><li>Accordion: height auto, Standard.</li><li>Variant image change: crossfade Standard, no slide.</li><li>Cart update: line total fades, badge count scales 1 → 1.15 → 1, Fast.</li><li>prefers-reduced-motion: all transforms removed, durations 0, opacity-only where a change must be perceivable.</li></ul>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Iconography</h2>
+    <div style="display:flex;gap:16px;align-items:center">
+      <sc-for list="{{ iconSizes }}" as="i" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:{{ i.px }}px;height:{{ i.px }}px;border:1.5px solid #1B1A18;border-radius:{{ i.r }}px"></div><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">{{ i.px }} · {{ i.use }}</span></div>
+      </sc-for>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:44px;height:44px;border:1px dashed #C9C6C0;border-radius:4px;display:flex;align-items:center;justify-content:center"><div style="width:20px;height:20px;border:1.5px solid #1B1A18;border-radius:4px"></div></div><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">44 touch target</span></div>
+    </div>
+    <ul style="margin:0;padding-left:16px;font-size:13px;line-height:20px;color:#5C5955"><li>One outline set, 1.5px stroke at 20px, round caps and joins. Scales to 1.5px at 16 and 24 (stroke not scaled).</li><li>Filled variant only to signal a selected/active state (wishlist saved, filled star). Never mix a second icon family.</li><li>Icons inherit currentColor. Optically centered on a 20px box; inline icons align to text cap height.</li><li>Every icon-only control has a visible label on focus or an aria-label, and ≥ 44px hit area on touch.</li></ul>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Image system</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+      <sc-for list="{{ images }}" as="im" hint-placeholder-count="6">
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="aspect-ratio:{{ im.ratio }};background:repeating-linear-gradient(135deg,#EFEEEB 0 8px,#E8E6E2 8px 16px);border:1px solid #E6E4E0;border-radius:{{ im.r }};display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8A867F">{{ im.label }}</div><span style="font-size:12px;line-height:16px;color:#5C5955"><strong style="color:#1B1A18">{{ im.name }}</strong> · {{ im.rule }}</span></div>
+      </sc-for>
+    </div>
+    <ul style="margin:0;padding-left:16px;font-size:13px;line-height:20px;color:#5C5955"><li>Product media default: 4:5 frame, object-fit contain on Surface Secondary so cut-outs and studio shots never crop. Merchant may switch to cover.</li><li>“Adapt” ratio takes the first image’s natural ratio for the whole grid row group.</li><li>Fallback: Surface Secondary block with a 1.5px outline placeholder glyph, or the title centered for collection cards. Never a broken image, never an illustration.</li><li>Loading: Surface Secondary skeleton at final aspect ratio; fade-in Standard on decode. No layout shift.</li></ul>
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const colors = [
+      ['Background','color.bg','#FCFCFB','Page canvas'],['Surface','color.surface','#FFFFFF','Cards, header, drawers'],['Surface Secondary','color.surface-2','#F4F3F1','Media frames, muted blocks, skeletons'],['Surface Elevated','color.surface-elevated','#FFFFFF','Popover, modal (with shadow)'],
+      ['Text Primary','color.text','#1B1A18','Headings, body, prices'],['Text Secondary','color.text-2','#5C5955','Supporting copy, meta'],['Text Muted','color.text-muted','#8A867F','Compare-at, captions ≥ 12px'],['Text Inverse','color.text-inverse','#FFFFFF','On Primary and overlay'],
+      ['Primary','color.primary','#1B1A18','Brand slot: buttons, focus, selection'],['Primary Hover','color.primary-hover','#333130','Hover on primary actions'],['Primary Active','color.primary-active','#0E0D0C','Pressed'],['Overlay','color.overlay','rgba(20,19,18,.48)','Behind drawers/modals, hero scrim'],
+      ['Border','color.border','#E6E4E0','Default dividers, card edges'],['Border Strong','color.border-strong','#C9C6C0','Inputs, secondary buttons'],['Success','color.success','#1F7A4D','In stock, added to cart'],['Warning','color.warning','#B2660A','Low stock, pre-order'],
+      ['Critical','color.critical','#B3261E','Errors, remove confirm'],['Sale','color.sale','#B3261E','Discounted price, Sale badge'],['Sold Out','color.sold-out','#5C5955','Sold out badge text on Surface'],['Focus Ring','color.focus','#1B1A18','2px ring, 2px offset — follows Primary']
+    ].map(a => ({ role: a[0], token: a[1], hex: a[2], use: a[3] }));
+    const brands = [
+      { name: 'Neutral default', p: '#1B1A18', fg: '#FFFFFF', note: 'Ink primary. Zero personality on purpose — imagery leads.' },
+      { name: 'Merchant brand · cool', p: 'oklch(45% 0.14 262)', fg: '#FFFFFF', note: 'Only Primary roles change. Sale color stays red so discounts remain legible.' },
+      { name: 'Merchant brand · warm', p: 'oklch(55% 0.15 40)', fg: '#FFFFFF', note: 'Contrast check passes at 4.6:1. Lighter brands auto-flip label to Text Primary.' }
+    ];
+    const T = (name, token, size, lh, w, ls, spec, behavior, sample, o = {}) => ({ name, token, size, lh, w, ls, spec, behavior, sample, tt: o.tt || 'none', td: o.td || 'none', color: o.color || '#1B1A18' });
+    const type = [
+      T('Display','type.display','56px','1.05','500','-0.025em','clamp(40px, 3vw + 24px, 64px) / 1.05 / 500 / -0.025em','Hero and jumbo text only. Balanced wrap, max 3 lines. Mobile 40px.','Everyday objects, considered.'),
+      T('H1','type.h1','40px','1.1','500','-0.02em','clamp(30px, 1.6vw + 18px, 44px) / 1.1 / 500 / -0.02em','Page and product title. One per page. Mobile 30px.','Autumn arrivals for the home'),
+      T('H2','type.h2','32px','1.15','500','-0.015em','clamp(26px, 1vw + 16px, 34px) / 1.15 / 500','Section headers. Mobile 26px.','Featured collection'),
+      T('H3','type.h3','24px','1.2','500','-0.01em','clamp(20px, .6vw + 14px, 24px) / 1.2 / 500','Card group titles, drawer titles.','Shipping and returns'),
+      T('H4','type.h4','20px','1.3','500','0','20px / 1.3 / 500','Accordion titles, cart summary heading.','Order summary'),
+      T('H5','type.h5','16px','1.4','500','0','16px / 1.4 / 500','Footer group titles, sub-headings.','Customer care'),
+      T('H6','type.h6','14px','1.4','500','0.02em','14px / 1.4 / 500 / +0.02em','Rare — dense meta headings.','Specifications'),
+      T('Body Large','type.body-lg','18px','1.55','400','0','18px / 1.55 / 400','Hero and rich-text lead copy. Mobile 17px.','A quiet, considered layout lets products speak.'),
+      T('Body','type.body','16px','1.5','400','0','16px / 1.5 / 400','Default text, descriptions, forms.','Machine washable. Ships in recyclable packaging where available.'),
+      T('Body Small','type.body-sm','14px','1.45','400','0','14px / 1.45 / 400','Cart meta, table cells, helper text.','Color: Oat · Size: M'),
+      T('Caption','type.caption','12px','1.35','400','0','12px / 1.35 / 400 · Text Secondary','Image captions, legal footnotes. Never lighter than Text Muted.','Model wears size M and is 178 cm tall.',{color:'#5C5955'}),
+      T('Label','type.label','13px','1.3','500','0','13px / 1.3 / 500','Form labels, meta labels.','Email address'),
+      T('Eyebrow','type.eyebrow','12px','1.3','500','0.08em','12px / 1.3 / 500 / +0.08em / uppercase','Section pre-title, vendor. Optional per section.','New season',{tt:'uppercase',color:'#5C5955'}),
+      T('Product Title','type.product-title','15px','1.45','500','0','15px card · H1 on product page / 500','Card: 2-line clamp. PDP: no clamp, balanced.','Linen shirt in oat with mother-of-pearl buttons'),
+      T('Product Price','type.price','15px','1.45','500','0','15px card · 20px PDP / 500 / tabular','Same size as title in cards; never larger than title. Sale color when discounted.','$48.00'),
+      T('Compare-at Price','type.price-compare','14px','1.45','400','0','14px card · 16px PDP / 400 / line-through / Text Muted','Always follows sale price with 8px gap. Has aria-label “Original price”.','$64.00',{td:'line-through',color:'#8A867F'}),
+      T('Button Label','type.button','14px','1','500','0.005em','14px (md) · 13px (sm) · 15px (lg) / 500','Never uppercase by default. Merchant toggle for uppercase adds +0.06em.','Add to cart'),
+      T('Navigation','type.nav','14px','1','500','0','14px / 500 · mobile drawer 18px / 500','Desktop menu; mega menu columns use Body Small for children.','Shop  New  Collections  About')
+    ];
+    const space = [['1','4'],['2','8'],['3','12'],['4','16'],['5','24'],['6','32'],['7','48'],['8','64'],['9','96'],['10','128']].map(a => ({ name: 'space-' + a[0], px: a[1] }));
+    const spaceRoles = [
+      ['xxs · 4','Icon-to-label, swatch gaps'],['xs · 8','Inline groups, badge padding'],['sm · 12','Card text stack, chip gaps'],['md · 16','Form fields, grid gap mobile'],['lg · 24','Grid gap desktop, card padding'],['xl · 32','Header ↔ grid, drawer padding'],['2xl · 48','Between content groups inside a section'],
+      ['component gap','8 / 12 — inside a component'],['content gap','16 mobile → 24 desktop — between components'],['section gap','see section spacing presets'],['page gutter','16 mobile · 24 tablet · 40 desktop (≥1280)']
+    ].map(a => ({ name: a[0], val: a[1] }));
+    const containers = [
+      { name: 'Full', max: '100vw', w: '100%', top: 20, bg: '#E8E6E2', border: '#DDDAD4', use: 'Edge-to-edge media: hero image background, slideshow, marquee. Content inside still uses Wide padding.' },
+      { name: 'Wide', max: '1440', w: '92%', top: 60, bg: '#EFEEEB', border: '#DDDAD4', use: 'Default for product grids, featured collection, collection list, header, footer.' },
+      { name: 'Standard', max: '1200', w: '80%', top: 100, bg: '#F7F6F4', border: '#C9C6C0', use: 'Product details, multicolumn, image-with-text, feature highlights.' },
+      { name: 'Content', max: '840', w: '58%', top: 140, bg: '#FFFFFF', border: '#C9C6C0', use: 'Rich text, article body, page body, FAQ, newsletter.' },
+      { name: 'Narrow', max: '560', w: '40%', top: 180, bg: '#FFFFFF', border: '#1B1A18', use: 'Forms: contact, account, not-found, policy page intro.' }
+    ];
+    const breakpoints = [
+      { w: '1440', name: 'desktop', gutter: 40, gap: 24, cols: Array(12).fill(0), colsLabel: '12', pg: '4 (opt 3–6)', gutterVis: 12 },
+      { w: '1024', name: 'small desktop', gutter: 32, gap: 20, cols: Array(12).fill(0), colsLabel: '12', pg: '3', gutterVis: 10 },
+      { w: '768', name: 'tablet', gutter: 24, gap: 16, cols: Array(8).fill(0), colsLabel: '8', pg: '3 (or 2)', gutterVis: 8 },
+      { w: '390', name: 'mobile', gutter: 16, gap: 12, cols: Array(4).fill(0), colsLabel: '4', pg: '2 (opt 1)', gutterVis: 6 }
+    ];
+    const sectionSpacing = [['None','0','0','0',2],['Small','32','24','24',8],['Medium','64','48','40',16],['Large','96','64','48',24],['Extra Large','128','80','64',32]].map(a => ({ name: a[0], d: a[1], t: a[2], m: a[3], bar: a[4] }));
+    const radii = [['None','0','0','Product & collection media, hero, full-bleed'],['Small','4px','4px','Buttons, inputs, cards, badges'],['Medium','8px','8px','Popover, toast, drawer panels'],['Large','12px','12px','Modal, mega menu panel'],['Pill','999px','999px','Chips, count badge, toggle'],['Circle','50%','50%','Swatches, avatars, icon buttons (optional)']].map(a => ({ name: a[0], val: a[1], css: a[2], use: a[3] }));
+    const borders = [['subtle','1px #E6E4E0','1px solid #E6E4E0','none'],['default','1px #C9C6C0','1px solid #C9C6C0','none'],['strong','1px #1B1A18','1px solid #1B1A18','none'],['focus','2px ring · 2px offset','1px solid #C9C6C0','2px solid #1B1A18']].map(a => ({ name: a[0], val: a[1], css: a[2], outline: a[3] }));
+    const shadows = [['Popover / Dropdown','0 4px 16px rgba(27,26,24,.10)','8px'],['Drawer','-8px 0 32px rgba(27,26,24,.14)','0'],['Modal','0 16px 48px rgba(27,26,24,.18)','12px'],['Floating (sticky ATC, toast)','0 2px 12px rgba(27,26,24,.12)','8px']].map(a => ({ name: a[0], css: a[1], r: a[2] }));
+    const motion = [['Fast','120ms','Hover color, focus ring, toggles, badge pulse'],['Standard','200ms','Card image, accordion, tabs, fades, modal'],['Slow','320ms','Drawer, mega menu, gallery slide']].map(a => ({ name: a[0], ms: a[1], use: a[2] }));
+    const iconSizes = [{ px: 16, r: 3, use: 'inline / meta' }, { px: 20, r: 4, use: 'default UI' }, { px: 24, r: 5, use: 'header / nav' }];
+    const images = [
+      { name: 'Product', ratio: '4/5', r: '0', label: '4:5 contain', rule: 'default 4:5, contain on Surface Secondary; merchant: adapt / 1:1 / 3:4 / cover' },
+      { name: 'Collection', ratio: '4/5', r: '0', label: '4:5 cover', rule: 'cover, focal point center; title fallback when empty' },
+      { name: 'Hero', ratio: '16/9', r: '0', label: '16:9 → 4:5 mobile', rule: 'cover with focal point; mobile uses separate crop or 4:5 of same focal point' },
+      { name: 'Editorial', ratio: '3/2', r: '0', label: '3:2 / adapt', rule: 'adapt to natural ratio inside split layouts; cover in grids' },
+      { name: 'Logo', ratio: '3/1', r: '0', label: 'contain · h 32', rule: 'contain, max-height 32 header / 40 footer, no background' },
+      { name: 'Avatar', ratio: '1/1', r: '50%', label: '1:1 circle', rule: 'cover, initials fallback on Surface Secondary' }
+    ];
+    return { colors, brands, type, space, spaceRoles, containers, breakpoints, sectionSpacing, radii, borders, shadows, motion, iconSizes, images };
+  }
+}
+</script>
+</body>
+</html>

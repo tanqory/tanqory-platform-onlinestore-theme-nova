@@ -7,6 +7,7 @@ export function SpacerBlock({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'spacer',
+  role: 'block',
   title: 'Spacer',
   category: 'block',
   icon: '↕',

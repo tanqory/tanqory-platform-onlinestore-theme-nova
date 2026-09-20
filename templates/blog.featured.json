@@ -1,8 +1,26 @@
 {
+  "contentVersion": 2,
   "sections": [
-    { "type": "header", "id": "header", "settings": {}, "area": "header" },
-    { "type": "rich-text", "id": "intro", "settings": { "heading": "From the Journal", "body": "Stories, guides and updates from our team.", "align": "center" } },
-    { "type": "blog-posts", "id": "blog-posts", "settings": { "fallbackTitle": "Journal" } },
-    { "type": "footer", "id": "footer", "settings": {}, "area": "footer", "blocks": [ { "type": "footer-brand", "id": "footer-brand", "settings": {} }, { "type": "footer-menu", "id": "footer-menu-shop", "settings": { "menu": "footer-shop" } }, { "type": "footer-menu", "id": "footer-menu-help", "settings": { "menu": "footer-help" } }, { "type": "footer-menu", "id": "footer-menu-company", "settings": { "menu": "footer-company" } } ] }
-  ]
+    {
+      "type": "rich-text",
+      "id": "intro",
+      "settings": {
+        "heading": "From the Journal",
+        "body": "Stories, guides and updates from our team.",
+        "contentAlignment": "center",
+        "headingSize": "h2"
+      }
+    },
+    {
+      "type": "blog-posts",
+      "id": "blog-posts",
+      "settings": {
+        "fallbackTitle": "Journal"
+      }
+    }
+  ],
+  "groups": {
+    "header": "header",
+    "footer": "footer"
+  }
 }

@@ -1,0 +1,152 @@
+{
+  "total": 115,
+  "missing": {
+    "store-locator": [
+      "layout"
+    ],
+    "(global) default differs": [
+      "headingFont:  ≠ instrument sans",
+      "bodyFont:  ≠ instrument sans"
+    ],
+    "(global) options not in design": [
+      "pageWidth: full",
+      "sectionSpacing: none, xlarge"
+    ],
+    "(shared) sectionWidth": [
+      "announcement-bar",
+      "header",
+      "divider",
+      "footer",
+      "marquee"
+    ],
+    "(shared) contentWidth": [
+      "announcement-bar",
+      "header",
+      "divider",
+      "footer",
+      "marquee"
+    ],
+    "(shared) contentAlignment": [
+      "announcement-bar",
+      "header",
+      "divider",
+      "footer",
+      "marquee"
+    ],
+    "(shared) spacingTop": [
+      "announcement-bar",
+      "header",
+      "divider",
+      "footer",
+      "marquee"
+    ],
+    "(shared) spacingBottom": [
+      "announcement-bar",
+      "header",
+      "divider",
+      "footer",
+      "marquee"
+    ],
+    "(shared) background": [
+      "header",
+      "divider"
+    ],
+    "(shared) heading": [
+      "announcement-bar",
+      "header",
+      "slideshow",
+      "divider",
+      "group",
+      "footer",
+      "featured-product",
+      "product-details",
+      "search-results",
+      "account",
+      "policy-page",
+      "page-body",
+      "article-body",
+      "blog-posts",
+      "feature-highlights",
+      "marquee"
+    ],
+    "(shared) eyebrow": [
+      "announcement-bar",
+      "header",
+      "slideshow",
+      "divider",
+      "group",
+      "footer",
+      "product-details",
+      "product-grid",
+      "collection-list",
+      "cart-items",
+      "search-results",
+      "product-recommendations",
+      "account",
+      "policy-page",
+      "store-locator",
+      "page-body",
+      "article-body",
+      "blog-posts",
+      "feature-highlights",
+      "collection-links",
+      "marquee",
+      "logo-list",
+      "contact-form",
+      "not-found"
+    ],
+    "(shared) description": [
+      "announcement-bar",
+      "header",
+      "hero",
+      "slideshow",
+      "divider",
+      "group",
+      "footer",
+      "featured-product",
+      "product-details",
+      "cart-items",
+      "search-results",
+      "account",
+      "policy-page",
+      "store-locator",
+      "rich-text",
+      "page-body",
+      "article-body",
+      "blog-posts",
+      "image-with-text",
+      "feature-highlights",
+      "marquee",
+      "newsletter",
+      "not-found"
+    ],
+    "(shared) headerSize": [
+      "announcement-bar",
+      "header",
+      "divider",
+      "footer",
+      "marquee"
+    ],
+    "(shared) mobileContentAlignment": [
+      "announcement-bar",
+      "header",
+      "divider",
+      "footer",
+      "marquee"
+    ],
+    "(shared) hideOnMobile": [
+      "announcement-bar",
+      "header",
+      "divider",
+      "footer",
+      "marquee"
+    ],
+    "(shared) anchorId": [
+      "announcement-bar",
+      "header",
+      "divider",
+      "footer",
+      "marquee"
+    ]
+  }
+}

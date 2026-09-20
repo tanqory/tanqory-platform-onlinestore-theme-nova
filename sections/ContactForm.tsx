@@ -1,40 +1,94 @@
+import { useState } from 'react'
 import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { SectionHead } from '../components/SectionHead'
+import { StateBlock } from '../components/StateBlock'
+import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
 export function ContactForm({ attributes }: SectionProps): JSX.Element {
   const heading = (attributes.heading as string) ?? 'Get in touch'
-  const subheading = attributes.subheading as string | undefined
+  // The design's shared SectionHeader slot is `description` (06 Configuration
+  // System). `subheading` is the key this section used before the conversion
+  // and is still honoured, so saved merchant content is not orphaned.
+  const subheading =
+    (attributes.description as string | undefined) ??
+    (attributes.subheading as string | undefined)
   const buttonLabel = (attributes.buttonLabel as string) ?? 'Send message'
   const action = (attributes.action as string) ?? '/_api/contact'
-  const showPhone = Boolean(attributes.showPhone)
+  const layout = (attributes.layout as string) ?? 'stacked'
+  const successMessage =
+    (attributes.successMessage as string) ?? 'Thanks \u2014 we\u2019ll reply soon.'
+  // `fields` is the design's multi-select, expressed as one of three approved
+  // combinations because no field type renders chips. `showPhone` is still read
+  // so a merchant's saved boolean keeps working.
+  const fields = ((attributes.fields as string) ??
+    (attributes.showPhone ? 'name,email,phone,message' : 'name,email,message'))
+    .split(',')
+    .map((f) => f.trim())
+  const showName = fields.includes('name')
+  const showPhone = fields.includes('phone')
+
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [sending, setSending] = useState(false)
+
+  // Submitted over fetch so the success message can replace the form in place
+  // — a native POST navigates away and the merchant's message is never seen.
+  const submit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault()
+    const form = e.currentTarget
+    setSending(true)
+    setError(null)
+    try {
+      const res = await fetch(action, { method: 'POST', body: new FormData(form) })
+      if (!res.ok) throw new Error(String(res.status))
+      setSent(true)
+      form.reset()
+    } catch {
+      setError('Your message could not be sent. Please try again.')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  if (sent) {
+    return (
+      <section {...sharedRootProps(attributes)} className="section">
+        <div className="container">
+          <StateBlock title={successMessage} />
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="section">
       <div className="container">
-        <div className="contact">
-          <div className="contact__head">
-            <h2>{heading}</h2>
-            {subheading && <p className="lede">{subheading}</p>}
-          </div>
-          <form className="contact__form" action={action} method="post">
-            <label className="field">
-              <span className="field__label">First name</span>
-              <input
-                className="field__input"
-                name="firstName"
-                type="text"
-                required
-                autoComplete="given-name"
-              />
-            </label>
-            <label className="field">
-              <span className="field__label">Last name</span>
-              <input
-                className="field__input"
-                name="lastName"
-                type="text"
-                autoComplete="family-name"
-              />
-            </label>
+        <div className="contact" data-layout={layout}>
+          <SectionHead heading={heading} description={subheading} />
+          <form className="contact__form" action={action} method="post" onSubmit={(e) => void submit(e)}>
+            {showName && (
+              <>
+                <label className="field">
+                  <span className="field__label">First name</span>
+                  <input
+                    className="field__input"
+                    name="firstName"
+                    type="text"
+                    required
+                    autoComplete="given-name"
+                  />
+                </label>
+                <label className="field">
+                  <span className="field__label">Last name</span>
+                  <input
+                    className="field__input"
+                    name="lastName"
+                    type="text"
+                    autoComplete="family-name"
+                  />
+                </label>
+              </>
+            )}
             <label className="field field--full">
               <span className="field__label">Email</span>
               <input
@@ -55,9 +109,14 @@ export function ContactForm({ attributes }: SectionProps): JSX.Element {
               <span className="field__label">Message</span>
               <textarea className="field__textarea" name="message" required />
             </label>
+            {error && (
+              <p className="field--full u-text-error" role="alert">
+                {error}
+              </p>
+            )}
             <div className="field--full" style={{ marginTop: 'var(--space-3)' }}>
-              <button className="btn btn--primary btn--lg" type="submit">
-                {buttonLabel}
+              <button className="btn btn--primary btn--lg" type="submit" disabled={sending}>
+                {sending ? 'Sending\u2026' : buttonLabel}
               </button>
             </div>
           </form>
@@ -69,19 +128,44 @@ export function ContactForm({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'contact-form',
+  role: 'section',
   title: 'Contact form',
   category: 'forms',
   icon: '✉',
-  attributes: {
+  attributes: withShared({
+    description: { type: 'textarea', group: 'Content', label: 'Description' },
     heading: { type: 'text', default: 'Get in touch', label: 'Heading' },
     subheading: {
       type: 'text',
       default: "We'll reply within one business day.",
       label: 'Subheading',
     },
-    showPhone: { type: 'boolean', default: false, label: 'Show phone field' },
+    layout: {
+      type: 'select',
+      default: 'stacked',
+      label: 'Layout',
+      options: [
+        { value: 'stacked', label: 'Stacked' },
+        { value: 'split', label: 'Split' },
+      ],
+    },
+    fields: {
+      type: 'select',
+      default: 'name,email,message',
+      label: 'Fields',
+      options: [
+        { value: 'name,email,message', label: 'Name, email, message' },
+        { value: 'name,email,phone,message', label: 'Name, email, phone, message' },
+        { value: 'email,message', label: 'Email and message' },
+      ],
+    },
+    successMessage: {
+      type: 'text',
+      default: 'Thanks — we\u2019ll reply soon.',
+      label: 'Success message',
+    },
     buttonLabel: { type: 'text', default: 'Send message', label: 'Button label' },
     action: { type: 'url', label: 'Form action URL' },
-  },
+  }),
   component: ContactForm,
 })

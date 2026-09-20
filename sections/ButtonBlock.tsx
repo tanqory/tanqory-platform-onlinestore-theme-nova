@@ -18,6 +18,7 @@ export function ButtonBlock({ attributes }: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'button',
+  role: 'block',
   title: 'Button',
   category: 'block',
   icon: '⬚',

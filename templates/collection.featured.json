@@ -1,41 +1,26 @@
 {
+  "contentVersion": 2,
   "sections": [
-    { "type": "header", "id": "header", "settings": {}, "area": "header" },
     {
       "type": "rich-text",
       "id": "intro",
       "settings": {
         "heading": "Featured collection",
         "body": "A hand-picked edit of our favourites.",
-        "align": "center"
+        "contentAlignment": "center",
+        "headingSize": "h2"
       }
     },
     {
-      "type": "featured-collection",
+      "type": "main-collection",
       "id": "products",
       "settings": {
-        "heading": "",
-        "collection": "all",
-        "columns": 4,
-        "limit": 24,
-        "showViewAll": false
+        "productsPerPage": "24"
       }
-    },
-    {
-      "type": "footer",
-      "id": "footer",
-      "settings": {},
-      "area": "footer",
-      "blocks": [
-        { "type": "footer-brand", "id": "footer-brand", "settings": {} },
-        { "type": "footer-menu", "id": "footer-menu-shop", "settings": { "menu": "footer-shop" } },
-        { "type": "footer-menu", "id": "footer-menu-help", "settings": { "menu": "footer-help" } },
-        {
-          "type": "footer-menu",
-          "id": "footer-menu-company",
-          "settings": { "menu": "footer-company" }
-        }
-      ]
     }
-  ]
+  ],
+  "groups": {
+    "header": "header",
+    "footer": "footer"
+  }
 }

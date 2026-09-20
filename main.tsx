@@ -23,7 +23,17 @@ import {
   type MountOptions,
 } from '@tanqory/theme-kit'
 import { apiBase } from './lib/api-base'
-import { decodeHandle } from './lib/handle'
+import { applyHead, computeHead, headFrom } from './lib/head'
+import { emitRoute } from './lib/route-analytics'
+import {
+  detailHandles,
+  matchRoute,
+  resolvePageTemplate,
+  resolveTemplate,
+  variantOf as variantOfBase,
+} from './lib/routes'
+import { isEditorPreview, isMockDataAllowed } from './lib/runtime'
+import { applyThemeSettings } from './lib/theme-settings'
 import './assets/styles.css'
 import mockCollections from './lib/collections.json'
 import settings from './config/settings.json'
@@ -43,38 +53,6 @@ const localeMaps: Record<string, Record<string, string>> = Object.fromEntries(
 )
 const baseLocale = localeMaps[DEFAULT_LOCALE] ?? {}
 
-/** Map a URL pathname → template name (a file under ./templates). */
-function resolveTemplate(pathname: string): string {
-  const p = pathname !== '/' ? pathname.replace(/\/+$/, '') : '/'
-  if (p === '/' || p === '') return 'index'
-  if (p === '/cart') return 'cart'
-  if (p === '/search') return 'search'
-  if (p === '/contact') return 'contact'
-  if (p === '/404') return '404'
-  if (p === '/collections') return 'list-collections'
-  if (/^\/collections\/[^/]+$/.test(p)) return 'collection'
-  if (/^\/products\/[^/]+$/.test(p)) return 'product'
-  if (/^\/pages\/[^/]+$/.test(p)) return 'page'
-  // Shop policies (Settings) — a menu item of type "Policy" links to
-  // /policies/<handle> (privacy-policy, refund-policy, …).
-  if (/^\/policies\/[^/]+$/.test(p)) return 'policy'
-  // Customer account — /account and its sub-routes (login, orders, addresses).
-  if (p === '/account' || /^\/account\/[^/]+/.test(p)) return 'account'
-  // Order matters: `/blogs/<blog>/<article>` must be tested BEFORE
-  // `/blogs/<handle>` so blog-list doesn't shadow article-detail.
-  if (/^\/blogs\/[^/]+\/[^/]+$/.test(p)) return 'article'
-  if (/^\/blogs\/[^/]+$/.test(p)) return 'blog'
-  return '404'
-}
-
-/** Extract `<handle>` from `/pages/<handle>` so the bootstrap can prefetch the
- *  matching Page in the same GraphQL round-trip the homepage uses. Returns
- *  undefined when the URL isn't a `/pages/...` route. */
-function resolvePageHandle(pathname: string): string | undefined {
-  const m = pathname.match(/^\/pages\/([^/]+)\/?$/)
-  return m ? decodeHandle(m[1]) : undefined
-}
-
 const env = import.meta.env as ImportMetaEnv & {
   VITE_TANQORY_BACKEND?: string
   VITE_TANQORY_STORE_ID?: string
@@ -92,251 +70,27 @@ function templateExists(name: string): boolean {
   return Object.keys(templateModules).some((k) => k.endsWith(`/${name}.json`))
 }
 
-/** `<handle>` from `/products/<handle>`, else undefined. */
-function resolveProductHandle(pathname: string): string | undefined {
-  const m = pathname.match(/^\/products\/([^/]+)\/?$/)
-  return m ? decodeHandle(m[1]) : undefined
-}
-
-/** `<handle>` from `/collections/<handle>`, else undefined. */
-function resolveCollectionHandle(pathname: string): string | undefined {
-  const m = pathname.match(/^\/collections\/([^/]+)\/?$/)
-  return m ? decodeHandle(m[1]) : undefined
-}
-
-/** The detail-route handle vars to prefetch (page/product/collection) so the
- *  fetched record's templateSuffix is available before mount picks the template. */
-function detailHandles(pathname: string) {
-  const pageHandle = resolvePageHandle(pathname)
-  const productHandle = resolveProductHandle(pathname)
-  const collectionHandle = resolveCollectionHandle(pathname)
-  return {
-    ...(pageHandle ? { pageHandle } : {}),
-    ...(productHandle ? { productHandle } : {}),
-    ...(collectionHandle ? { collectionHandle } : {}),
-  }
-}
-
-/**
- * Upgrade a page/product/collection render to its standard template variant.
- * The merchant assigns a template to the resource; it arrives as `templateSuffix`
- * on the fetched record, so we render `templates/<type>.<suffix>.json` when that
- * file exists — otherwise keep the default `<type>` template so a stale or removed
- * suffix never renders a blank page. Only applies on client routes, which always
- * client-render (the else branch below), so it never affects the prerendered/
- * hydrated home markup.
- */
-function withTemplateVariant(base: string, data: DataApi): string {
-  if (typeof window === 'undefined') return base
-  const p = window.location.pathname
-  let suffix: string | null | undefined
-  if (base === 'page') suffix = data.pageByHandle(resolvePageHandle(p) ?? '')?.templateSuffix
-  else if (base === 'product')
-    suffix = data.productByHandle(resolveProductHandle(p) ?? '')?.templateSuffix
-  else if (base === 'collection')
-    suffix = data.collectionByHandle(resolveCollectionHandle(p) ?? '')?.templateSuffix
-  else return base
-  return variantOf(base, suffix)
-}
-
 /** `<type>.<suffix>` when the variant file exists, else the default `<type>`. */
 function variantOf(base: string, suffix: string | null | undefined): string {
-  const candidate = suffix ? `${base}.${suffix}` : base
-  return templateExists(candidate) ? candidate : base
-}
-
-/** `<handle>` from `/blogs/<handle>` (blog list), else undefined. */
-function resolveBlogHandle(pathname: string): string | undefined {
-  const m = pathname.match(/^\/blogs\/([^/]+)\/?$/)
-  return m ? decodeHandle(m[1]) : undefined
-}
-
-/** `{ blogHandle, articleHandle }` from `/blogs/<blog>/<article>`, else undefined. */
-function resolveArticleMatch(
-  pathname: string,
-): { blogHandle: string; articleHandle: string } | undefined {
-  const m = pathname.match(/^\/blogs\/([^/]+)\/([^/]+)\/?$/)
-  return m ? { blogHandle: decodeHandle(m[1]), articleHandle: decodeHandle(m[2]) } : undefined
-}
-
-/** Build a HeadMeta from a resource's SEO (shared by blog/article, which resolve
- *  their SEO asynchronously rather than from the sync bootstrap). */
-function headFrom(
-  seo: { title?: string | null; description?: string | null; keywords?: string[] | null } | null | undefined,
-  resourceTitle: string,
-  shopName: string,
-  fallbackDesc?: string | null,
-  image?: string | null,
-): HeadMeta {
-  return {
-    title: seo?.title?.trim() ? seo.title.trim() : `${resourceTitle} — ${shopName}`,
-    description: (seo?.description || fallbackDesc || '').trim(),
-    keywords: (seo?.keywords ?? []).filter(Boolean),
-    image: absUrl(image),
-    type: 'article',
-    siteName: shopName,
-    favicon: '',
-  }
+  return variantOfBase(base, suffix, templateExists)
 }
 
 /**
- * Per-route document head (title + meta description) from the merchant's SEO
- * fields. Precedence — title: the resource's SEO title verbatim (merchant owns
- * it) → "<resource title> — <shop>" → shop name; description: SEO description →
- * page bodySummary → shop description (home only). Runs client-side on every
- * route (the SSG only prerenders home), so product/collection/page pages that
- * are client-rendered still get a correct, unique title + description.
- */
-interface HeadMeta {
-  title: string
-  description: string
-  keywords: string[]
-  /** Absolute URL of the page's lead image, for og:image / twitter:image. */
-  image: string
-  /** 'website' for the home page, 'product'/'article' for detail pages. */
-  type: string
-  /** Shop name — og:site_name. */
-  siteName: string
-  /** Absolute URL for the favicon / tab icon (square brand mark). */
-  favicon: string
-}
-
-/** Resolve a possibly-relative asset URL to an absolute one, against the
- *  current origin — social scrapers require absolute og:image URLs. */
-function absUrl(url: string | undefined | null): string {
-  if (!url) return ''
-  if (/^https?:\/\//.test(url)) return url
-  if (typeof window === 'undefined') return url
-  return new URL(url, window.location.origin).toString()
-}
-
-function computeHead(pathname: string, data: DataApi): HeadMeta {
-  const shop = data.shop as
-    | {
-        name?: string
-        description?: string
-        brand?: {
-          logo?: { url?: string } | null
-          squareLogo?: { url?: string } | null
-          coverImage?: { url?: string } | null
-        } | null
-      }
-    | undefined
-  const shopName = (shop?.name || (settings as { shopName?: string }).shopName || 'Store').trim()
-  let seoTitle: string | null | undefined
-  let rawTitle: string | undefined
-  let description: string | null | undefined
-  let keywords: string[] = []
-  let image: string | undefined
-  let type = 'website'
-  const isDetail = { pg: resolvePageHandle(pathname), pr: resolveProductHandle(pathname), co: resolveCollectionHandle(pathname) }
-  if (isDetail.pr) {
-    const r = data.productByHandle(isDetail.pr) as
-      | { seo?: { title?: string | null; description?: string | null; keywords?: string[] }; title?: string; featuredImage?: { url?: string } | null }
-      | undefined
-    seoTitle = r?.seo?.title; rawTitle = r?.title; description = r?.seo?.description; keywords = r?.seo?.keywords ?? []
-    image = r?.featuredImage?.url; type = 'product'
-  } else if (isDetail.co) {
-    const r = data.collectionByHandle(isDetail.co) as
-      | { seo?: { title?: string | null; description?: string | null; keywords?: string[] }; title?: string; image?: { url?: string } | null }
-      | undefined
-    seoTitle = r?.seo?.title; rawTitle = r?.title; description = r?.seo?.description; keywords = r?.seo?.keywords ?? []
-    image = r?.image?.url
-  } else if (isDetail.pg) {
-    const r = data.pageByHandle(isDetail.pg)
-    seoTitle = r?.seo?.title; rawTitle = r?.title; description = r?.seo?.description || r?.bodySummary; keywords = r?.seo?.keywords ?? []
-    type = 'article'
-  }
-  const isHome = !isDetail.pg && !isDetail.pr && !isDetail.co
-  const title = seoTitle?.trim() ? seoTitle.trim() : rawTitle ? `${rawTitle} — ${shopName}` : shopName
-  return {
-    title,
-    description: (description || (isHome ? shop?.description : '') || '').trim(),
-    keywords: keywords.filter(Boolean),
-    // og:image fallback chain: the resource's own image → the brand cover image
-    // (Settings → Brand, a purpose-built share banner) → the brand logo. Both
-    // brand images were SAVED_ONLY — carried on the SDL, rendered nowhere.
-    image: absUrl(image || shop?.brand?.coverImage?.url || shop?.brand?.logo?.url),
-    type,
-    siteName: shopName,
-    // The square brand mark makes the best favicon / tab icon; fall back to the
-    // primary logo. Also previously SAVED_ONLY.
-    favicon: absUrl(shop?.brand?.squareLogo?.url || shop?.brand?.logo?.url),
-  }
-}
-
-/**
- * Write the computed head into the live document (client-side).
+ * Read Settings → Brand fonts off the shop record.
  *
- * Beyond title/description/keywords this now emits the canonical link + Open
- * Graph + Twitter card tags that were missing entirely — which is why a shared
- * product link previewed as the bare shop name on every page. The canonical and
- * og:url use the page's own URL (the host the storefront is served on is the
- * correct canonical for that page); forcing canonical to a configured primary
- * domain when a shopper is on a different host is the store-api#558 follow-up.
+ * `Brand.fonts: [String!]!` exists in store-api's storefront SDL, but
+ * @tanqory/theme-kit ≤ 0.1.3 neither selects it in the bootstrap query nor
+ * declares it on `Shop['brand']` — so on a published storefront this list is
+ * empty today and `applyBrandFonts` is a no-op. Both gaps are fixed in the kit
+ * repo (`BOOTSTRAP_SHOP_MENU` + `normalizeShop` + the `Shop` type); this reader
+ * is written so it starts working the moment that release is installed, without
+ * another theme change, and stays correct on older kits.
  */
-function applyHead({ title, description, keywords, image, type, siteName, favicon }: HeadMeta): void {
-  if (typeof document === 'undefined') return
-  const head = document.head
-  if (title) document.title = title
-
-  const upsert = (selector: string, make: () => HTMLElement, content: string) => {
-    if (!content) return
-    let el = head.querySelector(selector)
-    if (!el) {
-      el = make()
-      head.appendChild(el)
-    }
-    if (el.tagName === 'LINK') el.setAttribute('href', content)
-    else el.setAttribute('content', content)
-  }
-  const meta = (name: string, content: string) =>
-    upsert(`meta[name="${name}"]`, () => {
-      const m = document.createElement('meta')
-      m.setAttribute('name', name)
-      return m
-    }, content)
-  const prop = (property: string, content: string) =>
-    upsert(`meta[property="${property}"]`, () => {
-      const m = document.createElement('meta')
-      m.setAttribute('property', property)
-      return m
-    }, content)
-
-  const url = window.location.origin + window.location.pathname
-
-  meta('description', description)
-  meta('keywords', keywords.join(', '))
-
-  upsert('link[rel="canonical"]', () => {
-    const l = document.createElement('link')
-    l.setAttribute('rel', 'canonical')
-    return l
-  }, url)
-
-  prop('og:type', type)
-  prop('og:url', url)
-  prop('og:title', title)
-  prop('og:description', description)
-  prop('og:site_name', siteName)
-  if (image) prop('og:image', image)
-
-  meta('twitter:card', image ? 'summary_large_image' : 'summary')
-  meta('twitter:title', title)
-  meta('twitter:description', description)
-  if (image) meta('twitter:image', image)
-
-  if (favicon) {
-    upsert(
-      'link[rel="icon"]',
-      () => {
-        const l = document.createElement('link')
-        l.setAttribute('rel', 'icon')
-        return l
-      },
-      favicon,
-    )
-  }
+function brandFonts(data: DataApi): string[] {
+  const brand: Record<string, unknown> = { ...(data.shop?.brand ?? {}) }
+  const raw = brand.fonts
+  if (!Array.isArray(raw)) return []
+  return raw.filter((f): f is string => typeof f === 'string' && f.trim() !== '')
 }
 
 /**
@@ -351,13 +105,9 @@ function applyHead({ title, description, keywords, image, type, siteName, favico
  * `display=swap` means the default font shows until the brand font loads rather
  * than blank text. A store with no brand fonts is a no-op (tokens.css default).
  */
-function applyBrandFonts(data: {
-  shop?: { brand?: { fonts?: string[] | null } | null } | null
-}): void {
+function applyBrandFonts(data: DataApi): void {
   if (typeof document === 'undefined') return
-  const fonts = (data.shop?.brand?.fonts ?? []).filter(
-    (f) => typeof f === 'string' && f.trim() !== '',
-  )
+  const fonts = brandFonts(data)
   if (!fonts.length) return
   const display = fonts[0]
   const body = fonts[1] || fonts[0]
@@ -440,11 +190,25 @@ function localeHeader(): string | undefined {
   return code !== DEFAULT_LOCALE ? code : undefined
 }
 
-async function bootData(): Promise<DataApi> {
+/**
+ * Boot the data layer.
+ *
+ * A CONFIGURED storefront (backend + store id present) gets live data or an
+ * error — never fixtures. The previous behaviour caught the failure and
+ * returned `createMockData(mockCollections)`, which put "Example product ·
+ * $99" with a working Add to cart button on a real shop whenever its cell was
+ * unreachable: a shopper cannot tell that page from the real one, and neither
+ * can a crawler.
+ *
+ * Mock data stays the right answer for an UNCONFIGURED build (offline `pnpm
+ * dev`) and inside the editor preview, where there may be no store attached at
+ * all. `isMockDataAllowed()` is the single place that decides.
+ */
+async function bootData(): Promise<{ data: DataApi; mode: 'live' | 'mock' } | { error: Error }> {
   const { VITE_TANQORY_BACKEND, VITE_TANQORY_STORE_ID, VITE_TANQORY_STOREFRONT_TOKEN } = env
   if (VITE_TANQORY_BACKEND && VITE_TANQORY_STORE_ID) {
     try {
-      return await createLiveData({
+      const data = await createLiveData({
         endpoint: apiBase(VITE_TANQORY_BACKEND),
         storeId: VITE_TANQORY_STORE_ID,
         token: VITE_TANQORY_STOREFRONT_TOKEN,
@@ -452,14 +216,52 @@ async function bootData(): Promise<DataApi> {
         locale: localeHeader(),
         ...(typeof window !== 'undefined' ? detailHandles(window.location.pathname) : {}),
       })
+      return { data, mode: 'live' }
     } catch (err) {
-      // Log + fall through to mocks so a broken backend doesn't block the
-      // storefront from rendering. Helpful during the cutover.
       // eslint-disable-next-line no-console
-      console.error('[nova] live data fetch failed, falling back to mocks:', err)
+      console.error('[nova] live data fetch failed:', err)
+      if (!isMockDataAllowed()) {
+        return { error: err instanceof Error ? err : new Error(String(err)) }
+      }
+      // Editor preview on a configured build: fixtures are acceptable here
+      // because nobody can buy anything, but say so in the console.
+      // eslint-disable-next-line no-console
+      console.warn('[nova] editor preview — falling back to mock fixtures')
     }
   }
-  return createMockData(mockCollections)
+  return { data: createMockData(mockCollections), mode: 'mock' }
+}
+
+/**
+ * Last-resort shopper-visible failure. Rendered without React (the tree never
+ * mounted) and without fixtures, so nothing on screen can be mistaken for the
+ * merchant's catalogue.
+ */
+function renderBootError(err: Error): void {
+  // eslint-disable-next-line no-console
+  console.error('[nova] storefront could not load:', err)
+  const root = document.getElementById('root')
+  if (!root) return
+  const t = (key: string, fallback: string): string => activeLocale[key] ?? fallback
+  root.textContent = ''
+  const wrap = document.createElement('div')
+  wrap.setAttribute('role', 'alert')
+  wrap.style.cssText =
+    'min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;text-align:center;font-family:system-ui,sans-serif'
+  const h = document.createElement('h1')
+  h.textContent = t('error.storefront.title', 'This store is temporarily unavailable')
+  h.style.cssText = 'font-size:1.25rem;margin:0'
+  const p = document.createElement('p')
+  p.textContent = t('error.storefront.sub', 'Please try again in a moment.')
+  p.style.cssText = 'margin:0;opacity:.7'
+  const retry = document.createElement('button')
+  retry.type = 'button'
+  retry.textContent = t('error.storefront.retry', 'Reload')
+  retry.style.cssText =
+    'padding:.625rem 1.25rem;border-radius:.5rem;border:1px solid currentColor;background:transparent;cursor:pointer;font:inherit'
+  retry.addEventListener('click', () => window.location.reload())
+  wrap.append(h, p, retry)
+  root.appendChild(wrap)
 }
 
 /** The SSG data snapshot the prerender step embedded into the page (see
@@ -473,6 +275,10 @@ declare global {
 const baseMountOptions = (data: DataApi): MountOptions => ({
   sections: import.meta.glob('./sections/*.tsx', { eager: true }),
   pages: templateModules,
+  // Shared header/footer. A template binds them with `groups: { header, footer }`;
+  // the kit's `resolvePage` — the same function the editor and the AI tools
+  // use — turns template + groups into the section list that renders.
+  groups: import.meta.glob('./groups/*.json', { eager: true }),
   shell: import.meta.glob('./layouts/*.tsx', { eager: true }),
   data,
   settings,
@@ -487,12 +293,14 @@ const { VITE_TANQORY_BACKEND, VITE_TANQORY_STORE_ID, VITE_TANQORY_STOREFRONT_TOK
 // the editor/preview plane). page_viewed events create sessions + device rows,
 // which power the merchant's Analytics/Reports/Live View. Beacons go same-origin
 // to /api/v1/analytics/events/batch (the edge worker forwards to the cell).
-const isPreviewHost =
-  typeof window !== 'undefined' && /^preview-/.test(window.location.hostname)
-const analytics =
-  VITE_TANQORY_BACKEND && VITE_TANQORY_STORE_ID && !isPreviewHost
-    ? createAnalytics({ storeId: VITE_TANQORY_STORE_ID, consent: () => hasConsent('analytics') })
-    : null
+//
+// This ARMS theme-kit's analytics singleton; everything that emits afterwards —
+// including the SPA router in layout.tsx — reads it back with `getAnalytics()`,
+// which is a no-op until this runs. That is what keeps preview and mock builds
+// silent without every call site repeating the check.
+if (VITE_TANQORY_BACKEND && VITE_TANQORY_STORE_ID && !isEditorPreview()) {
+  createAnalytics({ storeId: VITE_TANQORY_STORE_ID, consent: () => hasConsent('analytics') })
+}
 
 /** Set the consent gate from shop data BEFORE the first pageViewed, so a store
  *  with the cookie banner enabled doesn't emit until the shopper has consented. */
@@ -501,38 +309,10 @@ function armConsent(data: DataApi): void {
   setBannerRequired(Boolean(cb?.enabled))
 }
 
-/** Emit the route/VIEW customer events (product/collection/search/cart) that map
- *  to the current URL. Fires once per page load alongside pageViewed — action
- *  events (add-to-cart, remove, checkout) fire from their section handlers. Both
- *  the internal analytics pipeline and connected pixels receive these. */
-function emitRouteEvents(pathname: string, data: DataApi): void {
-  if (!analytics) return
-  try {
-    const product = decodeHandle(pathname.match(/\/products\/([^/]+)/)?.[1])
-    const collection = decodeHandle(pathname.match(/\/collections\/([^/]+)/)?.[1])
-    if (product) {
-      const p = data.productByHandle?.(product)
-      analytics.track(
-        'PRODUCT_VIEWED',
-        p ? { productId: p.id, title: p.title, handle: p.handle, price: p.price } : { handle: product },
-      )
-    } else if (collection) {
-      const c = data.collectionByHandle?.(collection)
-      analytics.track(
-        'COLLECTION_VIEWED',
-        c
-          ? { collectionId: c.id, title: c.title, handle: collection, productCount: c.products?.length }
-          : { handle: collection },
-      )
-    } else if (/^\/search\b/.test(pathname)) {
-      const q = new URLSearchParams(window.location.search).get('q')?.trim()
-      if (q) analytics.track('SEARCH_SUBMITTED', { query: q })
-    } else if (/^\/cart\b/.test(pathname)) {
-      analytics.track('CART_VIEWED', {})
-    }
-  } catch {
-    /* telemetry must never break the page */
-  }
+/** Emit the route events for the CURRENT url. Thin wrapper so both the boot
+ *  path and the SPA router in layout.tsx go through one implementation. */
+function emitRouteEvents(data: DataApi): void {
+  emitRoute({ pathname: window.location.pathname, search: window.location.search }, data)
 }
 
 if (
@@ -567,27 +347,36 @@ if (
       }
     },
   })
-  applyHead(computeHead(window.location.pathname, data))
+  applyHead(computeHead(window.location.pathname, data, settings))
+  applyThemeSettings(settings)
   applyBrandFonts(data)
   armConsent(data)
-  analytics?.pageViewed()
-  emitRouteEvents(window.location.pathname, data)
+  emitRouteEvents(data)
 } else {
   // No usable snapshot (mock build, or this route isn't the prerendered page).
   // Fetch first, then CLIENT-render: any SSG markup in #root belongs to a
   // different page/data, and hydrating against it would mismatch (#418). Because
   // this path always client-renders, choosing a `/pages/<handle>` template
   // variant here is safe (no prerendered markup to mismatch).
-  void bootData().then(async (data) => {
+  void bootData().then(async (result) => {
+    if ('error' in result) {
+      renderBootError(result.error)
+      return
+    }
+    const { data } = result
     const pathname = window.location.pathname
-    let finalPage = withTemplateVariant(page, data)
-    let head = computeHead(pathname, data)
+    let finalPage = resolvePageTemplate(pathname, data, templateExists)
+    let head = computeHead(pathname, data, settings)
     // Blog + article are fetched on demand (not in the sync bootstrap), so
     // resolve their template variant + SEO head asynchronously before mount.
     const shop = data.shop as { name?: string } | undefined
     const shopName = (shop?.name || (settings as { shopName?: string }).shopName || 'Store').trim()
-    const am = resolveArticleMatch(pathname)
-    const bh = resolveBlogHandle(pathname)
+    const route = matchRoute(pathname)
+    const am =
+      route.resource === 'article' && route.blogHandle && route.handle
+        ? { blogHandle: route.blogHandle, articleHandle: route.handle }
+        : undefined
+    const bh = route.resource === 'blog' ? route.handle : undefined
     if (page === 'article' && am && data.articleByHandle) {
       const a = await data.articleByHandle(am.blogHandle, am.articleHandle)
       if (a) {
@@ -603,9 +392,9 @@ if (
     }
     mount({ ...baseMountOptions(data), page: finalPage, forceClientRender: true })
     applyHead(head)
-    applyBrandFonts(data)
+    applyThemeSettings(settings)
+  applyBrandFonts(data)
     armConsent(data)
-    analytics?.pageViewed()
-    emitRouteEvents(pathname, data)
+    emitRouteEvents(data)
   })
 }

@@ -1,5 +1,6 @@
 import { createContext, useContext, type ReactNode } from 'react'
 import type { Product, ProductOption, ProductVariant, Money, ImageRef } from '@tanqory/theme-kit'
+import type { OptionValueState } from './VariantPicker'
 
 /**
  * Shared product + selected-variant state for PDP BLOCKS. The ProductDetails
@@ -20,8 +21,9 @@ export interface ProductContextValue {
    * store-api before it leaves the API. The theme renders it as-is and MUST NOT
    * sanitise, re-encode or rewrite it.
    *
-   * Undefined until the fetch resolves, and null when the store has no body or
-   * the theme is running on mock/offline data.
+   * Null when the store has no rich-text body, when the fetch has not resolved
+   * yet, or when the theme is running on mock/offline data. Consumers fall back
+   * to `product.description` (plaintext) in all three cases.
    */
   descriptionHtml?: string | null
   options: ProductOption[]
@@ -35,6 +37,29 @@ export interface ProductContextValue {
   quantity: number
   setQuantity: (n: number) => void
   adding: boolean
+  /**
+   * Why the add failed, in the shopper's language, or null. Every PDP block
+   * that renders a buy button reads this so the failure is visible wherever the
+   * shopper clicked — not only in the default layout.
+   */
+  addError?: string | null
+  /**
+   * True only when a concrete, purchasable variant is resolved. False while
+   * variants are still loading and false when the on-screen option combination
+   * does not exist or is sold out. A buy button must gate on THIS, never on
+   * `!soldOut` alone, or an unmatched combination adds a different variant.
+   */
+  canAdd?: boolean
+  /**
+   * Whether one option value is available, merely sold out, or not a
+   * combination that exists — given everything else currently selected.
+   *
+   * Exposed here so a PDP block renders exactly the states the default
+   * layout does. The block used to draw its own plain buttons with no
+   * states at all, and the two product pages disagreed about what a
+   * shopper could pick.
+   */
+  optionValueState?: (optionName: string, value: string) => OptionValueState
   add: () => Promise<void>
 }
 

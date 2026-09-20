@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#FCFCFB} a{color:#1B1A18} a:hover{color:#5C5955}</style>
+</helmet>
+<div style="font-family:'Instrument Sans',Helvetica,Arial,sans-serif;color:#1B1A18;padding:64px 48px;display:flex;flex-direction:column;gap:40px;max-width:1200px;margin:0 auto;box-sizing:border-box">
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C5955;letter-spacing:.04em">TANQORY NOVA · DESIGN PACKAGE</span>
+    <h1 style="margin:0;font-size:48px;line-height:1.05;font-weight:500;letter-spacing:-.025em;text-wrap:balance">Storefront design system — style, components, sections, configuration</h1>
+    <p style="margin:0;font-size:18px;line-height:1.5;color:#5C5955;max-width:760px;text-wrap:pretty">A neutral, commerce-first platform default. Brand color and fonts are the merchant’s; product imagery is the focus; every section composes the same components on the same page frame. Design only — hand to Claude Code for schema mapping and implementation.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+    <sc-for list="{{ files }}" as="f" hint-placeholder-count="7">
+      <a href="{{ f.href }}" style="display:flex;flex-direction:column;gap:10px;padding:24px;background:#fff;border:1px solid #E6E4E0;border-radius:4px;text-decoration:none;min-height:150px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A867F">{{ f.num }}</span>
+        <span style="font-size:22px;font-weight:500;letter-spacing:-.01em;line-height:1.2">{{ f.title }}</span>
+        <span style="font-size:14px;line-height:20px;color:#5C5955">{{ f.desc }}</span>
+      </a>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;border-top:1px solid #E6E4E0;padding-top:32px;font-size:14px;line-height:21px;color:#5C5955">
+    <div><strong style="color:#1B1A18;display:block;margin-bottom:6px">Decisions made</strong>Instrument Sans (heading + body, replaceable) · warm-neutral ink palette, Primary = brand slot · 4px radius on buttons/inputs/cards, 0 on full-bleed media · borders over shadows · 4:5 contain product media · 12-col grid, Wide 1440 default · section spacing Medium 64/48/40.</div>
+    <div><strong style="color:#1B1A18;display:block;margin-bottom:6px">Shared components</strong>ProductCard and CollectionCard are live components (ProductCard.dc.html, CollectionCard.dc.html) with props matching the configuration API; all sections embed them unchanged.</div>
+    <div><strong style="color:#1B1A18;display:block;margin-bottom:6px">Placeholders</strong>Striped frames mark merchant imagery slots; demo content is neutral (no shipping/returns/sustainability claims). Logos are dashed slots.</div>
+    <div><strong style="color:#1B1A18;display:block;margin-bottom:6px">Next</strong>Template composition pass (home, collection, product, cart, blog, pages) using these sections; then Claude Code maps props → Tanqory schema, data contracts and runtime.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return { files: [
+      { num: '01', href: '01 Style System.dc.html', title: 'Style System', desc: 'Color roles + brand swap, type scale, spacing, containers & grid, section spacing, radius, borders, shadows, motion, icons, image rules.' },
+      { num: '02', href: '02 UI Primitives.dc.html', title: 'UI Primitives', desc: 'Buttons through Empty/Error/Loading states — every interactive primitive in default, hover, focus, active, disabled and relevant selected/loading/error states.' },
+      { num: '03', href: '03 Commerce Components.dc.html', title: 'Commerce Components', desc: 'ProductCard state matrix and responsive widths, CollectionCard, gallery, purchase stack, cart line + summary + drawer, navigation, search, cards.' },
+      { num: '04 A', href: '04 Sections A.dc.html', title: 'Sections — Layout & Core Commerce', desc: 'Announcement bar, header, hero, slideshow, featured collection, product grid, product details, featured product, collection list, footer, divider, group. 1440 + 390 artboards.' },
+      { num: '04 B', href: '04 Sections B.dc.html', title: 'Sections — Cart, Search, Content & Utility', desc: 'Cart, search results, recommendations, account, policy, store locator, contact, 404, and all content sections on one shared foundation.' },
+      { num: '05', href: '05 Handoff Notes.dc.html', title: 'Section Handoff Notes', desc: 'Per section: purpose, components, data slots, responsive rules, edge cases and the recommended prop matrix.' },
+      { num: '06', href: '06 Configuration System.dc.html', title: 'Configuration System', desc: 'Global theme props, component APIs, shared section props, responsive fallbacks, conditional visibility, control types and prop groups.' }
+    ] };
+  }
+}
+</script>
+</body>
+</html>

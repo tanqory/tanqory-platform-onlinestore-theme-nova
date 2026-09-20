@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#E9E7E3} a{color:#1B1A18} a:hover{color:#5C5955} @keyframes tq-spin{to{transform:rotate(360deg)}}</style>
+</helmet>
+<div style="font-family:'Instrument Sans',Helvetica,Arial,sans-serif;color:#1B1A18;padding:64px;display:flex;flex-direction:column;gap:48px;width:1440px;box-sizing:border-box">
+
+<header style="display:flex;justify-content:space-between;align-items:flex-end;gap:32px">
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C5955;letter-spacing:.04em">TANQORY NOVA · 03 / 06</span>
+    <h1 style="margin:0;font-size:40px;line-height:1.1;font-weight:500;letter-spacing:-.02em">Commerce Components</h1>
+    <p style="margin:0;font-size:16px;line-height:24px;color:#5C5955;max-width:720px;text-wrap:pretty">Shared building blocks used by every section. One ProductCard, one CollectionCard, one purchase stack — never re-styled per context.</p>
+  </div>
+  <nav style="display:flex;gap:8px;font-size:13px">
+    <a href="02 UI Primitives.dc.html" style="padding:8px 12px;border:1px solid #C9C6C0;border-radius:4px;text-decoration:none;background:#fff">← 02 Primitives</a>
+    <a href="04 Sections A.dc.html" style="padding:8px 12px;border:1px solid #C9C6C0;border-radius:4px;text-decoration:none;background:#fff">04 Sections →</a>
+  </nav>
+</header>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;justify-content:space-between;align-items:baseline"><h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">ProductCard — anatomy &amp; states</h2><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A867F">media (4:5 contain, Small radius, subtle border) · badge · vendor (opt) · title 2-line clamp · price row · swatches (opt) · quick add overlay (opt)</span></div>
+  <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:24px 20px">
+    <sc-for list="{{ cards }}" as="c" hint-placeholder-count="12">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955;border-bottom:1px solid #E6E4E0;padding-bottom:6px">{{ c.state }}</span>
+        <dc-import name="ProductCard" title="{{ c.title }}" vendor="{{ c.vendor }}" price="{{ c.price }}" compare-price="{{ c.compare }}" badge="{{ c.badge }}" image="{{ c.image }}" swatches="{{ c.swatches }}" quick-add="{{ c.qa }}" hover="{{ c.hover }}" multi-image="{{ c.multi }}" unavailable="{{ c.unavailable }}" hint-size="100%,340px"></dc-import>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;font-size:13px;line-height:19px;color:#5C5955;border-top:1px solid #E6E4E0;padding-top:24px">
+    <div><strong style="color:#1B1A18;display:block;margin-bottom:4px">Hover (desktop only)</strong>Border → Border Strong. Image scale 1.03 (single image) or crossfade to second image (image-swap). Quick add fades up 4px. No shadow, no lift by default; “subtle-lift” is an opt-in global card hover.</div>
+    <div><strong style="color:#1B1A18;display:block;margin-bottom:4px">Touch (tablet / mobile)</strong>No hover state. Quick add renders as a persistent 40px icon button bottom-right of media, or is hidden. Whole card is one link; swatches are non-interactive previews in the card.</div>
+    <div><strong style="color:#1B1A18;display:block;margin-bottom:4px">Quick add behavior</strong>Single variant → adds directly, button shows Adding… (width held) then Added (Primary fill) for 1.5s, cart badge pulses. Multiple variants → opens variant picker in a popover (desktop) or bottom sheet (mobile).</div>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:flex;flex-direction:column;gap:24px">
+  <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">ProductCard — responsive widths</h2>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+    <sc-for list="{{ widths }}" as="w" hint-placeholder-count="3">
+      <div style="display:flex;flex-direction:column;gap:12px;width:{{ w.px }}px;flex:none">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">{{ w.label }}</span>
+        <dc-import name="ProductCard" title="Ribbed cotton crew-neck sweater with dropped shoulders" vendor="Studio Line" price="$68.00" compare-price="$88.00" badge="Sale" swatches="#D9CBB8,#3A3F4A,#8A9A7B" quick-add="idle" hint-size="100%,340px"></dc-import>
+        <span style="font-size:12px;line-height:17px;color:#8A867F">{{ w.note }}</span>
+      </div>
+    </sc-for>
+    <div style="display:flex;flex-direction:column;gap:12px;width:400px">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">horizontal layout · 1 column mobile / search results / recommendations drawer</span>
+      <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;border:1px solid #E6E4E0;border-radius:4px;padding:12px">
+        <div style="aspect-ratio:4/5;background:repeating-linear-gradient(135deg,#EFEEEB 0 8px,#E8E6E2 8px 16px);border-radius:4px"></div>
+        <div style="display:flex;flex-direction:column;gap:4px;justify-content:center"><span style="font-size:12px;color:#8A867F;text-transform:uppercase;letter-spacing:.04em">Studio Line</span><span style="font-size:15px;font-weight:500;line-height:22px">Ribbed cotton crew-neck sweater</span><span style="display:flex;gap:8px;font-variant-numeric:tabular-nums"><span style="font-weight:500;color:#B3261E">$68.00</span><span style="color:#8A867F;text-decoration:line-through;font-size:14px">$88.00</span></span><button style="margin-top:8px;height:36px;width:max-content;padding:0 14px;background:#fff;border:1px solid #C9C6C0;border-radius:4px;font:inherit;font-size:13px;font-weight:500">Quick add</button></div>
+      </div>
+      <span style="font-size:12px;line-height:17px;color:#8A867F">Same tokens, same slots — layout prop only. Used when the container is narrower than 160px per card or in list views.</span>
+    </div>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;justify-content:space-between;align-items:baseline"><h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">CollectionCard</h2><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A867F">image (cover) · title · optional count · optional description · whole card is a link · title fallback when no image</span></div>
+  <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:20px;align-items:start">
+    <sc-for list="{{ collections }}" as="c" hint-placeholder-count="5">
+      <div style="display:flex;flex-direction:column;gap:12px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955;border-bottom:1px solid #E6E4E0;padding-bottom:6px">{{ c.state }}</span><dc-import name="CollectionCard" title="{{ c.title }}" description="{{ c.description }}" count="{{ c.count }}" image="{{ c.image }}" hint-size="100%,320px"></dc-import></div>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div style="position:relative;aspect-ratio:2/1;background:repeating-linear-gradient(135deg,#EFEEEB 0 8px,#E8E6E2 8px 16px);border-radius:4px;overflow:hidden;display:flex;align-items:flex-end;padding:24px"><div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,19,18,0) 40%,rgba(20,19,18,.55) 100%)"></div><div style="position:relative;color:#fff;display:flex;flex-direction:column;gap:4px"><span style="font-size:24px;font-weight:500;letter-spacing:-.01em">Overlay variant — editorial layouts</span><span style="font-size:14px;opacity:.9">Text on image only with Medium/Strong scrim. Optional; default is text-below.</span></div></div>
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:19px;color:#5C5955;justify-content:center"><strong style="color:#1B1A18">Ratio rules</strong><span>Grid: all cards share the section’s imageRatio (default 4:5). Carousel: same. Editorial: featured card may be 1:1 or landscape; rest 4:5. Mixed merchant imagery is normalised by cover-crop at the focal point — never letterboxed.</span><strong style="color:#1B1A18">Long titles</strong><span>2-line clamp; count stays right-aligned on first line and never wraps.</span></div>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) 390px;gap:40px;align-items:start">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">ProductMedia · ProductGallery</h2>
+    <div style="display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <sc-for list="{{ thumbs }}" as="t" hint-placeholder-count="5"><div style="aspect-ratio:1;background:repeating-linear-gradient(135deg,#EFEEEB 0 6px,#E8E6E2 6px 12px);border-radius:4px;border:1px solid {{ t.border }};outline:{{ t.outline }};outline-offset:-2px;position:relative;display:flex;align-items:center;justify-content:center"><sc-if value="{{ t.video }}" hint-placeholder-val="{{ false }}"><span style="width:24px;height:24px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center"><span style="width:0;height:0;border-left:8px solid #1B1A18;border-top:5px solid transparent;border-bottom:5px solid transparent;margin-left:2px"></span></span></sc-if></div></sc-for>
+      </div>
+      <div style="position:relative;aspect-ratio:4/5;background:#F4F3F1;border-radius:4px;border:1px solid #E6E4E0;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A867F;overflow:hidden">
+        <div style="position:absolute;inset:24px;background:repeating-linear-gradient(135deg,#EFEEEB 0 8px,#E8E6E2 8px 16px)"></div>
+        <span style="position:relative">main media · contain · click to zoom</span>
+        <span style="position:absolute;bottom:12px;right:12px;width:40px;height:40px;border-radius:4px;background:#fff;border:1px solid #E6E4E0;display:flex;align-items:center;justify-content:center"><span style="width:14px;height:14px;border:1.5px solid #1B1A18;border-radius:50%"></span></span>
+        <span style="position:absolute;top:12px;left:12px;font-size:12px;font-weight:500;line-height:20px;padding:0 8px;border-radius:4px;background:#B3261E;color:#fff;font-family:'Instrument Sans',sans-serif">Sale</span>
+      </div>
+    </div>
+    <ul style="margin:0;padding-left:16px;font-size:13px;line-height:19px;color:#5C5955"><li>Desktop: vertical thumbnails (72px) left of main; > 6 thumbs scroll within the main height. Selected thumb: 2px inset Primary. Arrow keys move selection.</li><li>Zoom: click opens full-viewport lightbox (Modal shadow, pinch/scroll zoom, Esc closes). Zoom affordance is a bordered 40px icon button, bottom-right.</li><li>Video: thumbnail shows play glyph; main stage plays inline muted with native controls; never autoplays with sound.</li><li>Variant change: main crossfades Standard to the variant’s image and moves selected thumb. No scroll jump.</li><li>Alternate desktop layout “stacked”: all media in a 2-column grid, page scrolls; purchase column sticky.</li></ul>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Purchase stack</h2>
+    <div style="display:flex;flex-direction:column;gap:20px;border:1px solid #E6E4E0;border-radius:4px;padding:24px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:12px;color:#5C5955;text-transform:uppercase;letter-spacing:.08em;font-weight:500">Studio Line</span>
+        <h3 style="margin:0;font-size:30px;line-height:1.15;font-weight:500;letter-spacing:-.02em;text-wrap:balance">Ribbed cotton crew-neck sweater with dropped shoulders</h3>
+        <div style="display:flex;gap:10px;align-items:baseline;font-variant-numeric:tabular-nums"><span style="font-size:20px;font-weight:500;color:#B3261E">$68.00</span><span style="font-size:16px;color:#8A867F;text-decoration:line-through">$88.00</span><span style="font-size:12px;font-weight:500;line-height:20px;padding:0 8px;border-radius:4px;background:#B3261E;color:#fff">Save 23%</span></div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A867F">SKU SL-2210-OAT · shown only when merchant enables</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:500">Color <span style="color:#5C5955;font-weight:400">— Oat</span></span></div>
+        <div style="display:flex;gap:10px">
+          <sc-for list="{{ swatchRow }}" as="s" hint-placeholder-count="5"><span style="width:32px;height:32px;border-radius:50%;background:{{ s.c }};box-shadow:0 0 0 1px rgba(27,26,24,.15) inset;outline:{{ s.ring }};outline-offset:3px;position:relative;display:flex;align-items:center;justify-content:center"><sc-if value="{{ s.out }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;width:40px;height:1.5px;background:#8A867F;transform:rotate(-45deg)"></span></sc-if></span></sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:500">Size <span style="color:#5C5955;font-weight:400">— M</span></span><a href="#" style="color:#5C5955;text-decoration:underline;text-underline-offset:3px">Size guide</a></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <sc-for list="{{ sizes }}" as="v" hint-placeholder-count="6"><span style="min-width:48px;height:44px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;border:1px solid {{ v.border }};background:{{ v.bg }};color:{{ v.fg }};font-size:14px;font-weight:500;outline:{{ v.outline }};outline-offset:2px;position:relative;overflow:hidden">{{ v.label }}<sc-if value="{{ v.out }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:-10%;right:-10%;top:50%;height:1px;background:#C9C6C0;transform:rotate(-20deg)"></span></sc-if></span></sc-for>
+        </div>
+        <span style="font-size:12px;color:#8A867F">Variant buttons: selected = Primary fill; sold out = strikethrough + Text Muted, still selectable to show “Notify me”; unavailable combination = dashed border. Focus ring on all.</span>
+      </div>
+      <div style="display:grid;grid-template-columns:132px minmax(0,1fr);gap:12px;align-items:end">
+        <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:13px;font-weight:500">Quantity</span><div style="height:52px;border:1px solid #C9C6C0;border-radius:4px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;text-align:center;font-size:15px;font-variant-numeric:tabular-nums"><span style="color:#5C5955;font-size:18px">−</span><span style="font-weight:500">1</span><span style="font-size:18px">+</span></div></div>
+        <button style="height:52px;background:#1B1A18;color:#fff;border:0;border-radius:4px;font:inherit;font-size:15px;font-weight:500">Add to cart</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:13px">
+        <span style="display:flex;gap:8px;align-items:center;color:#1F7A4D"><span style="width:8px;height:8px;border-radius:50%;background:#1F7A4D"></span>In stock — ready to ship</span>
+        <span style="display:flex;gap:8px;align-items:center;color:#8A4B00"><span style="width:8px;height:8px;border-radius:50%;background:#B2660A"></span>Low stock — 3 left</span>
+        <span style="display:flex;gap:8px;align-items:center;color:#5C5955"><span style="width:8px;height:8px;border-radius:50%;background:#C9C6C0"></span>Sold out — <a href="#" style="color:#1B1A18;text-decoration:underline;text-underline-offset:3px">notify me</a></span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <button style="height:52px;background:#1B1A18;color:#fff;border:0;border-radius:4px;font:inherit;font-size:15px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px"><span style="width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:tq-spin 800ms linear infinite"></span>Adding…</button>
+      <button style="height:52px;background:#1B1A18;color:#fff;border:0;border-radius:4px;font:inherit;font-size:15px;font-weight:500">✓ Added to cart</button>
+      <button style="height:52px;background:#F4F3F1;color:#8A867F;border:0;border-radius:4px;font:inherit;font-size:15px;font-weight:500">Sold out</button>
+    </div>
+    <span style="font-size:13px;line-height:19px;color:#5C5955">Add to cart is the only Primary button in the purchase column. Sold out replaces the label and disables (aria-disabled, focusable, explains why). Unavailable combination: label “Unavailable”. Quantity is capped at inventory with a toast on adjust.</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">mobile 390 · gallery + sticky purchase bar</span>
+    <div style="width:390px;background:#FCFCFB;border:1px solid #DDDAD4;position:relative;overflow:hidden;height:860px;display:flex;flex-direction:column">
+      <div style="position:relative;aspect-ratio:1;background:repeating-linear-gradient(135deg,#EFEEEB 0 8px,#E8E6E2 8px 16px);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A867F">swipe gallery · 1:1 on mobile · edge peek 16px<div style="position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:#1B1A18"></span><span style="width:6px;height:6px;border-radius:50%;background:#C9C6C0"></span><span style="width:6px;height:6px;border-radius:50%;background:#C9C6C0"></span><span style="width:6px;height:6px;border-radius:50%;background:#C9C6C0"></span></div><span style="position:absolute;bottom:12px;right:12px;width:36px;height:36px;border-radius:4px;background:#fff;border:1px solid #E6E4E0"></span></div>
+      <div style="padding:16px 16px 96px;display:flex;flex-direction:column;gap:14px;flex:1">
+        <span style="font-size:12px;color:#5C5955;text-transform:uppercase;letter-spacing:.08em;font-weight:500">Studio Line</span>
+        <span style="font-size:24px;line-height:1.15;font-weight:500;letter-spacing:-.015em;text-wrap:balance">Ribbed cotton crew-neck sweater with dropped shoulders</span>
+        <div style="display:flex;gap:8px;align-items:baseline;font-variant-numeric:tabular-nums"><span style="font-size:18px;font-weight:500;color:#B3261E">$68.00</span><span style="font-size:15px;color:#8A867F;text-decoration:line-through">$88.00</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:13px;font-weight:500">Color <span style="color:#5C5955;font-weight:400">— Oat</span></span><div style="display:flex;gap:12px"><span style="width:32px;height:32px;border-radius:50%;background:#D9CBB8;outline:2px solid #1B1A18;outline-offset:3px"></span><span style="width:32px;height:32px;border-radius:50%;background:#3A3F4A"></span><span style="width:32px;height:32px;border-radius:50%;background:#8A9A7B"></span></div></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:13px;font-weight:500">Size <span style="color:#5C5955;font-weight:400">— M</span></span><div style="display:flex;gap:8px;flex-wrap:wrap"><span style="min-width:52px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #C9C6C0;border-radius:4px;font-size:14px;font-weight:500">XS</span><span style="min-width:52px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #C9C6C0;border-radius:4px;font-size:14px;font-weight:500">S</span><span style="min-width:52px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #1B1A18;background:#1B1A18;color:#fff;border-radius:4px;font-size:14px;font-weight:500">M</span><span style="min-width:52px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #C9C6C0;border-radius:4px;font-size:14px;font-weight:500">L</span><span style="min-width:52px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #C9C6C0;border-radius:4px;font-size:14px;font-weight:500">XL</span><span style="min-width:52px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #C9C6C0;border-radius:4px;font-size:14px;font-weight:500">XXL</span></div><span style="font-size:12px;color:#8A867F">≥ 8 sizes → wraps to rows; ≥ 14 → Select</span></div>
+        <span style="display:flex;gap:8px;align-items:center;color:#1F7A4D;font-size:13px"><span style="width:8px;height:8px;border-radius:50%;background:#1F7A4D"></span>In stock</span>
+        <div style="border-top:1px solid #E6E4E0;padding-top:14px;display:flex;justify-content:space-between;font-size:16px;font-weight:500">Description<span style="width:8px;height:8px;border-right:1.5px solid #1B1A18;border-bottom:1.5px solid #1B1A18;transform:rotate(45deg)"></span></div>
+      </div>
+      <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #E6E4E0;box-shadow:0 -2px 12px rgba(27,26,24,.08);padding:12px 16px;display:grid;grid-template-columns:112px minmax(0,1fr);gap:10px"><div style="height:52px;border:1px solid #C9C6C0;border-radius:4px;display:grid;grid-template-columns:36px 1fr 36px;align-items:center;text-align:center;font-size:15px"><span>−</span><span style="font-weight:500">1</span><span>+</span></div><button style="height:52px;background:#1B1A18;color:#fff;border:0;border-radius:4px;font:inherit;font-size:15px;font-weight:500">Add to cart · $68.00</button></div>
+    </div>
+    <span style="font-size:12px;line-height:17px;color:#8A867F">Sticky bar appears once the in-flow Add to cart scrolls out of view; hides when it returns. Safe-area inset respected.</span>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:40px;align-items:start">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">CartLineItem</h2>
+    <div style="display:flex;flex-direction:column;border-top:1px solid #E6E4E0">
+      <sc-for list="{{ lines }}" as="l" hint-placeholder-count="3">
+        <div style="display:grid;grid-template-columns:96px minmax(0,1fr) 132px 100px;gap:20px;padding:20px 0;border-bottom:1px solid #E6E4E0;align-items:start;opacity:{{ l.opacity }}">
+          <div style="aspect-ratio:4/5;background:repeating-linear-gradient(135deg,#EFEEEB 0 8px,#E8E6E2 8px 16px);border-radius:4px;border:1px solid #E6E4E0"></div>
+          <div style="display:flex;flex-direction:column;gap:4px;min-width:0"><a href="#" style="font-size:15px;font-weight:500;line-height:22px;text-decoration:none">{{ l.title }}</a><span style="font-size:13px;color:#5C5955">{{ l.variant }}</span><span style="font-size:13px;color:#8A867F;font-variant-numeric:tabular-nums">{{ l.unit }}</span><sc-if value="{{ l.error }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#B3261E;margin-top:4px">{{ l.error }}</span></sc-if><a href="#" style="font-size:13px;color:#5C5955;text-decoration:underline;text-underline-offset:3px;margin-top:8px;width:max-content">Remove</a></div>
+          <div style="height:44px;border:1px solid #C9C6C0;border-radius:4px;display:grid;grid-template-columns:40px 1fr 40px;align-items:center;text-align:center;font-size:14px;font-variant-numeric:tabular-nums;position:relative"><span>−</span><span style="font-weight:500">{{ l.qty }}</span><span>+</span><sc-if value="{{ l.updating }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center"><span style="width:14px;height:14px;border:2px solid #E6E4E0;border-top-color:#1B1A18;border-radius:50%;animation:tq-spin 800ms linear infinite"></span></span></sc-if></div>
+          <div style="text-align:right;font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:500;color:{{ l.totalColor }}">{{ l.total }}</span><sc-if value="{{ l.compare }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#8A867F;text-decoration:line-through">{{ l.compare }}</span></sc-if></div>
+        </div>
+      </sc-for>
+    </div>
+    <span style="font-size:13px;line-height:19px;color:#5C5955">Rows: default · updating (quantity dimmed, spinner, totals hold width) · error (inline Critical message, quantity reverted). Remove is a text link; a toast offers Undo for 5s. Mobile: quantity and total drop below title in one row.</span>
+    <h2 style="margin:16px 0 0;font-size:24px;font-weight:500;letter-spacing:-.01em">CartSummary</h2>
+    <div style="border:1px solid #E6E4E0;border-radius:4px;padding:24px;display:flex;flex-direction:column;gap:16px;background:#FCFCFB;max-width:380px">
+      <span style="font-size:20px;font-weight:500">Order summary</span>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:15px;font-variant-numeric:tabular-nums"><div style="display:flex;justify-content:space-between"><span style="color:#5C5955">Subtotal · 3 items</span><span>$214.00</span></div><div style="display:flex;justify-content:space-between"><span style="color:#5C5955">Discount</span><span style="color:#1F7A4D">− $20.00</span></div><div style="display:flex;justify-content:space-between;color:#5C5955"><span>Shipping</span><span>Calculated at checkout</span></div></div>
+      <div style="height:1px;background:#E6E4E0"></div>
+      <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:500;font-variant-numeric:tabular-nums"><span>Total</span><span>$194.00</span></div>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:500">Order note</span><span style="min-height:64px;border:1px solid #C9C6C0;border-radius:4px;padding:10px 14px;font-size:14px;color:#8A867F;background:#fff">Optional</span></label>
+      <button style="height:52px;background:#1B1A18;color:#fff;border:0;border-radius:4px;font:inherit;font-size:15px;font-weight:500">Checkout</button>
+      <a href="#" style="text-align:center;font-size:14px;color:#5C5955;text-decoration:underline;text-underline-offset:3px">Continue shopping</a>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">cart drawer language · 390</span>
+    <div style="width:390px;height:640px;background:#fff;border:1px solid #DDDAD4;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid #E6E4E0"><span style="font-size:18px;font-weight:500">Cart <span style="color:#8A867F;font-weight:400">(3)</span></span><span style="width:44px;height:44px;margin:-10px -12px -10px 0;display:flex;align-items:center;justify-content:center;font-size:20px;color:#5C5955">×</span></div>
+      <div style="flex:1;padding:0 16px;overflow:hidden">
+        <sc-for list="{{ miniLines }}" as="m" hint-placeholder-count="3">
+          <div style="display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;padding:16px 0;border-bottom:1px solid #E6E4E0"><div style="aspect-ratio:4/5;background:repeating-linear-gradient(135deg,#EFEEEB 0 8px,#E8E6E2 8px 16px);border-radius:4px"></div><div style="display:flex;flex-direction:column;gap:4px;min-width:0"><div style="display:flex;justify-content:space-between;gap:12px"><span style="font-size:14px;font-weight:500;line-height:20px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ m.title }}</span><span style="font-size:14px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap">{{ m.total }}</span></div><span style="font-size:12px;color:#5C5955">{{ m.variant }}</span><div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><div style="height:36px;width:104px;border:1px solid #C9C6C0;border-radius:4px;display:grid;grid-template-columns:34px 1fr 34px;align-items:center;text-align:center;font-size:14px"><span>−</span><span style="font-weight:500">{{ m.qty }}</span><span>+</span></div><a href="#" style="font-size:13px;color:#5C5955;text-decoration:underline;text-underline-offset:3px">Remove</a></div></div></div>
+        </sc-for>
+      </div>
+      <div style="padding:16px;border-top:1px solid #E6E4E0;display:flex;flex-direction:column;gap:12px;box-shadow:0 -2px 12px rgba(27,26,24,.06)"><div style="display:flex;justify-content:space-between;font-size:16px;font-weight:500;font-variant-numeric:tabular-nums"><span>Subtotal</span><span>$214.00</span></div><span style="font-size:12px;color:#8A867F">Shipping and taxes calculated at checkout</span><button style="height:52px;background:#1B1A18;color:#fff;border:0;border-radius:4px;font:inherit;font-size:15px;font-weight:500">Checkout</button></div>
+    </div>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:flex;flex-direction:column;gap:32px">
+  <h2 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em">Navigation components</h2>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">NavigationMenu · desktop, mega menu open · 1440 (shown at 1312)</span>
+    <div style="border:1px solid #E6E4E0;background:#fff;position:relative">
+      <div style="height:64px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 40px">
+        <nav style="display:flex;gap:28px;font-size:14px;font-weight:500"><span style="display:flex;align-items:center;gap:6px;border-bottom:2px solid #1B1A18;padding:22px 0 20px">Shop<span style="width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px)"></span></span><span>New</span><span>Collections</span><span>Journal</span><span>About</span></nav>
+        <span style="font-size:20px;font-weight:600;letter-spacing:-.02em">STORENAME</span>
+        <div style="display:flex;justify-content:flex-end;gap:4px"><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="width:20px;height:20px;border:1.5px solid #1B1A18;border-radius:50%"></span></span><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="width:20px;height:20px;border:1.5px solid #1B1A18;border-radius:50%"></span></span><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;position:relative"><span style="width:20px;height:20px;border:1.5px solid #1B1A18;border-radius:4px"></span><span style="position:absolute;top:4px;right:2px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#1B1A18;color:#fff;font-size:11px;font-weight:500;line-height:18px;text-align:center">3</span></span></div>
+      </div>
+      <div style="border-top:1px solid #E6E4E0;padding:32px 40px 40px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) 320px;gap:40px;box-shadow:0 16px 32px -16px rgba(27,26,24,.14)">
+        <sc-for list="{{ mega }}" as="col" hint-placeholder-count="4">
+          <div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:14px;font-weight:500">{{ col.title }}</span><sc-for list="{{ col.items }}" as="it" hint-placeholder-count="5"><a href="#" style="font-size:14px;color:#5C5955;text-decoration:none;line-height:20px">{{ it }}</a></sc-for></div>
+        </sc-for>
+        <div style="display:flex;flex-direction:column;gap:10px"><div style="aspect-ratio:3/2;background:repeating-linear-gradient(135deg,#EFEEEB 0 8px,#E8E6E2 8px 16px);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A867F">optional promo image</div><span style="font-size:14px;font-weight:500">New season</span></div>
+      </div>
+    </div>
+    <span style="font-size:13px;line-height:19px;color:#5C5955">Mega menu opens on hover intent (150ms) and on click/Enter; panel radius Large at bottom corners, Popover shadow; columns are Body Small links, max 8 per column then “View all”. Simple dropdown (≤ 8 children) is a 240px Popover. Long labels: header links never truncate; when the nav exceeds available width, overflow items collapse into a “More” menu before the layout switches to the mobile header.</span>
+  </div>
+  <div style="display:grid;grid-template-columns:390px 390px minmax(0,1fr);gap:32px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">MobileNavigation · drawer from left</span>
+      <div style="width:390px;height:620px;background:#fff;border:1px solid #DDDAD4;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid #E6E4E0;height:56px;box-sizing:border-box"><span style="width:44px;height:44px;margin-left:-12px;display:flex;align-items:center;justify-content:center;font-size:20px">×</span><span style="font-size:16px;font-weight:600;letter-spacing:-.02em">STORENAME</span><span style="width:44px"></span></div>
+        <div style="padding:8px 16px;display:flex;flex-direction:column">
+          <sc-for list="{{ mobileNav }}" as="n" hint-placeholder-count="5"><div style="display:flex;justify-content:space-between;align-items:center;min-height:56px;font-size:18px;font-weight:500;border-bottom:1px solid #E6E4E0"><span>{{ n.label }}</span><sc-if value="{{ n.children }}" hint-placeholder-val="{{ false }}"><span style="width:8px;height:8px;border-right:1.5px solid #1B1A18;border-top:1.5px solid #1B1A18;transform:rotate(45deg)"></span></sc-if></div></sc-for>
+        </div>
+        <div style="margin-top:auto;padding:16px;border-top:1px solid #E6E4E0;display:flex;flex-direction:column;gap:12px;font-size:15px"><span style="display:flex;gap:12px;align-items:center;min-height:44px"><span style="width:20px;height:20px;border:1.5px solid #1B1A18;border-radius:50%"></span>Account</span><span style="display:flex;justify-content:space-between;color:#5C5955;font-size:14px"><span>English · USD</span></span></div>
+      </div>
+      <span style="font-size:12px;line-height:17px;color:#8A867F">Children push a second panel (slide left, “‹ Shop” header) — never nested accordions deeper than one level. Search field is in the header bar, not the drawer.</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">SearchInterface · open state (mobile)</span>
+      <div style="width:390px;height:620px;background:#fff;border:1px solid #DDDAD4;display:flex;flex-direction:column">
+        <div style="padding:8px 16px;display:flex;gap:8px;align-items:center;border-bottom:1px solid #E6E4E0"><span style="flex:1;height:48px;border:1px solid #1B1A18;border-radius:4px;display:flex;align-items:center;gap:10px;padding:0 14px;font-size:16px;outline:2px solid #1B1A18;outline-offset:2px"><span style="width:16px;height:16px;border:1.5px solid #5C5955;border-radius:50%"></span>ceramic mu<span style="margin-left:auto;color:#8A867F">×</span></span><span style="font-size:14px;font-weight:500;min-width:44px;text-align:center">Cancel</span></div>
+        <div style="padding:16px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#8A867F;text-transform:uppercase;letter-spacing:.06em;font-weight:500;padding-bottom:4px">Suggestions</span><span style="min-height:44px;display:flex;align-items:center;font-size:15px">ceramic <strong style="font-weight:500">mug</strong></span><span style="min-height:44px;display:flex;align-items:center;font-size:15px">ceramic <strong style="font-weight:500">mugs set of 4</strong></span></div>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#8A867F;text-transform:uppercase;letter-spacing:.06em;font-weight:500;padding-bottom:4px">Products</span>
+            <sc-for list="{{ searchRows }}" as="r" hint-placeholder-count="3"><div style="display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;min-height:56px"><div style="aspect-ratio:1;background:repeating-linear-gradient(135deg,#EFEEEB 0 6px,#E8E6E2 6px 12px);border-radius:4px"></div><span style="font-size:14px;font-weight:500;line-height:18px">{{ r.t }}</span><span style="font-size:14px;font-variant-numeric:tabular-nums">{{ r.p }}</span></div></sc-for>
+          </div>
+          <a href="#" style="font-size:14px;font-weight:500;text-decoration:none;display:flex;gap:6px;align-items:center">Search for “ceramic mu”<span style="width:7px;height:7px;border-right:1.5px solid currentColor;border-top:1.5px solid currentColor;transform:rotate(45deg)"></span></a>
+        </div>
+      </div>
+      <span style="font-size:12px;line-height:17px;color:#8A867F">Desktop: search expands inline in the header to a 560px field with the same results panel as a Popover below. Enter goes to search-results. Results use the horizontal SearchResultCard.</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">AccountTrigger · CartTrigger</span>
+        <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;font-size:13px;color:#5C5955">
+          <span style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="width:20px;height:20px;border:1.5px solid #1B1A18;border-radius:50%"></span></span>signed out</span>
+          <span style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="width:28px;height:28px;border-radius:50%;background:#1B1A18;color:#fff;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center">SM</span></span>signed in</span>
+          <span style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="width:20px;height:20px;border:1.5px solid #1B1A18;border-radius:4px"></span></span>cart empty</span>
+          <span style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;position:relative"><span style="width:20px;height:20px;border:1.5px solid #1B1A18;border-radius:4px"></span><span style="position:absolute;top:4px;right:2px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#1B1A18;color:#fff;font-size:11px;font-weight:500;line-height:18px;text-align:center">12</span></span>count</span>
+          <span style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;position:relative"><span style="width:20px;height:20px;border:1.5px solid #1B1A18;border-radius:4px"></span><span style="position:absolute;top:4px;right:2px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#1B1A18;color:#fff;font-size:11px;font-weight:500;line-height:18px;text-align:center">99+</span></span>overflow</span>
+          <span style="display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;border:1px solid #C9C6C0;border-radius:4px;color:#1B1A18;font-size:14px;font-weight:500"><span style="width:20px;height:20px;border:1.5px solid #1B1A18;border-radius:4px"></span>Cart (3)</span>
+        </div>
+        <span style="font-size:12px;line-height:17px;color:#8A867F">Cart trigger opens the drawer by default (merchant may link to cart page). Count pulses Fast on change and is announced via live region. Optional labelled variant for wide headers.</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">SectionHeader · left / center / with link / with description</span>
+        <div style="display:flex;flex-direction:column;gap:20px;border:1px solid #E6E4E0;border-radius:4px;padding:20px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px"><div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;color:#5C5955;text-transform:uppercase;letter-spacing:.08em;font-weight:500">Eyebrow</span><span style="font-size:28px;font-weight:500;letter-spacing:-.015em;line-height:1.15">Featured collection</span><span style="font-size:15px;color:#5C5955;line-height:22px;max-width:520px">Optional description, Body, max 2 lines desktop.</span></div><a href="#" style="font-size:14px;font-weight:500;text-decoration:none;display:flex;gap:6px;align-items:center;white-space:nowrap;padding-bottom:4px">View all<span style="width:7px;height:7px;border-right:1.5px solid currentColor;border-top:1.5px solid currentColor;transform:rotate(45deg)"></span></a></div>
+          <div style="height:1px;background:#E6E4E0"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center"><span style="font-size:28px;font-weight:500;letter-spacing:-.015em;line-height:1.15">Centered header</span><span style="font-size:15px;color:#5C5955;max-width:520px">Link moves below the grid as a Secondary button when centered.</span></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">PaymentIcons · SocialLinks</span><div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ pay }}" as="p" hint-placeholder-count="5"><span style="width:38px;height:24px;border:1px solid #E6E4E0;border-radius:3px;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:8px;color:#8A867F">{{ p }}</span></sc-for></div><div style="display:flex;gap:4px"><sc-for list="{{ social }}" as="s" hint-placeholder-count="4"><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="width:20px;height:20px;border:1.5px solid #1B1A18;border-radius:50%"></span></span></sc-for></div><span style="font-size:12px;line-height:17px;color:#8A867F">Payment marks: 38×24, bordered, monochrome optional. Social: 44px hit, 20px outline glyphs, one family.</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">NewsletterForm · inline &amp; stacked</span><div style="display:flex;gap:8px"><span style="flex:1;height:48px;border:1px solid #C9C6C0;border-radius:4px;display:flex;align-items:center;padding:0 14px;font-size:15px;color:#8A867F">Email address</span><button style="height:48px;padding:0 20px;background:#1B1A18;color:#fff;border:0;border-radius:4px;font:inherit;font-size:14px;font-weight:500">Subscribe</button></div><span style="font-size:13px;color:#1F7A4D;display:flex;gap:6px;align-items:center">✓ Thanks — check your inbox to confirm.</span><span style="font-size:12px;line-height:17px;color:#8A867F">Success replaces the form. Error shows below the field. Mobile: stacked, full-width button.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:#fff;border:1px solid #DDDAD4;padding:48px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px;align-items:start">
+  <div style="display:flex;flex-direction:column;gap:12px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">BlogCard</span><div style="display:flex;flex-direction:column;gap:12px"><div style="aspect-ratio:3/2;background:repeating-linear-gradient(135deg,#EFEEEB 0 8px,#E8E6E2 8px 16px);border-radius:4px;border:1px solid #E6E4E0"></div><span style="font-size:12px;color:#5C5955">Journal · 12 Mar 2026</span><span style="font-size:18px;font-weight:500;line-height:1.3;text-wrap:pretty">How to care for linen so it softens with every wash</span><span style="font-size:14px;color:#5C5955;line-height:20px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Optional excerpt clamped to two lines. Reading time optional.</span></div></div>
+  <div style="display:flex;flex-direction:column;gap:12px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">ArticleCard · horizontal (related articles, no image)</span><div style="display:grid;grid-template-columns:1fr;gap:12px;border-top:1px solid #E6E4E0;padding-top:16px"><span style="font-size:12px;color:#5C5955">Guides</span><span style="font-size:18px;font-weight:500;line-height:1.3">Choosing the right rug size for every room</span><a href="#" style="font-size:14px;font-weight:500;text-decoration:none;display:flex;gap:6px;align-items:center">Read article<span style="width:7px;height:7px;border-right:1.5px solid currentColor;border-top:1.5px solid currentColor;transform:rotate(45deg)"></span></a></div></div>
+  <div style="display:flex;flex-direction:column;gap:12px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">SearchResultCard · content result</span><div style="display:grid;grid-template-columns:72px 1fr;gap:16px;border:1px solid #E6E4E0;border-radius:4px;padding:12px"><div style="aspect-ratio:1;background:#F4F3F1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#8A867F">page</div><div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#8A867F">Page</span><span style="font-size:15px;font-weight:500;line-height:20px">Shipping &amp; returns</span><span style="font-size:13px;color:#5C5955;line-height:18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Matching snippet with the <strong style="font-weight:500;color:#1B1A18">query</strong> highlighted in Text Primary.</span></div></div><span style="font-size:12px;line-height:17px;color:#8A867F">Products in search use ProductCard unchanged; pages/articles use this row.</span></div>
+  <div style="display:flex;flex-direction:column;gap:12px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5C5955">StoreLocatorCard</span><div style="border:1px solid #E6E4E0;border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:8px"><span style="font-size:16px;font-weight:500">Downtown store</span><span style="font-size:14px;color:#5C5955;line-height:20px">120 Market Street<br>Portland, OR 97201</span><span style="font-size:14px;color:#5C5955;line-height:20px">Mon–Sat 10:00–19:00<br>Sun 11:00–17:00</span><div style="display:flex;gap:16px;padding-top:4px"><a href="#" style="font-size:14px;font-weight:500;text-decoration:underline;text-underline-offset:3px">Directions</a><a href="#" style="font-size:14px;color:#5C5955;text-decoration:underline;text-underline-offset:3px">Call</a></div></div><span style="font-size:12px;line-height:17px;color:#8A867F">Optional image above (3:2). Selected state (from map) uses strong border.</span></div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const C = (state, o) => Object.assign({ state, title: 'Stoneware mug, 350 ml', vendor: '', price: '$24.00', compare: '', badge: '', image: '4:5', swatches: '', qa: 'none', hover: false, multi: false, unavailable: false }, o);
+    const cards = [
+      C('default'), C('hover · image scale + quick add', { hover: true, qa: 'idle' }), C('sale', { badge: 'Sale', price: '$18.00', compare: '$24.00' }), C('sold out', { badge: 'Sold out' }), C('unavailable', { unavailable: true }), C('new + vendor', { badge: 'New', vendor: 'Atelier' }),
+      C('multiple images · hover swap', { hover: true, multi: true, qa: 'idle' }), C('no image', { image: 'none' }), C('very long title', { title: 'Hand-thrown stoneware mug with speckled reactive glaze, dishwasher-safe, 350 ml, made in small batches' }), C('price range · variants', { price: '$24.00 – $38.00', swatches: '#D9CBB8,#3A3F4A,#8A9A7B,#B85C4A,#E4E1DA,#2E2A26' }), C('quick add loading', { qa: 'loading' }), C('quick add success', { qa: 'success' }),
+      C('square ratio', { image: '1:1' }), C('portrait 3:4', { image: '3:4' }), C('swatches + sale', { badge: 'Sale', price: '$18.00', compare: '$24.00', swatches: '#D9CBB8,#3A3F4A,#8A9A7B' }), C('large price', { price: '$12,480.00' }), C('short title', { title: 'Mug' }), C('sold out · hover', { badge: 'Sold out', hover: true, qa: 'idle' })
+    ];
+    const widths = [{ px: 300, label: 'desktop 1440 · 4 col · 300px', note: 'Full anatomy. Hover states active.' }, { px: 232, label: 'tablet 768 · 3 col · 232px', note: 'Same type sizes. Quick add persistent icon or hidden.' }, { px: 171, label: 'mobile 390 · 2 col · 171px', note: 'Title 14/20, price 14. Swatches cap at 4 + count. Vendor hidden by default.' }];
+    const collections = [{ state: 'portrait 4:5 · count', title: 'Kitchen', count: '48', image: '4:5' }, { state: 'square 1:1 · description', title: 'Lighting', description: 'Table, floor and pendant lights for every room.', image: '1:1' }, { state: 'landscape 3:2', title: 'Outdoor', image: '3:2' }, { state: 'no image · title fallback', title: 'Gift cards', image: 'none', count: '6' }, { state: 'long title', title: 'Seasonal tableware, serving pieces and linens for gatherings', image: '4:5', count: '112' }];
+    const thumbs = [{ border: '#1B1A18', outline: '2px solid #1B1A18' }, { border: '#E6E4E0', outline: 'none' }, { border: '#E6E4E0', outline: 'none', video: true }, { border: '#E6E4E0', outline: 'none' }, { border: '#E6E4E0', outline: 'none' }];
+    const swatchRow = [{ c: '#D9CBB8', ring: '2px solid #1B1A18' }, { c: '#3A3F4A', ring: 'none' }, { c: '#8A9A7B', ring: 'none' }, { c: '#B85C4A', ring: 'none', out: true }, { c: 'repeating-linear-gradient(135deg,#EFEEEB 0 3px,#C9C6C0 3px 6px)', ring: 'none' }];
+    const sizes = [['XS', '#C9C6C0', '#fff', '#1B1A18', 'none', false], ['S', '#C9C6C0', '#fff', '#1B1A18', 'none', false], ['M', '#1B1A18', '#1B1A18', '#fff', 'none', false], ['L', '#1B1A18', '#fff', '#1B1A18', '2px solid #1B1A18', false], ['XL', '#E6E4E0', '#fff', '#8A867F', 'none', true], ['XXL', '#C9C6C0', '#fff', '#1B1A18', 'none', false]].map(a => ({ label: a[0], border: a[1], bg: a[2], fg: a[3], outline: a[4], out: a[5] }));
+    const lines = [
+      { title: 'Ribbed cotton crew-neck sweater', variant: 'Oat · M', unit: '$68.00 each', qty: '1', total: '$68.00', compare: '$88.00', totalColor: '#B3261E', opacity: 1 },
+      { title: 'Stoneware mug, 350 ml', variant: 'Speckled white', unit: '$24.00 each', qty: '2', total: '$48.00', totalColor: '#1B1A18', opacity: 1, updating: true },
+      { title: 'Linen table runner', variant: 'Natural · 180 cm', unit: '$49.00 each', qty: '2', total: '$98.00', totalColor: '#1B1A18', opacity: 1, error: 'Only 1 available — quantity reverted.' }
+    ];
+    const miniLines = [{ title: 'Ribbed cotton crew-neck sweater', variant: 'Oat · M', qty: '1', total: '$68.00' }, { title: 'Stoneware mug, 350 ml', variant: 'Speckled white', qty: '2', total: '$48.00' }, { title: 'Linen table runner with hand-rolled hem', variant: 'Natural · 180 cm', qty: '2', total: '$98.00' }];
+    const mega = [{ title: 'Kitchen', items: ['Cookware', 'Tableware', 'Glassware', 'Storage', 'Textiles'] }, { title: 'Living', items: ['Lighting', 'Rugs', 'Cushions', 'Throws', 'Decor'] }, { title: 'Bedroom', items: ['Bedding', 'Pillows', 'Blankets', 'Nightstands'] }, { title: 'Outdoor', items: ['Furniture', 'Planters', 'Lanterns', 'View all'] }];
+    const mobileNav = [{ label: 'Shop', children: true }, { label: 'New', children: false }, { label: 'Collections', children: true }, { label: 'Journal', children: false }, { label: 'About', children: false }];
+    const searchRows = [{ t: 'Stoneware mug, 350 ml', p: '$24.00' }, { t: 'Ceramic mug set of 4', p: '$86.00' }, { t: 'Travel mug with lid', p: '$32.00' }];
+    return { cards, widths, collections, thumbs, swatchRow, sizes, lines, miniLines, mega, mobileNav, searchRows, pay: ['VISA', 'MC', 'AMEX', 'PAYPAL', 'APPLE', 'GPAY'], social: [1, 2, 3, 4] };
+  }
+}
+</script>
+</body>
+</html>

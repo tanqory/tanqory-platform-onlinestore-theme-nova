@@ -5,11 +5,32 @@ A standalone Tanqory theme. Runs **offline** with mock data; depends on
 **content = JSON tree** (not HTML), edited by the visual editor.
 
 ```bash
-npm install
-npm run dev        # → http://localhost:4321  (offline, mock data)
-npm run build
-npm run typecheck
+pnpm install       # pnpm is the package manager for this repo (see packageManager)
+pnpm dev           # → http://localhost:4321  (offline, mock data)
+pnpm verify        # typecheck + manifest:check + test + build — what CI runs
 ```
+
+Individual checks:
+
+```bash
+pnpm typecheck        # tsc over every file the theme ships, sections/ included
+pnpm manifest:check   # theme.manifest.json + README catalog match the code,
+                      # and no template sets a setting its section doesn't declare
+pnpm test             # regression tests (vitest)
+pnpm build            # production build (regenerates the manifest first)
+```
+
+A clean clone must pass all four with `pnpm install --frozen-lockfile` and no
+local files: that is the contract. `npm` is not supported here — there is one
+lockfile (`pnpm-lock.yaml`) on purpose.
+
+## Docs
+
+| File | For |
+|---|---|
+| [CLAUDE.md](CLAUDE.md) | architecture, the schema vocabulary, the data layer, the gates and their traps — start here when working on the theme |
+| [docs/DESIGN-GAPS.md](docs/DESIGN-GAPS.md) | every deliberate deviation from the approved design package, and why |
+| [docs/THEME-AUDIT.md](docs/THEME-AUDIT.md) | the readiness review and what it found |
 
 ## One rule to read the whole repo
 
@@ -66,14 +87,14 @@ generator, and the dashboard↔storefront conformance test all read it, so it is
 the one place that can never disagree with the code.
 
 The list below is generated from that manifest — **do not edit by hand**; run
-`npm run manifest` (it also refreshes this block).
+`pnpm manifest` (it also refreshes this block).
 
 <!-- BEGIN GENERATED CATALOG -->
-**61 sections · 18 templates · 34 settings**
+**62 sections · 18 templates · 59 settings**
 
 ### Sections by category
 - **block** (28): accordion, add-to-cart, button, collection-item, column, faq-item, footer-brand, footer-menu, footer-text, heading, icon, image, jumbo-text, logo, payment-icons, product-description, product-inventory, product-price, product-sku, product-title, quantity, slide, social-links, spacer, swatches, text, variant-picker, video
-- **commerce** (10): account, cart-items, collection-list, featured-collection, featured-product, policy-page, product-details, product-grid, search-results, store-locator
+- **commerce** (11): account, cart-items, collection-list, featured-collection, featured-product, main-collection, policy-page, product-details, product-grid, search-results, store-locator
 - **content** (11): article-body, blog-posts, collection-links, faq, feature-grid-blocks, feature-highlights, image-with-text, marquee, multicolumn, page-body, rich-text
 - **forms** (1): contact-form
 - **layout** (7): announcement-bar, divider, footer, group, header, hero, slideshow
@@ -82,34 +103,43 @@ The list below is generated from that manifest — **do not edit by hand**; run
 - **social-proof** (1): logo-list
 - **system** (1): not-found
 
+### Shared groups
+- **footer** (footer): footer — used by 15 template(s)
+- **header** (header): header — used by 17 template(s)
+
 ### Templates
-| template | sections |
-| --- | --- |
-| `404` | featured-collection, footer, header, not-found |
-| `account` | account, footer, header |
-| `article` | article-body, footer, header |
-| `article.longform` | article-body, footer, header, rich-text |
-| `blog` | blog-posts, footer, header |
-| `blog.featured` | blog-posts, footer, header, rich-text |
-| `cart` | cart-items, featured-collection, footer, header |
-| `collection` | featured-collection, footer, header |
-| `collection.featured` | featured-collection, footer, header, rich-text |
-| `contact` | contact-form, footer, header, rich-text |
-| `index` | collection-list, featured-collection, featured-product, footer, header, image-with-text, logo-list, multicolumn, slideshow |
-| `list-collections` | collection-list, footer, header |
-| `page` | footer, header, page-body |
-| `page.contact` | contact-form, page-body |
-| `policy` | footer, header, policy-page |
-| `product` | featured-collection, footer, header, product-details |
-| `product.bundle` | featured-collection, footer, header, product-details, rich-text |
-| `search` | footer, header, search-results |
+| template | header | footer | sections |
+| --- | --- | --- | --- |
+| `404` | ↗ header | ↗ footer | featured-collection, not-found |
+| `account` | ↗ header | override | account |
+| `article` | ↗ header | ↗ footer | article-body |
+| `article.longform` | ↗ header | ↗ footer | article-body, rich-text |
+| `blog` | ↗ header | ↗ footer | blog-posts |
+| `blog.featured` | ↗ header | ↗ footer | blog-posts, rich-text |
+| `cart` | ↗ header | ↗ footer | cart-items, featured-collection |
+| `collection` | ↗ header | ↗ footer | main-collection |
+| `collection.featured` | ↗ header | ↗ footer | main-collection, rich-text |
+| `contact` | ↗ header | ↗ footer | contact-form, rich-text |
+| `index` | override | override | collection-links, collection-list, contact-form, divider, faq, feature-grid-blocks, feature-highlights, featured-collection, featured-product, group, image-with-text, logo-list, marquee, multicolumn, newsletter, product-grid, product-recommendations, rich-text, slideshow, store-locator |
+| `list-collections` | ↗ header | ↗ footer | collection-list |
+| `page` | ↗ header | ↗ footer | page-body |
+| `page.contact` | ↗ header | ↗ footer | contact-form, page-body |
+| `policy` | ↗ header | override | policy-page |
+| `product` | ↗ header | ↗ footer | featured-collection, product-details |
+| `product.bundle` | ↗ header | ↗ footer | featured-collection, product-details, rich-text |
+| `search` | ↗ header | ↗ footer | search-results |
 
 ### Theme settings
 - **Account**: accountLoggedIn, accountHeading, accountSubtext, accountPrimaryLabel, accountPrimaryHref, accountSecondaryLabel, accountSecondaryHref, accountExtraLinks
 - **Brand**: shopName, accent
 - **Cart**: enableCartDrawer, cartDrawerWidth, cartEmptyHeading, cartEmptySubtext, cartCheckoutLabel, cartViewLabel
+- **Colour**: colorPrimary, colorBackground, colorText, colorSecondarySurface, colorBorder, colorSale
+- **Components**: buttonRadius, buttonBorder, inputRadius, cardRadius, cardBorder, cardHoverEffect, badgeStyle, iconStyle, motion
 - **Footer**: footerShopMenuHandle, footerHelpMenuHandle, footerCompanyMenuHandle, footerTagline, showPoweredBy, poweredByLabel
 - **Header**: headerMenuHandle, enableSpaNavigation, enableAccountDropdown, enableMobileNavDrawer, mobileNavHeading, mobileNavWidth
+- **Layout**: pageWidth, sectionSpacing
+- **Product media**: productImageRatio, productImageFit, showVendorGlobally
 - **Search**: enableSearchModal, searchPlaceholder, searchCtaLabel, searchModalWidth, searchDebounceMs, searchMaxResults
+- **Typography**: headingFont, bodyFont, typeScale, headingWeight, buttonTextStyle
 <!-- END GENERATED CATALOG -->
 

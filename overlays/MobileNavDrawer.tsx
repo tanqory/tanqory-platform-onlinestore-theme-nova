@@ -40,7 +40,10 @@ export function MobileNavDrawer(props: MobileNavDrawerProps): JSX.Element {
 
   return (
     <Drawer open={open} side="left" width={width} ariaLabel={heading}>
-      <header className="drawer__head">
+      {/* A div, not <header>: a bare <header> outside a sectioning element is a
+          `banner` landmark, and the page already has one. Every route was
+          reporting two. */}
+      <div className="drawer__head">
         <h2 className="drawer__title">{heading}</h2>
         <button
           type="button"
@@ -50,7 +53,7 @@ export function MobileNavDrawer(props: MobileNavDrawerProps): JSX.Element {
         >
           ✕
         </button>
-      </header>
+      </div>
       <nav className="mobile-nav" aria-label="Mobile primary">
         <ul>
           {navItems.map((item) => (

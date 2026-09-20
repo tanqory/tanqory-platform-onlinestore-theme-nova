@@ -27,6 +27,8 @@ export function ProductDescription(_props: SectionProps): JSX.Element {
 
 export default defineSection({
   name: 'product-description',
+  role: 'block',
+  requiresContext: ['product'],
   title: 'Product description',
   category: 'block',
   icon: '¶',

@@ -165,6 +165,33 @@ in the DOM and the editor:
 become tokens (`--btn-radius: var(--radius-pill)`). A merchant picks a rung, not
 a pixel.
 
+### Global theme settings — one pipeline, and it is live in the editor
+
+```
+config/settings.schema.ts   names + controls (the design's 25 global props, + logo / shopName / locale / accent)
+config/settings.json        the values; '' = "not set"
+lib/theme-settings.ts       PURE: settings (+ Settings → Brand) → CSS variables, root data-* flags, font stylesheet, logo
+components/ThemeSettings.tsx the provider: renders the <style>, so SSG bakes it in; listens for the editor's live values
+lib/live-settings.ts        which keys an editor frame may set live, validated from the resolver's own tables
+```
+
+- **Adding a global setting** = schema entry + a row in the resolver's table
+  (`RUNGS`, `COLOR_ROLES`, `ROOT_FLAGS`, …). The live-preview allowlist derives
+  from those tables, so the editor's Theme panel moves it with no extra wiring.
+  Never apply a setting by mutating `document` from a section or from `main.tsx`.
+- **`''` means not set.** Precedence for colour / font / logo: theme setting →
+  the store's Settings → Brand → the token in `tokens.css`. A non-empty colour
+  default would be written on every store and switch off the dark scheme; the
+  design's defaults live in the tokens, and `check:design` checks them there.
+- **The design default of a rung writes nothing** — an untouched store gets no
+  `<style>` at all (`lib/theme-settings.test.ts` pins this).
+- **Label colours are never taken on trust.** Every colour that carries text gets
+  its label picked for AA on that colour *and* on its hover shade.
+- **Only style keys are live.** `lib/live-settings.test.ts` pins the full list;
+  a link, menu handle, copy or feature toggle must never be settable from a frame.
+- Names follow `design/spec/global.json`. `colorBrand` / `fontHeading` /
+  `fontBody` are older names: still read, renamed by `scripts/migrate-content.mjs`.
+
 **Renaming a setting orphans saved merchant content.** Add it to
 `scripts/migrate-content.mjs` — `RENAMES` for a key change, `VALUE_RENAMES` for
 a vocabulary change. Both tables are append-only so they stay replayable. A
@@ -298,7 +325,7 @@ something shipped broken past it.
 | `pnpm check:inert` | a setting the editor shows that nothing reads |
 | `pnpm check:design` | design coverage going backwards (shrink-only ratchet) |
 | `pnpm check:headings` | a template with zero or two page headings |
-| `pnpm test` | vitest regression suites |
+| `pnpm test` | vitest regression suites, then `test:lib` — node's runner over `lib/**/*.test.ts` (the pure modules: theme settings, live settings, head, locale, safe-href) |
 | `pnpm build` | production build (regenerates the manifest first) |
 
 `pnpm verify:live` needs `pnpm dev` running and adds:

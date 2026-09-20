@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { decodeHandle } from '../lib/handle'
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useData, useT, type SectionProps } from '@tanqory/theme-kit'
 import { Container } from '../components/Container'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
+import { policyTitle } from '../lib/theme-locale'
 
 /** One on-demand call — only on /policies/* — so policy BODIES never weigh down
  *  every page's bootstrap (which prefetches just handle/title/url for footer). */
@@ -31,6 +32,7 @@ interface Policy {
  */
 export function PolicyPage({ attributes }: SectionProps): JSX.Element {
   const data = useData()
+  const t = useT()
   const handleFromUrl =
     typeof window !== 'undefined'
       ? decodeHandle(window.location.pathname.match(/\/policies\/([^/]+)/)?.[1])
@@ -101,7 +103,9 @@ export function PolicyPage({ attributes }: SectionProps): JSX.Element {
       <Container className="policy-page__inner">
         {policy ? (
           <>
-            <h1 className="policy-page__title">{policy.title}</h1>
+            {/* store-api gives every policy an English stock title; the heading
+             *  follows the theme's language instead (lib/theme-locale.ts). */}
+            <h1 className="policy-page__title">{policyTitle(policy.handle ?? handle, policy.title, t)}</h1>
             {showLastUpdated && updatedAt && (
               <p className="policy-page__updated">
                 Last updated{' '}
@@ -126,12 +130,12 @@ export function PolicyPage({ attributes }: SectionProps): JSX.Element {
                 dangerouslySetInnerHTML={{ __html: bodyHtml }}
               />
             ) : (
-              <p className="u-text-muted">Loading…</p>
+              <p className="u-text-muted">{t('policy.loading')}</p>
             )}
           </>
         ) : (
           <div className="card card--padded card--bordered u-text-center">
-            <p className="u-text-muted">This policy isn’t available.</p>
+            <p className="u-text-muted">{t('policy.unavailable')}</p>
           </div>
         )}
       </Container>

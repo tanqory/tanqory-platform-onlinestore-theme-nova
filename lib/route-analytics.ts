@@ -17,7 +17,7 @@
  */
 import { getAnalytics } from '@tanqory/theme-kit'
 import type { DataApi } from '@tanqory/theme-kit'
-import { matchRoute } from './routes'
+import { matchRoute } from './routes.ts'
 
 let lastEmitted: string | null = null
 

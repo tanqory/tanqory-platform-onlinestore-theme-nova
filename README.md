@@ -90,7 +90,7 @@ The list below is generated from that manifest — **do not edit by hand**; run
 `pnpm manifest` (it also refreshes this block).
 
 <!-- BEGIN GENERATED CATALOG -->
-**62 sections · 18 templates · 59 settings**
+**62 sections · 18 templates · 61 settings**
 
 ### Sections by category
 - **block** (28): accordion, add-to-cart, button, collection-item, column, faq-item, footer-brand, footer-menu, footer-text, heading, icon, image, jumbo-text, logo, payment-icons, product-description, product-inventory, product-price, product-sku, product-title, quantity, slide, social-links, spacer, swatches, text, variant-picker, video
@@ -104,14 +104,14 @@ The list below is generated from that manifest — **do not edit by hand**; run
 - **system** (1): not-found
 
 ### Shared groups
-- **footer** (footer): footer — used by 15 template(s)
+- **footer** (footer): footer — used by 17 template(s)
 - **header** (header): header — used by 17 template(s)
 
 ### Templates
 | template | header | footer | sections |
 | --- | --- | --- | --- |
 | `404` | ↗ header | ↗ footer | featured-collection, not-found |
-| `account` | ↗ header | override | account |
+| `account` | ↗ header | ↗ footer | account |
 | `article` | ↗ header | ↗ footer | article-body |
 | `article.longform` | ↗ header | ↗ footer | article-body, rich-text |
 | `blog` | ↗ header | ↗ footer | blog-posts |
@@ -124,22 +124,22 @@ The list below is generated from that manifest — **do not edit by hand**; run
 | `list-collections` | ↗ header | ↗ footer | collection-list |
 | `page` | ↗ header | ↗ footer | page-body |
 | `page.contact` | ↗ header | ↗ footer | contact-form, page-body |
-| `policy` | ↗ header | override | policy-page |
+| `policy` | ↗ header | ↗ footer | policy-page |
 | `product` | ↗ header | ↗ footer | featured-collection, product-details |
 | `product.bundle` | ↗ header | ↗ footer | featured-collection, product-details, rich-text |
 | `search` | ↗ header | ↗ footer | search-results |
 
 ### Theme settings
-- **Account**: accountLoggedIn, accountHeading, accountSubtext, accountPrimaryLabel, accountPrimaryHref, accountSecondaryLabel, accountSecondaryHref, accountExtraLinks
-- **Brand**: shopName, accent
-- **Cart**: enableCartDrawer, cartDrawerWidth, cartEmptyHeading, cartEmptySubtext, cartCheckoutLabel, cartViewLabel
-- **Colour**: colorPrimary, colorBackground, colorText, colorSecondarySurface, colorBorder, colorSale
-- **Components**: buttonRadius, buttonBorder, inputRadius, cardRadius, cardBorder, cardHoverEffect, badgeStyle, iconStyle, motion
-- **Footer**: footerShopMenuHandle, footerHelpMenuHandle, footerCompanyMenuHandle, footerTagline, showPoweredBy, poweredByLabel
-- **Header**: headerMenuHandle, enableSpaNavigation, enableAccountDropdown, enableMobileNavDrawer, mobileNavHeading, mobileNavWidth
-- **Layout**: pageWidth, sectionSpacing
-- **Product media**: productImageRatio, productImageFit, showVendorGlobally
-- **Search**: enableSearchModal, searchPlaceholder, searchCtaLabel, searchModalWidth, searchDebounceMs, searchMaxResults
 - **Typography**: headingFont, bodyFont, typeScale, headingWeight, buttonTextStyle
+- **Colour**: colorPrimary, colorBackground, colorText, colorSecondarySurface, colorBorder, colorSale, accent
+- **Layout**: pageWidth, sectionSpacing
+- **Components**: buttonRadius, buttonBorder, inputRadius, cardRadius, cardBorder, cardHoverEffect, badgeStyle, iconStyle, motion
+- **Product media**: productImageRatio, productImageFit, showVendorGlobally
+- **Brand**: logo, shopName, locale
+- **Header**: headerMenuHandle, enableSpaNavigation, enableAccountDropdown, enableMobileNavDrawer, mobileNavHeading, mobileNavWidth
+- **Search**: enableSearchModal, searchPlaceholder, searchCtaLabel, searchModalWidth, searchDebounceMs, searchMaxResults
+- **Cart**: enableCartDrawer, cartDrawerWidth, cartEmptyHeading, cartEmptySubtext, cartCheckoutLabel, cartViewLabel
+- **Account**: accountLoggedIn, accountHeading, accountSubtext, accountPrimaryLabel, accountPrimaryHref, accountSecondaryLabel, accountSecondaryHref, accountExtraLinks
+- **Footer**: footerShopMenuHandle, footerHelpMenuHandle, footerCompanyMenuHandle, footerTagline, showPoweredBy, poweredByLabel
 <!-- END GENERATED CATALOG -->
 

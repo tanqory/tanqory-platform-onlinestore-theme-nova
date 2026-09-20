@@ -101,6 +101,9 @@ function migrateNode(node) {
     for (const [oldKey, target] of Object.entries(map)) {
       if (!(oldKey in node.settings)) continue
       const value = node.settings[oldKey]
+      // A same-key entry is a VALUE rename. Once the value is already the new
+      // one there is nothing to do — counting it made every run report work.
+      if (Array.isArray(target) && target[0] === oldKey && JSON.stringify(target[1](value)) === JSON.stringify(value)) continue
       delete node.settings[oldKey]
       changed += 1
       if (target === null) {
@@ -127,9 +130,29 @@ for (const file of readdirSync(dir).filter((f) => f.endsWith('.json'))) {
   if (changed > start) console.log(`${file}:`)
 }
 // ── Global theme settings ───────────────────────────────────────────────────
+/**
+ * Global settings whose KEY changed. The schema follows the approved design
+ * package's names; these are the names an earlier build saved under.
+ * lib/theme-settings.ts still reads the old key as a fallback, so a store that
+ * has not been migrated keeps its colours and fonts. Append-only.
+ */
+const SETTING_KEY_RENAMES = {
+  colorBrand: 'colorPrimary',
+  fontHeading: 'headingFont',
+  fontBody: 'bodyFont',
+}
 const settingsPath = join(ROOT, 'config', 'settings.json')
 const settings = JSON.parse(readFileSync(settingsPath, 'utf8'))
 const settingsStart = changed
+for (const [oldKey, newKey] of Object.entries(SETTING_KEY_RENAMES)) {
+  if (!(oldKey in settings)) continue
+  const value = settings[oldKey]
+  delete settings[oldKey]
+  // A value already saved under the new name wins; an empty one does not.
+  if (settings[newKey] === undefined || settings[newKey] === '') settings[newKey] = value
+  log.push(`  settings.${oldKey} → ${newKey} = ${JSON.stringify(settings[newKey])}`)
+  changed += 1
+}
 for (const [key, map] of Object.entries(VALUE_RENAMES)) {
   if (!(key in settings)) continue
   const next = map[String(settings[key])]

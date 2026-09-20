@@ -20,7 +20,7 @@
     "templates": 18,
     "groups": 2,
     "layouts": 1,
-    "settings": 59,
+    "settings": 61,
     "categories": {
       "block": 28,
       "commerce": 11,
@@ -1544,7 +1544,7 @@
       "name": "collection-list",
       "title": "Collection list",
       "source": "sections/CollectionList.tsx",
-      "sourceHash": "31fc00207ce06a73b17cbee12dbe9129",
+      "sourceHash": "5b058c6ef1d195468a227780e25abfa7",
       "category": "commerce",
       "icon": "☷",
       "role": "section",
@@ -1946,7 +1946,7 @@
       "name": "contact-form",
       "title": "Contact form",
       "source": "sections/ContactForm.tsx",
-      "sourceHash": "51ea762051049a611b17abe57a492df0",
+      "sourceHash": "d29a5512c15f85ba26134d698ca2b6b9",
       "category": "forms",
       "icon": "✉",
       "role": "section",
@@ -3860,7 +3860,7 @@
       "name": "footer-brand",
       "title": "Brand information",
       "source": "sections/FooterBrand.tsx",
-      "sourceHash": "10bbc93bbe57a466275d963c9494fea8",
+      "sourceHash": "a3b7162180915498f5c2cb11ac2383c5",
       "category": "block",
       "icon": "◈",
       "role": "block",
@@ -3878,7 +3878,7 @@
         },
         "tagline": {
           "type": "textarea",
-          "label": "Tagline (blank = store description)",
+          "label": "Tagline (blank = theme tagline, then brand slogan)",
           "dynamic": true
         }
       },
@@ -4206,7 +4206,7 @@
       "name": "header",
       "title": "Header",
       "source": "sections/Header.tsx",
-      "sourceHash": "e7f1c457e914b7d2936f14d7f62c19b1",
+      "sourceHash": "b253530e1add19e216d63ad94a0b3c7c",
       "category": "layout",
       "icon": "▭",
       "role": "layout",
@@ -4281,7 +4281,7 @@
         },
         "logo": {
           "type": "text",
-          "label": "Logo text (blank = shop name)"
+          "label": "Logo text — shown when there is no logo image (blank = shop name)"
         },
         "transparentOnHero": {
           "type": "boolean",
@@ -6895,7 +6895,7 @@
       "name": "policy-page",
       "title": "Policy",
       "source": "sections/PolicyPage.tsx",
-      "sourceHash": "ec94250bbd252d0e71b436d53fd390e4",
+      "sourceHash": "b0c7def5f0a474516f30dd9aa798000a",
       "category": "commerce",
       "icon": "doc",
       "role": "section",
@@ -9847,7 +9847,8 @@
           "group": "header"
         },
         "footer": {
-          "mode": "override"
+          "mode": "ref",
+          "group": "footer"
         }
       }
     },
@@ -10103,7 +10104,8 @@
           "group": "header"
         },
         "footer": {
-          "mode": "override"
+          "mode": "ref",
+          "group": "footer"
         }
       }
     },
@@ -10177,6 +10179,7 @@
       ],
       "usedBy": [
         "404",
+        "account",
         "article",
         "article.longform",
         "blog",
@@ -10188,6 +10191,7 @@
         "list-collections",
         "page",
         "page.contact",
+        "policy",
         "product",
         "product.bundle",
         "search"
@@ -10228,134 +10232,270 @@
   ],
   "settingsSchema": [
     {
-      "group": "Account",
+      "group": "Typography",
       "items": [
         {
-          "key": "accountLoggedIn",
-          "type": "boolean",
-          "group": "Account",
-          "label": "Preview signed-in state",
-          "default": false,
-          "info": "Editor preview only — the live storefront reflects the real session."
-        },
-        {
-          "key": "accountHeading",
-          "type": "text",
-          "group": "Account",
-          "label": "Account menu heading",
+          "key": "headingFont",
+          "type": "select",
+          "group": "Typography",
+          "label": "Heading font",
           "default": "",
-          "placeholder": "My account / Welcome"
+          "options": [
+            {
+              "value": "",
+              "label": "Default (Settings → Brand, else theme font)"
+            },
+            {
+              "value": "Inter",
+              "label": "Inter"
+            },
+            {
+              "value": "DM Sans",
+              "label": "DM Sans"
+            },
+            {
+              "value": "Work Sans",
+              "label": "Work Sans"
+            },
+            {
+              "value": "Poppins",
+              "label": "Poppins"
+            },
+            {
+              "value": "Montserrat",
+              "label": "Montserrat"
+            },
+            {
+              "value": "Roboto",
+              "label": "Roboto"
+            },
+            {
+              "value": "Open Sans",
+              "label": "Open Sans"
+            },
+            {
+              "value": "Lato",
+              "label": "Lato"
+            },
+            {
+              "value": "Nunito Sans",
+              "label": "Nunito Sans"
+            },
+            {
+              "value": "Space Grotesk",
+              "label": "Space Grotesk"
+            },
+            {
+              "value": "Noto Sans Thai",
+              "label": "Noto Sans Thai"
+            },
+            {
+              "value": "IBM Plex Sans Thai",
+              "label": "IBM Plex Sans Thai"
+            },
+            {
+              "value": "Prompt",
+              "label": "Prompt"
+            },
+            {
+              "value": "Kanit",
+              "label": "Kanit"
+            },
+            {
+              "value": "Sarabun",
+              "label": "Sarabun"
+            },
+            {
+              "value": "Playfair Display",
+              "label": "Playfair Display"
+            },
+            {
+              "value": "DM Serif Display",
+              "label": "DM Serif Display"
+            },
+            {
+              "value": "Cormorant Garamond",
+              "label": "Cormorant Garamond"
+            },
+            {
+              "value": "EB Garamond",
+              "label": "EB Garamond"
+            },
+            {
+              "value": "Libre Baskerville",
+              "label": "Libre Baskerville"
+            },
+            {
+              "value": "Lora",
+              "label": "Lora"
+            },
+            {
+              "value": "Merriweather",
+              "label": "Merriweather"
+            }
+          ],
+          "info": "Display, headings and the product title. Empty = Settings → Brand, else the theme font (Instrument Sans)."
         },
         {
-          "key": "accountSubtext",
-          "type": "text",
-          "group": "Account",
-          "label": "Account menu subtext",
-          "default": ""
-        },
-        {
-          "key": "accountPrimaryLabel",
-          "type": "text",
-          "group": "Account",
-          "label": "Primary action label",
+          "key": "bodyFont",
+          "type": "select",
+          "group": "Typography",
+          "label": "Body font",
           "default": "",
-          "placeholder": "View orders / Sign in"
+          "options": [
+            {
+              "value": "",
+              "label": "Default (Settings → Brand, else theme font)"
+            },
+            {
+              "value": "Inter",
+              "label": "Inter"
+            },
+            {
+              "value": "DM Sans",
+              "label": "DM Sans"
+            },
+            {
+              "value": "Work Sans",
+              "label": "Work Sans"
+            },
+            {
+              "value": "Poppins",
+              "label": "Poppins"
+            },
+            {
+              "value": "Montserrat",
+              "label": "Montserrat"
+            },
+            {
+              "value": "Roboto",
+              "label": "Roboto"
+            },
+            {
+              "value": "Open Sans",
+              "label": "Open Sans"
+            },
+            {
+              "value": "Lato",
+              "label": "Lato"
+            },
+            {
+              "value": "Nunito Sans",
+              "label": "Nunito Sans"
+            },
+            {
+              "value": "Space Grotesk",
+              "label": "Space Grotesk"
+            },
+            {
+              "value": "Noto Sans Thai",
+              "label": "Noto Sans Thai"
+            },
+            {
+              "value": "IBM Plex Sans Thai",
+              "label": "IBM Plex Sans Thai"
+            },
+            {
+              "value": "Prompt",
+              "label": "Prompt"
+            },
+            {
+              "value": "Kanit",
+              "label": "Kanit"
+            },
+            {
+              "value": "Sarabun",
+              "label": "Sarabun"
+            },
+            {
+              "value": "Playfair Display",
+              "label": "Playfair Display"
+            },
+            {
+              "value": "DM Serif Display",
+              "label": "DM Serif Display"
+            },
+            {
+              "value": "Cormorant Garamond",
+              "label": "Cormorant Garamond"
+            },
+            {
+              "value": "EB Garamond",
+              "label": "EB Garamond"
+            },
+            {
+              "value": "Libre Baskerville",
+              "label": "Libre Baskerville"
+            },
+            {
+              "value": "Lora",
+              "label": "Lora"
+            },
+            {
+              "value": "Merriweather",
+              "label": "Merriweather"
+            }
+          ],
+          "info": "Body, labels, buttons and navigation."
         },
         {
-          "key": "accountPrimaryHref",
-          "type": "url",
-          "group": "Account",
-          "label": "Primary action link",
-          "default": ""
+          "key": "typeScale",
+          "type": "select",
+          "group": "Typography",
+          "label": "Type scale",
+          "default": "default",
+          "options": [
+            {
+              "value": "compact",
+              "label": "Compact"
+            },
+            {
+              "value": "default",
+              "label": "Default"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            }
+          ]
         },
         {
-          "key": "accountSecondaryLabel",
-          "type": "text",
-          "group": "Account",
-          "label": "Secondary action label",
-          "default": ""
+          "key": "headingWeight",
+          "type": "select",
+          "group": "Typography",
+          "label": "Heading weight",
+          "default": "medium",
+          "options": [
+            {
+              "value": "regular",
+              "label": "Regular"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "semibold",
+              "label": "Semibold"
+            }
+          ]
         },
         {
-          "key": "accountSecondaryHref",
-          "type": "url",
-          "group": "Account",
-          "label": "Secondary action link",
-          "default": ""
-        },
-        {
-          "key": "accountExtraLinks",
-          "type": "textarea",
-          "group": "Account",
-          "label": "Extra account links",
-          "default": "Orders|/account/orders\nAddresses|/account/addresses",
-          "info": "One per line, \"Label|/path\"."
-        }
-      ]
-    },
-    {
-      "group": "Brand",
-      "items": [
-        {
-          "key": "shopName",
-          "type": "text",
-          "group": "Brand",
-          "label": "Shop name",
-          "default": "",
-          "info": "Shown in the header when no logo is set. Leave empty to use the store brand logo/name from Settings → Brand."
-        },
-        {
-          "key": "accent",
-          "type": "color",
-          "group": "Brand",
-          "label": "Accent color",
-          "default": "#0a0a0a"
-        }
-      ]
-    },
-    {
-      "group": "Cart",
-      "items": [
-        {
-          "key": "enableCartDrawer",
-          "type": "boolean",
-          "group": "Cart",
-          "label": "Enable cart drawer",
-          "default": true
-        },
-        {
-          "key": "cartDrawerWidth",
-          "type": "text",
-          "group": "Cart",
-          "label": "Cart drawer width",
-          "default": "420px"
-        },
-        {
-          "key": "cartEmptyHeading",
-          "type": "text",
-          "group": "Cart",
-          "label": "Empty-cart heading",
-          "default": "Your cart is empty"
-        },
-        {
-          "key": "cartEmptySubtext",
-          "type": "text",
-          "group": "Cart",
-          "label": "Empty-cart subtext",
-          "default": "Add a few things to get started."
-        },
-        {
-          "key": "cartCheckoutLabel",
-          "type": "text",
-          "group": "Cart",
-          "label": "Checkout button label",
-          "default": "Checkout"
-        },
-        {
-          "key": "cartViewLabel",
-          "type": "text",
-          "group": "Cart",
-          "label": "View-full-cart label",
-          "default": "View full cart"
+          "key": "buttonTextStyle",
+          "type": "select",
+          "group": "Typography",
+          "label": "Button text",
+          "default": "default",
+          "options": [
+            {
+              "value": "default",
+              "label": "Default"
+            },
+            {
+              "value": "uppercase",
+              "label": "Uppercase"
+            }
+          ]
         }
       ]
     },
@@ -10367,22 +10507,23 @@
           "type": "color",
           "group": "Colour",
           "label": "Primary (brand)",
-          "default": "#1b1a18",
-          "info": "Buttons, focus ring, selected states and link hover. Needs 4.5:1 against its label."
+          "default": "",
+          "info": "Buttons, focus ring, selected states and link hover. Empty = the primary colour from Settings → Brand. The label colour on it is chosen for AA contrast automatically."
         },
         {
           "key": "colorBackground",
           "type": "color",
           "group": "Colour",
           "label": "Page background",
-          "default": "#fcfcfb"
+          "default": "",
+          "info": "Leave both Background and Text empty to keep the theme palette, including its dark mode."
         },
         {
           "key": "colorText",
           "type": "color",
           "group": "Colour",
           "label": "Text",
-          "default": "#1b1a18",
+          "default": "",
           "info": "Secondary and muted text are derived from this."
         },
         {
@@ -10390,7 +10531,7 @@
           "type": "color",
           "group": "Colour",
           "label": "Secondary surface",
-          "default": "#f4f3f1",
+          "default": "",
           "info": "Media wells, skeletons and alternating section backgrounds."
         },
         {
@@ -10398,15 +10539,78 @@
           "type": "color",
           "group": "Colour",
           "label": "Border",
-          "default": "#e6e4e0"
+          "default": ""
         },
         {
           "key": "colorSale",
           "type": "color",
           "group": "Colour",
           "label": "Sale",
-          "default": "#b3261e",
+          "default": "",
           "info": "Reserved for sale prices and the sale badge."
+        },
+        {
+          "key": "accent",
+          "type": "color",
+          "group": "Colour",
+          "label": "Accent color",
+          "default": "",
+          "info": "Primary buttons and highlights. Leave empty for the theme default."
+        }
+      ]
+    },
+    {
+      "group": "Layout",
+      "items": [
+        {
+          "key": "pageWidth",
+          "type": "select",
+          "group": "Layout",
+          "label": "Page width",
+          "default": "wide",
+          "options": [
+            {
+              "value": "wide",
+              "label": "Wide (1440)"
+            },
+            {
+              "value": "standard",
+              "label": "Standard (1200)"
+            },
+            {
+              "value": "full",
+              "label": "Full width"
+            }
+          ]
+        },
+        {
+          "key": "sectionSpacing",
+          "type": "select",
+          "group": "Layout",
+          "label": "Section spacing",
+          "default": "medium",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "small",
+              "label": "Small"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            },
+            {
+              "value": "xlarge",
+              "label": "Extra large"
+            }
+          ]
         }
       ]
     },
@@ -10585,156 +10789,6 @@
       ]
     },
     {
-      "group": "Footer",
-      "items": [
-        {
-          "key": "footerShopMenuHandle",
-          "type": "menu",
-          "group": "Footer",
-          "label": "Footer — Shop menu",
-          "default": "footer-shop"
-        },
-        {
-          "key": "footerHelpMenuHandle",
-          "type": "menu",
-          "group": "Footer",
-          "label": "Footer — Help menu",
-          "default": "footer-help"
-        },
-        {
-          "key": "footerCompanyMenuHandle",
-          "type": "menu",
-          "group": "Footer",
-          "label": "Footer — Company menu",
-          "default": "footer-company"
-        },
-        {
-          "key": "footerTagline",
-          "type": "textarea",
-          "group": "Footer",
-          "label": "Footer tagline",
-          "default": "",
-          "info": "Leave empty to use the store description."
-        },
-        {
-          "key": "showPoweredBy",
-          "type": "boolean",
-          "group": "Footer",
-          "label": "Show \"Made with Tanqory\"",
-          "default": true
-        },
-        {
-          "key": "poweredByLabel",
-          "type": "text",
-          "group": "Footer",
-          "label": "\"Powered by\" label",
-          "default": "Made with Tanqory"
-        }
-      ]
-    },
-    {
-      "group": "Header",
-      "items": [
-        {
-          "key": "headerMenuHandle",
-          "type": "menu",
-          "group": "Header",
-          "label": "Header menu",
-          "default": "main-menu"
-        },
-        {
-          "key": "enableSpaNavigation",
-          "type": "boolean",
-          "group": "Header",
-          "label": "Instant page transitions (SPA)",
-          "default": true
-        },
-        {
-          "key": "enableAccountDropdown",
-          "type": "boolean",
-          "group": "Header",
-          "label": "Show account dropdown",
-          "default": true
-        },
-        {
-          "key": "enableMobileNavDrawer",
-          "type": "boolean",
-          "group": "Header",
-          "label": "Mobile navigation drawer",
-          "default": true
-        },
-        {
-          "key": "mobileNavHeading",
-          "type": "text",
-          "group": "Header",
-          "label": "Mobile menu heading",
-          "default": "Menu"
-        },
-        {
-          "key": "mobileNavWidth",
-          "type": "text",
-          "group": "Header",
-          "label": "Mobile drawer width",
-          "default": "320px"
-        }
-      ]
-    },
-    {
-      "group": "Layout",
-      "items": [
-        {
-          "key": "pageWidth",
-          "type": "select",
-          "group": "Layout",
-          "label": "Page width",
-          "default": "wide",
-          "options": [
-            {
-              "value": "wide",
-              "label": "Wide (1440)"
-            },
-            {
-              "value": "standard",
-              "label": "Standard (1200)"
-            },
-            {
-              "value": "full",
-              "label": "Full width"
-            }
-          ]
-        },
-        {
-          "key": "sectionSpacing",
-          "type": "select",
-          "group": "Layout",
-          "label": "Section spacing",
-          "default": "medium",
-          "options": [
-            {
-              "value": "none",
-              "label": "None"
-            },
-            {
-              "value": "small",
-              "label": "Small"
-            },
-            {
-              "value": "medium",
-              "label": "Medium"
-            },
-            {
-              "value": "large",
-              "label": "Large"
-            },
-            {
-              "value": "xlarge",
-              "label": "Extra large"
-            }
-          ]
-        }
-      ]
-    },
-    {
       "group": "Product media",
       "items": [
         {
@@ -10789,6 +10843,93 @@
       ]
     },
     {
+      "group": "Brand",
+      "items": [
+        {
+          "key": "logo",
+          "type": "image",
+          "group": "Brand",
+          "label": "Logo",
+          "default": "",
+          "info": "Shown in the header. Leave empty to use the logo from Settings → Brand."
+        },
+        {
+          "key": "shopName",
+          "type": "text",
+          "group": "Brand",
+          "label": "Shop name",
+          "default": "",
+          "placeholder": "Store name",
+          "info": "Shown in the header when there is no logo, and in the browser tab. Leave empty to use the store name."
+        },
+        {
+          "key": "locale",
+          "type": "select",
+          "group": "Brand",
+          "label": "Theme language",
+          "default": "",
+          "options": [
+            {
+              "value": "",
+              "label": "English"
+            },
+            {
+              "value": "th",
+              "label": "ไทย (Thai)"
+            }
+          ],
+          "info": "The language of the theme’s own words — account menu, contact form, cart and policy headings. Your own text is never changed."
+        }
+      ]
+    },
+    {
+      "group": "Header",
+      "items": [
+        {
+          "key": "headerMenuHandle",
+          "type": "menu",
+          "group": "Header",
+          "label": "Header menu",
+          "default": "main-menu"
+        },
+        {
+          "key": "enableSpaNavigation",
+          "type": "boolean",
+          "group": "Header",
+          "label": "Instant page transitions (SPA)",
+          "default": true
+        },
+        {
+          "key": "enableAccountDropdown",
+          "type": "boolean",
+          "group": "Header",
+          "label": "Show account dropdown",
+          "default": true
+        },
+        {
+          "key": "enableMobileNavDrawer",
+          "type": "boolean",
+          "group": "Header",
+          "label": "Mobile navigation drawer",
+          "default": true
+        },
+        {
+          "key": "mobileNavHeading",
+          "type": "text",
+          "group": "Header",
+          "label": "Mobile menu heading",
+          "default": "Menu"
+        },
+        {
+          "key": "mobileNavWidth",
+          "type": "text",
+          "group": "Header",
+          "label": "Mobile drawer width",
+          "default": "320px"
+        }
+      ]
+    },
+    {
       "group": "Search",
       "items": [
         {
@@ -10836,88 +10977,168 @@
       ]
     },
     {
-      "group": "Typography",
+      "group": "Cart",
       "items": [
         {
-          "key": "headingFont",
+          "key": "enableCartDrawer",
+          "type": "boolean",
+          "group": "Cart",
+          "label": "Enable cart drawer",
+          "default": true
+        },
+        {
+          "key": "cartDrawerWidth",
           "type": "text",
-          "group": "Typography",
-          "label": "Heading font",
-          "default": "",
-          "info": "CSS font-family stack. Leave empty for the theme default (Instrument Sans)."
+          "group": "Cart",
+          "label": "Cart drawer width",
+          "default": "420px"
         },
         {
-          "key": "bodyFont",
+          "key": "cartEmptyHeading",
           "type": "text",
-          "group": "Typography",
-          "label": "Body font",
+          "group": "Cart",
+          "label": "Empty-cart heading",
+          "default": "Your cart is empty"
+        },
+        {
+          "key": "cartEmptySubtext",
+          "type": "text",
+          "group": "Cart",
+          "label": "Empty-cart subtext",
+          "default": "Add a few things to get started."
+        },
+        {
+          "key": "cartCheckoutLabel",
+          "type": "text",
+          "group": "Cart",
+          "label": "Checkout button label",
+          "default": "Checkout"
+        },
+        {
+          "key": "cartViewLabel",
+          "type": "text",
+          "group": "Cart",
+          "label": "View-full-cart label",
+          "default": "View full cart"
+        }
+      ]
+    },
+    {
+      "group": "Account",
+      "items": [
+        {
+          "key": "accountLoggedIn",
+          "type": "boolean",
+          "group": "Account",
+          "label": "Preview signed-in state",
+          "default": false,
+          "info": "Editor preview only — the live storefront reflects the real session."
+        },
+        {
+          "key": "accountHeading",
+          "type": "text",
+          "group": "Account",
+          "label": "Account menu heading",
           "default": "",
-          "info": "CSS font-family stack. Leave empty to match the heading font."
+          "placeholder": "My account / Welcome"
         },
         {
-          "key": "typeScale",
-          "type": "select",
-          "group": "Typography",
-          "label": "Type scale",
-          "default": "default",
-          "options": [
-            {
-              "value": "compact",
-              "label": "Compact"
-            },
-            {
-              "value": "default",
-              "label": "Default"
-            },
-            {
-              "value": "large",
-              "label": "Large"
-            }
-          ]
+          "key": "accountSubtext",
+          "type": "text",
+          "group": "Account",
+          "label": "Account menu subtext",
+          "default": ""
         },
         {
-          "key": "headingWeight",
-          "type": "select",
-          "group": "Typography",
-          "label": "Heading weight",
-          "default": "medium",
-          "options": [
-            {
-              "value": "regular",
-              "label": "Regular"
-            },
-            {
-              "value": "medium",
-              "label": "Medium"
-            },
-            {
-              "value": "semibold",
-              "label": "Semibold"
-            }
-          ]
+          "key": "accountPrimaryLabel",
+          "type": "text",
+          "group": "Account",
+          "label": "Primary action label",
+          "default": "",
+          "placeholder": "View orders / Sign in"
         },
         {
-          "key": "buttonTextStyle",
-          "type": "select",
-          "group": "Typography",
-          "label": "Button text",
-          "default": "default",
-          "options": [
-            {
-              "value": "default",
-              "label": "Default"
-            },
-            {
-              "value": "uppercase",
-              "label": "Uppercase"
-            }
-          ]
+          "key": "accountPrimaryHref",
+          "type": "url",
+          "group": "Account",
+          "label": "Primary action link",
+          "default": ""
+        },
+        {
+          "key": "accountSecondaryLabel",
+          "type": "text",
+          "group": "Account",
+          "label": "Secondary action label",
+          "default": ""
+        },
+        {
+          "key": "accountSecondaryHref",
+          "type": "url",
+          "group": "Account",
+          "label": "Secondary action link",
+          "default": ""
+        },
+        {
+          "key": "accountExtraLinks",
+          "type": "textarea",
+          "group": "Account",
+          "label": "Extra account links",
+          "default": "Orders|/account/orders\nAddresses|/account/addresses",
+          "info": "One per line, \"Label|/path\"."
+        }
+      ]
+    },
+    {
+      "group": "Footer",
+      "items": [
+        {
+          "key": "footerShopMenuHandle",
+          "type": "menu",
+          "group": "Footer",
+          "label": "Footer — Shop menu",
+          "default": "footer-shop"
+        },
+        {
+          "key": "footerHelpMenuHandle",
+          "type": "menu",
+          "group": "Footer",
+          "label": "Footer — Help menu",
+          "default": "footer-help"
+        },
+        {
+          "key": "footerCompanyMenuHandle",
+          "type": "menu",
+          "group": "Footer",
+          "label": "Footer — Company menu",
+          "default": "footer-company"
+        },
+        {
+          "key": "footerTagline",
+          "type": "textarea",
+          "group": "Footer",
+          "label": "Footer tagline",
+          "default": "",
+          "info": "Leave empty to use the store description."
+        },
+        {
+          "key": "showPoweredBy",
+          "type": "boolean",
+          "group": "Footer",
+          "label": "Show \"Made with Tanqory\"",
+          "default": true
+        },
+        {
+          "key": "poweredByLabel",
+          "type": "text",
+          "group": "Footer",
+          "label": "\"Powered by\" label",
+          "default": "Made with Tanqory"
         }
       ]
     }
   ],
   "settings": {
-    "accent": "#0a0a0a",
+    "accent": "",
     "accountExtraLinks": "Orders|/account/orders\nAddresses|/account/addresses",
     "accountHeading": "",
     "accountLoggedIn": false,
@@ -10926,11 +11147,25 @@
     "accountSecondaryHref": "",
     "accountSecondaryLabel": "",
     "accountSubtext": "",
+    "badgeStyle": "filled",
+    "bodyFont": "",
+    "buttonBorder": "default",
+    "buttonRadius": "small",
+    "buttonTextStyle": "default",
+    "cardBorder": true,
+    "cardHoverEffect": "image-swap",
+    "cardRadius": "small",
     "cartCheckoutLabel": "Checkout",
     "cartDrawerWidth": "420px",
     "cartEmptyHeading": "Your cart is empty",
     "cartEmptySubtext": "Add a few things to get started.",
     "cartViewLabel": "View full cart",
+    "colorBackground": "",
+    "colorBorder": "",
+    "colorPrimary": "",
+    "colorSale": "",
+    "colorSecondarySurface": "",
+    "colorText": "",
     "enableAccountDropdown": true,
     "enableCartDrawer": true,
     "enableMobileNavDrawer": true,
@@ -10941,41 +11176,29 @@
     "footerShopMenuHandle": "footer-shop",
     "footerTagline": "",
     "headerMenuHandle": "main-menu",
+    "headingFont": "",
+    "headingWeight": "medium",
+    "iconStyle": "outline",
+    "inputRadius": "small",
+    "locale": "",
+    "logo": "",
     "mobileNavHeading": "Menu",
     "mobileNavWidth": "320px",
+    "motion": "standard",
+    "pageWidth": "wide",
     "poweredByLabel": "Made with Tanqory",
+    "productImageFit": "contain",
+    "productImageRatio": "portrait",
     "searchCtaLabel": "See all results →",
     "searchDebounceMs": 250,
     "searchMaxResults": 6,
     "searchModalWidth": "640px",
     "searchPlaceholder": "Search products…",
+    "sectionSpacing": "medium",
     "shopName": "",
     "showPoweredBy": true,
-    "headingFont": "",
-    "bodyFont": "",
-    "typeScale": "default",
-    "headingWeight": "medium",
-    "buttonTextStyle": "default",
-    "colorPrimary": "#1b1a18",
-    "colorBackground": "#fcfcfb",
-    "colorText": "#1b1a18",
-    "colorSecondarySurface": "#f4f3f1",
-    "colorBorder": "#e6e4e0",
-    "colorSale": "#b3261e",
-    "pageWidth": "wide",
-    "sectionSpacing": "medium",
-    "buttonRadius": "small",
-    "buttonBorder": "default",
-    "inputRadius": "small",
-    "cardRadius": "small",
-    "cardBorder": true,
-    "cardHoverEffect": "image-swap",
-    "badgeStyle": "filled",
-    "iconStyle": "outline",
-    "motion": "standard",
-    "productImageRatio": "portrait",
-    "productImageFit": "contain",
-    "showVendorGlobally": false
+    "showVendorGlobally": false,
+    "typeScale": "default"
   },
   "warnings": {
     "danglingTemplateRefs": [],

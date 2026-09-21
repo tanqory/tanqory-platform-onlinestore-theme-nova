@@ -4,6 +4,7 @@
   "private": false,
   "type": "module",
   "description": "Reference Tanqory Studio theme — React sections, JSON content tree, runs offline with mock data.",
+  "license": "MIT",
   "packageManager": "pnpm@9.15.4",
   "engines": {
     "node": ">=22.6.0",

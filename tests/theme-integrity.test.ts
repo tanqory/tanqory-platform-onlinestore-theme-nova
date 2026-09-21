@@ -223,3 +223,48 @@ describe('starter content resolves against the shipped fixtures', () => {
     expect([...new Set(handles(doc))].filter((h) => h !== 'all')).toEqual([])
   })
 })
+
+/**
+ * This repository is public. It must describe itself in its own words and never
+ * name another commerce platform, its themes, its template language or its
+ * documentation — a rule the team already applied once by hand and that then
+ * regressed. The list cannot know every name; it pins the ones that have
+ * actually appeared here, across every tracked text file.
+ */
+describe('no third-party platform references in a public repository', () => {
+  const ROOT_DIR = join(__dirname, '..')
+  const SKIP_DIRS = new Set(['node_modules', 'dist', 'dist-ssr', '.git', '.vite', 'qa', 'vendor'])
+  const TEXT = /\.(tsx?|mjs|cjs|js|json|css|md|html|ya?ml|txt)$/
+  // Built from parts so this file does not contain the names it forbids.
+  const FORBIDDEN = new RegExp(
+    [['shop', 'ify'], ['\\bliq', 'uid\\b'], ['\\.liq', 'uid\\b'], ['\\{', '%'], ['my', 'shop', 'ify'], ['woo', 'commerce'], ['big', 'commerce'], ['\\bmag', 'ento\\b']]
+      .map((p) => p.join(''))
+      .join('|'),
+    'i',
+  )
+  const files: string[] = []
+  const scan = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (SKIP_DIRS.has(entry.name)) continue
+      const full = join(dir, entry.name)
+      if (entry.isDirectory()) scan(full)
+      else if (TEXT.test(entry.name) && entry.name !== 'pnpm-lock.yaml') files.push(full)
+    }
+  }
+  scan(ROOT_DIR)
+
+  it('scans the repository', () => {
+    expect(files.length).toBeGreaterThan(100)
+  })
+
+  it('names no other platform, theme or template language', () => {
+    const hits: string[] = []
+    for (const file of files) {
+      const lines = readFileSync(file, 'utf8').split('\n')
+      lines.forEach((line, i) => {
+        if (FORBIDDEN.test(line)) hits.push(`${file.slice(ROOT_DIR.length + 1)}:${i + 1}: ${line.trim().slice(0, 90)}`)
+      })
+    }
+    expect(hits).toEqual([])
+  })
+})

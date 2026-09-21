@@ -30,7 +30,6 @@ lockfile (`pnpm-lock.yaml`) on purpose.
 |---|---|
 | [CLAUDE.md](CLAUDE.md) | architecture, the schema vocabulary, the data layer, the gates and their traps — start here when working on the theme |
 | [docs/DESIGN-GAPS.md](docs/DESIGN-GAPS.md) | every deliberate deviation from the approved design package, and why |
-| [docs/THEME-AUDIT.md](docs/THEME-AUDIT.md) | the readiness review and what it found |
 
 ## One rule to read the whole repo
 

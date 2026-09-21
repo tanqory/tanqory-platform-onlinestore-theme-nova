@@ -5,8 +5,9 @@ tree.** The visual editor writes the JSON; you write the `.tsx`. The framework
 (`@tanqory/theme-kit`) owns routing data, cart, storefront API and the editor
 transport — the theme owns presentation, schema and composition.
 
-This is **not** a Liquid theme. There is no `{% schema %}`, no `snippets/`, no
-`.liquid`. The equivalent of a Liquid schema is `defineSection({ attributes })`.
+There is no template language here: no markup files with embedded schema
+blocks, no partials folder. A section's schema lives in code, next to its
+component — `defineSection({ attributes })`.
 
 ```bash
 pnpm install --frozen-lockfile   # pnpm only — there is one lockfile on purpose
@@ -35,7 +36,7 @@ merchant content, so treat it as starter data, not as code.
 ├── config/           settings.schema.ts (types) + settings.json (values)
 ├── design/           the approved design package (.dc.html) — source of truth
 │   └── spec/         generated extracts + the coverage ratchet's baseline
-├── docs/             DESIGN-GAPS.md (deliberate deviations) · THEME-AUDIT.md
+├── docs/             DESIGN-GAPS.md (deliberate deviations from the design)
 ├── groups/           header.json / footer.json — the SHARED chrome     [.json data]
 ├── layouts/          layout.tsx — the site shell: header, footer, SPA router
 ├── lib/              framework-adjacent helpers: routes, head, theme settings
@@ -385,6 +386,12 @@ Three skills carry the ✅/❌ patterns. Load the one that matches the task
   `--frozen-lockfile` fail on a clean clone. `vendor/README.md` has the switch
   to the registry. Never add a local `.d.ts` shim to paper over a kit type —
   fix the kit and ship a new tarball.
+- **This repository is public.** Never name another commerce platform, its
+  themes, its template language or its documentation — in code, comments, docs,
+  tests, commit messages or pull requests. Describe what THIS theme does.
+  `tests/theme-integrity.test.ts` fails on the known names; it cannot know
+  every one, so the rule is yours to keep. Internal reviews, audits and
+  anything that names an unpatched weakness do not belong here either.
 - **This repo is one of four.** The Studio editor, studio-api and the AI agent
   live elsewhere and read this theme through `theme.manifest.json`, `groups/`,
   `templates/` and the `defineSection` schemas. If a change here alters one of

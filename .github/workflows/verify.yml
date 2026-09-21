@@ -9,6 +9,15 @@ on:
     branches: [main]
   pull_request:
 
+# @tanqory/theme-kit comes from GitHub Packages, which wants a token even for a
+# public package. The job's own GITHUB_TOKEN with packages:read is enough.
+permissions:
+  contents: read
+  packages: read
+
+env:
+  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -22,8 +31,8 @@ jobs:
           node-version: 22
           cache: pnpm
 
-      # --frozen-lockfile is the point: a clean clone must install without the
-      # vendored .tgz that used to be required.
+      # --frozen-lockfile is the point: a clean clone installs exactly the kit
+      # the lockfile pins (version + integrity), from the registry.
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm verify

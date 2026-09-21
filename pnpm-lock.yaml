@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@tanqory/theme-kit':
-        specifier: file:vendor/tanqory-theme-kit-0.2.0-rc.1.tgz
-        version: file:vendor/tanqory-theme-kit-0.2.0-rc.1.tgz(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 0.2.0-rc.1
+        version: 0.2.0-rc.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -450,9 +450,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@tanqory/theme-kit@file:vendor/tanqory-theme-kit-0.2.0-rc.1.tgz':
-    resolution: {integrity: sha512-Qx5P0LFpQCq9LxL3zXeUTSclPh0PpatdTvvGzMkys6BLQ/Przlk0wivYiiu+KUvc3wirm2AYoyIe9Mqqf8gMEw==, tarball: file:vendor/tanqory-theme-kit-0.2.0-rc.1.tgz}
-    version: 0.2.0-rc.1
+  '@tanqory/theme-kit@0.2.0-rc.1':
+    resolution: {integrity: sha512-CUzlZK5HYE9siSB4CUZQ+OkMRnbKSWEwV0qRhiJwLbI5UEVvLTSSxpPiSiF3Aiso2YZJOA7r3w0fTtOVW7hLsQ==, tarball: https://npm.pkg.github.com/download/@tanqory/theme-kit/0.2.0-rc.1/11e4bfa51db83206642f5a1008718c4649bbab7f}
     peerDependencies:
       react: ^18 || ^19
       react-dom: ^18 || ^19
@@ -1315,7 +1314,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.63.4':
     optional: true
 
-  '@tanqory/theme-kit@file:vendor/tanqory-theme-kit-0.2.0-rc.1.tgz(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanqory/theme-kit@0.2.0-rc.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)

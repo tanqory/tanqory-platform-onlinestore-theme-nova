@@ -44,8 +44,7 @@ merchant content, so treat it as starter data, not as code.
 ├── scripts/          the manifest generator and the check-* gates
 ├── sections/         editor sections and blocks — React + schema  ← most work
 ├── templates/        per-page composition                          [.json data]
-├── tests/            vitest regression suites
-└── vendor/           the pinned @tanqory/theme-kit tarball + checksum (see vendor/README.md)
+└── tests/            vitest regression suites
 ```
 
 ### `sections/`
@@ -379,12 +378,12 @@ Three skills carry the ✅/❌ patterns. Load the one that matches the task
   whether a field collapsed to 34px; run `verify:live`.
 - **The dev server is on 4321**, and it may be pointed at a live backend rather
   than fixtures — check the console before assuming mock data.
-- **The kit is installed from `vendor/`, not the registry.** `package.json`
-  pins `file:vendor/tanqory-theme-kit-<version>.tgz` and the lockfile pins its
-  integrity, so replacing the tarball without `pnpm install --force` makes
-  `--frozen-lockfile` fail on a clean clone. `vendor/README.md` has the switch
-  to the registry. Never add a local `.d.ts` shim to paper over a kit type —
-  fix the kit and ship a new tarball.
+- **The kit is pinned exactly.** `@tanqory/theme-kit` comes from GitHub
+  Packages (`.npmrc`; needs `NODE_AUTH_TOKEN` with `read:packages`, even though
+  the package is public) at an EXACT version, and the lockfile pins its
+  integrity. A release candidate lives under the `rc` dist-tag, so `pnpm add
+  @tanqory/theme-kit` alone would give you the older `latest`. Never add a local
+  `.d.ts` shim to paper over a kit type — fix the kit and release it.
 - **This repo is one of four.** The Studio editor, studio-api and the AI agent
   live elsewhere and read this theme through `theme.manifest.json`, `groups/`,
   `templates/` and the `defineSection` schemas. If a change here alters one of

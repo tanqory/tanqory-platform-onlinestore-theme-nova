@@ -15,14 +15,9 @@ dist-ssr/
 # deliberately when they matter.
 qa/
 
-# Locally packed theme-kit tarballs anywhere else are scratch. The ONE the
-# theme installs lives in vendor/ (see vendor/README.md): a release candidate
-# that is not on the registry yet, pinned by its checksum so a clean clone
-# installs exactly the bytes that were verified. The earlier failure of
-# `pnpm install --frozen-lockfile` on a clean clone came from a tarball that
-# was referenced but ignored — hence the explicit un-ignore below.
+# Locally packed theme-kit tarballs. The theme installs the kit from the
+# registry (@tanqory/theme-kit, pinned exactly in package.json + the lockfile).
 *.tgz
-!vendor/*.tgz
 
 # Scratch output from the design/QA tooling. `design/` itself IS committed —
 # it is the approved package the specs are generated from and checked against.

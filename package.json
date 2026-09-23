@@ -4,7 +4,6 @@
   "private": false,
   "type": "module",
   "description": "Reference Tanqory Studio theme — React sections, JSON content tree, runs offline with mock data.",
-  "packageManager": "pnpm@9.15.4",
   "engines": {
     "node": ">=22.6.0",
     "pnpm": ">=9.7.0"
@@ -30,7 +29,7 @@
     "check:spec": "node scripts/extract-design-spec.mjs"
   },
   "dependencies": {
-    "@tanqory/theme-kit": "file:vendor/tanqory-theme-kit-0.2.0-rc.1.tgz",
+    "@tanqory/theme-kit": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

@@ -43,6 +43,14 @@ const TEMPLATES = import.meta.glob('../templates/*.json', { eager: true }) as Re
 /** The shared header/footer groups the templates bind (see `groups/`). */
 const GROUPS = groupsFromGlob(import.meta.glob('../groups/*.json', { eager: true }))
 
+/** Same keys, same values by identity — enough to tell "nothing was resolved" apart. */
+function sameResourceContext(a: ResourceContextValue, b: ResourceContextValue): boolean {
+  const ka = Object.keys(a) as Array<keyof ResourceContextValue>
+  const kb = Object.keys(b) as Array<keyof ResourceContextValue>
+  if (ka.length !== kb.length) return false
+  return ka.every((k) => a[k] === b[k])
+}
+
 /** True when this theme ships `templates/<name>.json`. */
 function templateExists(name: string): boolean {
   return Object.keys(TEMPLATES).some((k) => k.endsWith(`/${name}.json`))
@@ -954,15 +962,27 @@ function LayoutBody({ children }: { children: ReactNode }): JSX.Element {
   // `resolvePageTemplate` applies `templateSuffix`, so a product assigned
   // `product.bundle` renders the bundle template whether the shopper typed the
   // URL or clicked a link. The previous lookup used the BASE template only.
-  const softTree = navigatedAway
-    ? lookupTemplate(resolvePageTemplate(softPathname, data, templateExists)) ??
-      lookupTemplate('404') ??
-      []
-    : null
+  //
+  // Both trees are memoised: `lookupTemplate` resolves the shared groups into a
+  // NEW array on every call, and `boundIds` below (and the effect that depends
+  // on it) key off the tree's identity. Rebuilding it each render re-ran the
+  // effect, whose setState re-rendered, which rebuilt the tree — an update loop
+  // on every page.
+  const softTree = useMemo(
+    () =>
+      navigatedAway
+        ? lookupTemplate(resolvePageTemplate(softPathname, data, templateExists)) ??
+          lookupTemplate('404') ??
+          []
+        : null,
+    [navigatedAway, softPathname, data],
+  )
 
-  const pageTree = (softTree ??
-    lookupTemplate(resolvePageTemplate(currentPath, data, templateExists)) ??
-    []) as ContentNode[]
+  const pageTree = useMemo(
+    () =>
+      (softTree ?? lookupTemplate(resolvePageTemplate(currentPath, data, templateExists)) ?? []) as ContentNode[],
+    [softTree, currentPath, data],
+  )
 
   // Per-route document head + analytics. Both used to run only at boot, so with
   // SPA routing on every soft navigation kept the landing page's <title>,
@@ -1000,7 +1020,9 @@ function LayoutBody({ children }: { children: ReactNode }): JSX.Element {
             : {}
         next.collection = base ? { ...base, metafields: cmf } : null
       }
-      if (!cancelled) setResourceValue(next)
+      // Bail when nothing changed (the common case: an empty context on a page
+      // with no bound sources), so this effect can never feed its own re-run.
+      if (!cancelled) setResourceValue((prev) => (sameResourceContext(prev, next) ? prev : next))
     })()
     return () => {
       cancelled = true

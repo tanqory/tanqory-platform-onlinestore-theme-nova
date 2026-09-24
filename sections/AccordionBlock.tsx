@@ -1,4 +1,5 @@
 import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { sanitizeSettingHtml } from '../lib/safe-html'
 
 /** Generic ACCORDION block — a collapsible heading + body for any container. */
 export function AccordionBlock({ attributes }: SectionProps): JSX.Element {
@@ -11,7 +12,7 @@ export function AccordionBlock({ attributes }: SectionProps): JSX.Element {
         <span>{heading}</span>
         <span className="block-accordion__icon" aria-hidden>+</span>
       </summary>
-      {body && <div className="block-accordion__body" dangerouslySetInnerHTML={{ __html: body }} />}
+      {body && <div className="block-accordion__body" dangerouslySetInnerHTML={{ __html: sanitizeSettingHtml(body) }} />}
     </details>
   )
 }

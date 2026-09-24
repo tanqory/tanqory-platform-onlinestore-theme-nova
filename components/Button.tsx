@@ -11,6 +11,8 @@
  * `tertiary` and `destructive` complete the design's six-variant matrix
  * (02 UI Primitives): Primary · Secondary · Tertiary · Ghost · Text · Destructive.
  */
+import { safeHref } from '../lib/safe-href'
+
 type ButtonVariant =
   | 'primary'
   | 'secondary'
@@ -93,10 +95,12 @@ export function Button({
   // removing it from the tab order is the accessible equivalent, and
   // `.btn[aria-disabled='true']` was already styled for exactly this.
   const inert = disabled || loading
+  // `link` is a merchant `type: 'url'` setting on every CTA — same check as Link.
+  const href = safeHref(link) ?? '#'
   return (
     <a
       className={classes}
-      href={inert ? undefined : link ?? '#'}
+      href={inert ? undefined : href}
       {...(inert ? { 'aria-disabled': true, role: 'link', tabIndex: -1 } : {})}
       {...(loading ? { 'aria-busy': true } : {})}
       onClick={(e) => {

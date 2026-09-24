@@ -6,6 +6,7 @@ import { Button } from '../components/Button'
 import { Chip } from '../components/Chip'
 import { showToast } from '../components/Overlays'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
+import { sanitizeSettingHtml } from '../lib/safe-html'
 
 interface ArticleDetail {
   title: string
@@ -104,7 +105,9 @@ export function ArticleBody({ attributes }: SectionProps): JSX.Element {
   const tags = (article?.tags ?? []).filter(Boolean)
 
   const title = article?.title ?? (loaded ? fallbackTitle ?? '' : '')
-  const body = article?.contentHtml ?? (loaded ? fallbackBody ?? '' : '')
+  // The article is the merchant's published content; the fallback is a section
+  // setting, so only its formatting tags may render.
+  const body = article?.contentHtml ?? (loaded ? sanitizeSettingHtml(fallbackBody) : '')
 
   return (
     <article className="article-body" {...sharedRootProps(attributes)}>

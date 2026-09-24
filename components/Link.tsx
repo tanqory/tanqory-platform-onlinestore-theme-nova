@@ -7,6 +7,7 @@
  * upgrade is non-breaking.
  */
 import type { CSSProperties, ReactNode } from 'react'
+import { safeHref as checkHref } from '../lib/safe-href'
 
 export function Link({
   href,
@@ -27,7 +28,9 @@ export function Link({
   ariaLabel?: string
   style?: CSSProperties
 }): JSX.Element {
-  const safeHref = href || '#'
+  // Most hrefs here come from a `type: 'url'` setting. A value with a scheme
+  // outside http(s)/mailto/tel (`javascript:` …) falls back to '#'.
+  const safeHref = checkHref(href) ?? '#'
   const computedRel = target === '_blank' ? rel ?? 'noopener noreferrer' : rel
   return (
     <a

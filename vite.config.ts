@@ -2,6 +2,33 @@ import { defineConfig, loadEnv, type Plugin, type PluginOption } from 'vite'
 import react from '@vitejs/plugin-react'
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import type { IncomingMessage } from 'node:http'
+import { isExactOrigin, studioOrigins } from './lib/live-settings.ts'
+
+// Both dev middlewares below act on behalf of the editor: one writes template
+// files, the other renders arbitrary section settings to HTML. Each only serves
+// a request that comes from this dev server's own pages, a studio origin, or
+// (this is a laptop loop) another loopback origin — never a page elsewhere that
+// framed or fetched the dev server. `Origin` covers fetches; the picker iframe
+// is a navigation, which carries only `Referer`.
+const LOOPBACK = /^(?:localhost|127\.0\.0\.1|(?:[a-z0-9-]+\.)+localhost)$/i
+function callerAllowed(req: IncomingMessage): boolean {
+  const raw = req.headers.origin ?? req.headers.referer
+  if (typeof raw !== 'string' || !raw) return false
+  let origin: URL
+  try {
+    origin = new URL(raw)
+  } catch {
+    return false
+  }
+  const host = req.headers['x-forwarded-host'] ?? req.headers.host
+  if (typeof host === 'string' && host && origin.host === host) return true
+  if (LOOPBACK.test(origin.hostname)) return true
+  return isExactOrigin(origin.origin) && studioOrigins(process.env.VITE_TQ_STUDIO_ORIGINS, true).includes(origin.origin)
+}
+const PAGE_NAME = /^[a-z0-9][a-z0-9._-]{0,80}$/i
+const escapeHtml = (v: string): string =>
+  v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 // Editor persistence — the editor's "Save" POSTs the content tree here.
 //   DOKS  (CODE_URL + THEME_ID set): PUT to the writable code store (PVC) so the
@@ -13,17 +40,23 @@ function studioSave(): Plugin {
     configureServer(server) {
       server.middlewares.use('/__studio/save', (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; return res.end() }
+        if (!callerAllowed(req)) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: 'forbidden origin' })) }
         let body = ''
         req.on('data', (c) => (body += c))
         req.on('end', async () => {
           try {
             const { page = 'index', doc } = JSON.parse(body)
+            // The page name becomes a file name: one path segment, no traversal.
+            if (typeof page !== 'string' || !PAGE_NAME.test(page) || page.includes('..')) {
+              res.statusCode = 400
+              return res.end(JSON.stringify({ ok: false, error: 'invalid page name' }))
+            }
             // theme-kit template format is { sections: [...] }
             const content = JSON.stringify(Array.isArray(doc) ? { sections: doc } : doc, null, 2) + '\n'
             const codeUrl = process.env.CODE_URL
             const themeId = process.env.THEME_ID
             if (codeUrl && themeId) {
-              const r = await fetch(`${codeUrl}/api/themes/${themeId}/file?path=templates/${page}.json`, { method: 'PUT', body: content })
+              const r = await fetch(`${codeUrl}/api/themes/${themeId}/file?path=${encodeURIComponent(`templates/${page}.json`)}`, { method: 'PUT', body: content })
               if (!r.ok) throw new Error(`code-store PUT ${r.status}`)
               res.setHeader('content-type', 'application/json')
               res.end(JSON.stringify({ ok: true, persisted: 'code-store', themeId, page }))
@@ -54,6 +87,11 @@ function sectionPreview(): Plugin {
       server.middlewares.use((req, res, next) => {
         const u = new URL(req.url || '/', 'http://localhost')
         if (u.pathname !== '/__editor/preview-section') return next()
+        if (!callerAllowed(req)) {
+          res.statusCode = 403
+          res.setHeader('content-type', 'text/plain; charset=utf-8')
+          return res.end('section preview: open it from the editor')
+        }
         void (async () => {
         try {
           const type = u.searchParams.get('type') || ''
@@ -78,7 +116,7 @@ function sectionPreview(): Plugin {
         } catch (e) {
           res.statusCode = 500
           res.setHeader('content-type', 'text/html; charset=utf-8')
-          res.end(`<pre style="padding:24px;color:#b00020">preview error: ${String((e as Error)?.message ?? e)}</pre>`)
+          res.end(`<pre style="padding:24px;color:#b00020">preview error: ${escapeHtml(String((e as Error)?.message ?? e))}</pre>`)
         }
         })()
       })

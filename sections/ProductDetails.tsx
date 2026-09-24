@@ -400,7 +400,7 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
     setAdding(true)
     setAddError(null)
     try {
-      await cart.add({
+      const added = await cart.add({
         variantId,
         quantity,
         product: {
@@ -411,6 +411,10 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
           ...(variantTitle ? { variantTitle } : {}),
         },
       })
+      // `add` resolves false when the backend refused the line (sold out, a
+      // quantity rule, an expired cart). Treating that as success emitted a
+      // false PRODUCT_ADDED_TO_CART and opened a drawer without the item.
+      if (!added) throw new Error('cart refused the line')
       getAnalytics().track('PRODUCT_ADDED_TO_CART', {
         productId: current.id,
         variantId,

@@ -33,6 +33,7 @@ import {
   variantOf as variantOfBase,
 } from './lib/routes'
 import { isEditorPreview, isMockDataAllowed } from './lib/runtime'
+import { studioOrigins } from './lib/live-settings'
 import { localeStrings, themeLocaleOf } from './lib/theme-locale'
 import './assets/styles.css'
 import mockCollections from './lib/collections.json'
@@ -242,6 +243,12 @@ const baseMountOptions = (data: DataApi): MountOptions => ({
   settings,
   locale: activeLocale,
   page,
+  // The studio hosts allowed to drive the editor canvas — the same list the
+  // live theme-settings preview trusts (components/ThemeSettings.tsx).
+  previewOrigins: studioOrigins(
+    (env as { VITE_TQ_STUDIO_ORIGINS?: string }).VITE_TQ_STUDIO_ORIGINS,
+    Boolean(env.DEV),
+  ),
 })
 
 const ssgState = typeof window !== 'undefined' ? window.__TQ_STATE__ : undefined

@@ -3,6 +3,7 @@ import { decodeHandle } from '../lib/handle'
 import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
 import { Container } from '../components/Container'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
+import { sanitizeSettingHtml } from '../lib/safe-html'
 
 /**
  * Renders the merchant's published Page content for the current `/pages/<handle>`
@@ -69,7 +70,9 @@ export function PageBody({ attributes }: SectionProps): JSX.Element {
   }, [handle, graphql, pageByHandle])
 
   const title = page?.title ?? (loaded ? fallbackTitle ?? '' : '')
-  const body = page?.body ?? (loaded ? fallbackBody ?? '' : '')
+  // The published page body is the merchant's admin-formatted content; the
+  // fallback is a section setting, so only its formatting tags may render.
+  const body = page?.body ?? (loaded ? sanitizeSettingHtml(fallbackBody) : '')
 
   const showTitle = attributes.showTitle !== false
   const textWidth = (attributes.textWidth as string) ?? 'content'

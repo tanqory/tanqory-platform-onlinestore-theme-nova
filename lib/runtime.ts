@@ -17,14 +17,19 @@
  * `isEditorPreview()` reads the URL, so call it inside render/effects, not at
  * module scope (the value differs between SSG and the browser).
  */
+import { isEditorPreview as isEditorPreviewAt } from './live-settings'
 
-/** True inside the Studio editor's preview iframe. */
+/**
+ * True inside the Studio editor's preview iframe: the dedicated `preview-`
+ * host, or `?preview` on a dev build (the laptop loop). The same rule
+ * `components/ThemeSettings.tsx` applies before accepting live settings, so a
+ * published store never enters editor mode because a visitor's URL carries
+ * `?preview` — that flag used to switch a live store to fixtures, silence its
+ * analytics and disable its navigation.
+ */
 export function isEditorPreview(): boolean {
   if (typeof window === 'undefined') return false
-  return (
-    /^preview-/.test(window.location.hostname) ||
-    new URLSearchParams(window.location.search).has('preview')
-  )
+  return isEditorPreviewAt(window.location, Boolean(import.meta.env.DEV))
 }
 
 /**

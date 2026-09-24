@@ -3,6 +3,7 @@ import { decodeHandle } from '../lib/handle'
 import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
 import { Container } from '../components/Container'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
+import { sanitizeSettingHtml } from '../lib/safe-html'
 
 interface ArticleCard {
   handle: string
@@ -133,7 +134,7 @@ export function BlogPosts({ attributes }: SectionProps): JSX.Element {
         {showEmpty && fallbackEmpty && (
           <div
             className="blog-posts__empty rich-text"
-            dangerouslySetInnerHTML={{ __html: fallbackEmpty }}
+            dangerouslySetInnerHTML={{ __html: sanitizeSettingHtml(fallbackEmpty) }}
           />
         )}
       </Container>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { localizedCopy } from '../lib/theme-locale'
 import { defineSection, getAnalytics, useCart, useData, useT, type SectionProps } from '@tanqory/theme-kit'
 import { SectionHead } from '../components/SectionHead'
 import { ProductGrid } from '../components/ProductGrid'
@@ -50,8 +51,11 @@ export function CartItems({ attributes }: SectionProps): JSX.Element {
   } = useCart()
   const t = useT()
 
-  const heading = (attributes.heading as string) ?? t('cart.title')
-  const buttonLabel = (attributes.buttonLabel as string) ?? t('cart.checkout')
+  // The schema default is filled in before this renders, so `?? t()` never
+  // translated anything: a Thai theme showed an English cart. Stock copy is
+  // rendered in the theme's language; the merchant's own words as written.
+  const heading = localizedCopy(attributes.heading, 'Your cart', 'cart.title', t)
+  const buttonLabel = localizedCopy(attributes.buttonLabel, 'Checkout', 'cart.checkout', t)
   const buttonLink = (attributes.buttonLink as string) ?? checkoutUrl ?? '/checkout'
   const showVendor = attributes.showVendor === true
   const showLineCompareAt = attributes.showLineCompareAt !== false

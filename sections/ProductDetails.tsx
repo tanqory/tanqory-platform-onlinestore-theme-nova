@@ -7,6 +7,7 @@ import {
   type Product,
   type SectionProps,
 } from '@tanqory/theme-kit'
+import { localizedCopy } from '../lib/theme-locale'
 import { handleFromPath } from '../lib/handle'
 import { isEditorPreview } from '../lib/runtime'
 import { Children, useEffect, useMemo, useState } from 'react'
@@ -370,7 +371,8 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
 
   const soldOut = purchase.state === 'unavailable'
 
-  const buttonLabel = (attributes.buttonLabel as string) ?? t('product.addToCart')
+  // Stock copy follows the theme's language; a merchant's own label is shown as written.
+  const buttonLabel = localizedCopy(attributes.buttonLabel, 'Add to cart', 'product.addToCart', t)
   // `quantity: show|hide` was the interim name; the design's key is
   // `showQuantity`. Both are read so a saved value is never lost.
   const showQuantity = attributes.showQuantity !== false && attributes.quantity !== 'hide'

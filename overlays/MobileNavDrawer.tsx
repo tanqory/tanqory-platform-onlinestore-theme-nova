@@ -1,4 +1,5 @@
 import { useT } from '@tanqory/theme-kit'
+import { fallbackNav } from '../lib/fallback-nav'
 import { Drawer } from '../components/Drawer'
 import { useOverlay, closeOverlay } from '../components/useOverlayChannel'
 
@@ -28,15 +29,7 @@ export function MobileNavDrawer(props: MobileNavDrawerProps): JSX.Element {
 
   // Default to the same fallback header nav <Layout> uses if no live menu
   // was passed in. Keeps the drawer useful on a brand-new store.
-  const navItems: NavLink[] =
-    links && links.length > 0
-      ? links
-      : [
-          { title: t('nav.shop') || 'Shop', url: '/collections/all' },
-          { title: 'Collections', url: '/collections' },
-          { title: 'About', url: '/pages/about' },
-          { title: 'Journal', url: '/pages/journal' },
-        ]
+  const navItems: NavLink[] = links && links.length > 0 ? links : fallbackNav(t)
 
   return (
     <Drawer open={open} side="left" width={width} ariaLabel={heading}>

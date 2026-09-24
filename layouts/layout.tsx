@@ -29,6 +29,7 @@ import { Select } from '../components/Select'
 import { ThemeSettingsProvider, useThemeSettings } from '../components/ThemeSettings'
 import { resolveLogo, type BrandFallback } from '../lib/theme-settings'
 import { localizedCopy } from '../lib/theme-locale'
+import { fallbackNav } from '../lib/fallback-nav'
 
 /**
  * Templates are bundled into the layout so the SPA router can swap them in
@@ -598,12 +599,7 @@ function useChrome(opts?: Record<string, unknown>) {
     t,
   )
   const navItems: Array<{ title: string; url: string }> =
-    menus.main ?? [
-      { title: t('nav.shop') || 'Shop', url: '/collections/all' },
-      { title: 'Collections', url: '/collections' },
-      { title: 'About', url: '/pages/about' },
-      { title: 'Journal', url: '/pages/journal' },
-    ]
+    menus.main ?? fallbackNav(t)
   return {
     settings, t, menus, data, totalQuantity, shopName, year, logo,
     locales, activeLocale, countries, activeCountry,
@@ -869,7 +865,7 @@ export function SiteFooter({
               selector and payment marks on the right — the design does not
               give the selector a row of its own. */}
           <div className="site-footer__bottom">
-            <small>© {year} {shopName}. {t('footer.rights')}</small>
+            <small>© {year} {shopName}. {t('footer.rights', 'All rights reserved.')}</small>
             {(legalMenu?.items ?? []).length > 0 && (
               <nav className="site-footer__legal-links" aria-label="Legal">
                 {(legalMenu?.items ?? [])
@@ -1121,7 +1117,7 @@ function LocaleSwitch({
   // Chrome labels are locale strings (editable via locales/<lang>.json) — never
   // hardcoded English in the markup.
   const t = useT()
-  const label = { language: t('footer.language') || 'Language', region: t('footer.region') || 'Country / region' }
+  const label = { language: t('footer.language', 'Language'), region: t('footer.region', 'Country / region') }
 
   if (compact) {
     return (
@@ -1189,8 +1185,8 @@ function LocaleSwitch({
       )}
       {activeCountryRow && (
         <p className="locale-switch__hint">
-          {t('footer.shippingTo') || 'Shipping to'} <strong>{activeCountryRow.label}</strong>.{' '}
-          {t('footer.pricesIn') || 'Prices in'} <strong>{activeCountryRow.currency}</strong>.
+          {t('footer.shippingTo', 'Shipping to')} <strong>{activeCountryRow.label}</strong>.{' '}
+          {t('footer.pricesIn', 'Prices in')} <strong>{activeCountryRow.currency}</strong>.
         </p>
       )}
     </div>

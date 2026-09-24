@@ -70,9 +70,9 @@ export function AccountPage({ attributes }: SectionProps): JSX.Element {
             </div>
             <div className="stack stack--sm account__login-aside">
               <h2>New here?</h2>
-              <p className="u-text-muted">Create an account to check out faster and track orders.</p>
-              <Link href="/account/register" className="btn btn--secondary">
-                Create account
+              <p className="u-text-muted">Sign in with your email — an account is created the first time you do.</p>
+              <Link href="/account/login" className="btn btn--secondary">
+                Sign in
               </Link>
             </div>
           </div>
@@ -86,7 +86,6 @@ export function AccountPage({ attributes }: SectionProps): JSX.Element {
               <ul>
                 <li><a className="is-current" aria-current="page" href="/account">Orders</a></li>
                 <li><a href="/account/addresses">Addresses</a></li>
-                <li><a href="/account/details">Details</a></li>
               </ul>
               <a className="account__signout" href="/account/logout">Sign out</a>
             </nav>

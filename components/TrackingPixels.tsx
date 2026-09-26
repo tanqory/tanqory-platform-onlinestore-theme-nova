@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useData, hasConsent, onConsentChange } from '../lib/tanqory/index'
+import { useData, hasConsent, onConsentChange, wrapPixelCode } from '../lib/tanqory/index'
 
 /**
  * Injects the store's CONNECTED tracking pixels (Settings → Customer events) on
@@ -37,7 +37,8 @@ export function TrackingPixels(): null {
         const s = document.createElement('script')
         s.id = id
         s.type = 'text/javascript'
-        s.text = p.code
+        // The wizard's snippets call a bare `analytics.subscribe` — hand them the bus (see pixel-code.ts).
+        s.text = wrapPixelCode(p.code)
         document.head.appendChild(s)
       }
     }

@@ -93,4 +93,29 @@ describe('consent gate', () => {
       expect(isBannerRequired()).toBe(false)
     })
   })
+
+  describe('GPC forces MARKETING off in EVERY mode (W4/W2: honoured globally)', () => {
+    const gpc = () => Object.defineProperty(navigator, 'globalPrivacyControl', { value: true, configurable: true })
+    it('NONE + GPC: marketing denied, analytics still allowed', () => {
+      setConsentMode('NONE')
+      gpc()
+      expect(hasConsent('marketing')).toBe(false)
+      expect(hasConsent('analytics')).toBe(true)
+    })
+    it('NONE without GPC is unchanged (allowed)', () => {
+      setConsentMode('NONE')
+      expect(hasConsent('marketing')).toBe(true)
+    })
+    it('an EXPLICIT accept still wins over GPC (the shopper chose it on this site)', () => {
+      setConsentMode('NONE')
+      gpc()
+      setConsent({ analytics: true, marketing: true })
+      expect(hasConsent('marketing')).toBe(true)
+    })
+    it('isBannerRequired stays false for NONE (GPC does not force a banner)', () => {
+      setConsentMode('NONE')
+      gpc()
+      expect(isBannerRequired()).toBe(false)
+    })
+  })
 })

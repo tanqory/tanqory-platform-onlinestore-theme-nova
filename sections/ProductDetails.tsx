@@ -16,6 +16,7 @@ import { ProductGallery } from '../components/ProductGallery'
 import { VariantPicker, InventoryStatus } from '../components/VariantPicker'
 import { Breadcrumb } from '../components/Disclosure'
 import { Button } from '../components/Button'
+import { NotifyMe } from '../components/NotifyMe'
 import { QuantityStepper } from '../components/QuantityStepper'
 import { openOverlay } from '../components/useOverlayChannel'
 import { ProductProvider, type ProductContextValue } from '../components/product-context'
@@ -370,6 +371,18 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
       : undefined
 
   const soldOut = purchase.state === 'unavailable'
+  // The concrete variant a shopper can ask to be told about: a real variant that exists and is out of stock
+  // (never a combination that does not exist, and never while variants are still loading).
+  const notifyVariantId: string | undefined =
+    purchase.state === 'unavailable'
+      ? selectedVariant
+        ? selectedVariant.availableForSale === false
+          ? selectedVariant.id
+          : undefined
+        : !hasOptions && product.availableForSale === false
+          ? product.variantId
+          : undefined
+      : undefined
 
   // Stock copy follows the theme's language; a merchant's own label is shown as written.
   const buttonLabel = localizedCopy(attributes.buttonLabel, 'Add to cart', 'product.addToCart', t)
@@ -563,6 +576,7 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
                   fullWidth
                 />
               </div>
+              {notifyVariantId && <NotifyMe variantId={notifyVariantId} />}
               <InventoryStatus
                 available={!soldOut}
                 {...(typeof selectedVariant?.inventoryQuantity === 'number'

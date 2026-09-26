@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react'
-import { useData, setConsent, setBannerRequired, hasDecided, useT } from '../lib/tanqory/index'
+import {
+  useData,
+  setConsent,
+  setConsentMode,
+  consentModeFromShop,
+  hasDecided,
+  useT,
+} from '../lib/tanqory/index'
 import { Link } from './Link'
 
 interface BannerConfig {
@@ -14,8 +21,10 @@ interface BannerConfig {
 }
 
 /**
- * Cookie-consent banner — shown site-wide when the merchant enables it in
- * Settings → Customer privacy. Renders the merchant's configured copy/labels/
+ * Cookie-consent banner — shown site-wide when the shopper's jurisdiction requires
+ * it (EU/UK/CH/BR/TH/Quebec, unknown location → consent first; US opt-out states →
+ * notice + opt-out) or the merchant enables it in Settings → Customer privacy; the
+ * server folds both into `cookieBanner.mode` (journey-matrix 0.5). Renders the merchant's configured copy/labels/
  * position/theme (not hardcoded) and ENFORCES the choice: Accept/Decline/Manage
  * write the consent state that TrackingPixels + analytics gate on. Lives in the
  * layout Shell, so it wraps every page.
@@ -24,17 +33,21 @@ export function CookieConsent(): JSX.Element | null {
   const t = useT()
   const { shop } = useData()
   const cfg = ((shop as { cookieBanner?: BannerConfig })?.cookieBanner ?? {}) as BannerConfig
-  const enabled = Boolean(cfg.enabled)
+  // Shop not loaded yet ⇒ nothing to show, and the gate stays closed (OPT_IN) until it is.
+  const mode = shop ? consentModeFromShop(shop) : 'OPT_IN'
+  const enabled = Boolean(shop) && mode !== 'NONE'
   const [show, setShow] = useState(false)
   const [managing, setManaging] = useState(false)
-  const [analytics, setAnalytics] = useState(true)
-  const [marketing, setMarketing] = useState(true)
+  // Under consent-first law a pre-ticked box is not consent — start unticked.
+  const [analytics, setAnalytics] = useState(mode === 'OPT_OUT')
+  const [marketing, setMarketing] = useState(mode === 'OPT_OUT')
 
   useEffect(() => {
-    // Tell the consent layer whether a banner is in effect (this gates tracking).
-    setBannerRequired(enabled)
-    if (enabled && !hasDecided()) setShow(true)
-  }, [enabled])
+    if (!shop) return
+    // Tell the consent layer the verdict for THIS shopper (this gates tracking).
+    setConsentMode(mode)
+    if (mode !== 'NONE' && !hasDecided()) setShow(true)
+  }, [shop, mode])
 
   if (!enabled || !show) return null
 

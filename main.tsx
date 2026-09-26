@@ -17,7 +17,8 @@ import {
   createMockData,
   createAnalytics,
   hasConsent,
-  setBannerRequired,
+  setConsentMode,
+  consentModeFromShop,
   type DataApi,
   type LiveDataOptions,
   type MountOptions,
@@ -284,10 +285,10 @@ if (VITE_TANQORY_BACKEND && VITE_TANQORY_STORE_ID && !isEditorPreview()) {
 }
 
 /** Set the consent gate from shop data BEFORE the first pageViewed, so a store
- *  with the cookie banner enabled doesn't emit until the shopper has consented. */
+ *  whose buyer needs consent first doesn't emit until the shopper has consented. */
 function armConsent(data: DataApi): void {
-  const cb = (data.shop as { cookieBanner?: { enabled?: boolean } } | undefined)?.cookieBanner
-  setBannerRequired(Boolean(cb?.enabled))
+  // The SERVER's per-buyer verdict (jurisdiction + merchant toggle); missing/unknown ⇒ OPT_IN, never permissive.
+  setConsentMode(consentModeFromShop(data.shop))
 }
 
 /** Emit the route events for the CURRENT url. Thin wrapper so both the boot

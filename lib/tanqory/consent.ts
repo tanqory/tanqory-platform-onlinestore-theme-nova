@@ -1,16 +1,25 @@
 /**
  * Cookie-consent state — the single source of truth the storefront consults
  * before running any tracking (analytics beacon, marketing pixels), so the
- * merchant's Customer-privacy banner actually ENFORCES the shopper's choice.
+ * shopper's choice is actually ENFORCED.
  *
  * Model: two purposes, `analytics` + `marketing`. The decision persists in
  * localStorage (`tq-cookie-consent`) and a `tq-consent-change` event lets
  * subscribers (pixels, analytics) react live to Accept/Decline/Manage.
  *
+ * DENY-UNTIL-DECIDED IS THE DEFAULT (journey-matrix 0.5). This gate used to start
+ * "no banner required → everything allowed", set from the MERCHANT's toggle, so an EU
+ * shopper in a shop whose owner never enabled the banner was tracked with no consent,
+ * and so was everyone before shop data arrived. The mode is now decided by the SERVER
+ * from the shopper's jurisdiction (`shop.cookieBanner.mode`) and the merchant's toggle
+ * can only add protection. Until that verdict arrives the mode is OPT_IN.
+ *
  * Gate semantics (`hasConsent`):
- *   - banner NOT required (merchant didn't enable it) → always allowed.
- *   - banner required + undecided → denied (opt-in / GDPR-safe).
- *   - banner required + decided    → the stored purpose flag.
+ *   - mode NONE    (no consent statute applies to this shopper) → allowed.
+ *   - mode OPT_IN  + undecided → denied (GDPR/ePrivacy/UK/CH/LGPD/PDPA/Quebec, and unknown location).
+ *   - mode OPT_OUT + undecided → allowed, except MARKETING when the shopper sends
+ *     Global Privacy Control (a decline without a click). US opt-out states.
+ *   - decided → the stored purpose flag, in every mode.
  */
 const KEY = 'tq-cookie-consent'
 const EVENT = 'tq-consent-change'
@@ -20,14 +29,44 @@ export interface Consent {
   marketing: boolean
 }
 
-// Set by the theme once shop data is known: is a consent banner in effect?
-let bannerRequired = false
+export type ConsentMode = 'OPT_IN' | 'OPT_OUT' | 'NONE'
 
+// Fail closed until the theme has the shop's verdict.
+let mode: ConsentMode = 'OPT_IN'
+
+export function setConsentMode(m: ConsentMode): void {
+  mode = m
+}
+export function getConsentMode(): ConsentMode {
+  return mode
+}
+/** Back-compat for callers that only know a boolean: true → OPT_IN, false → NONE. */
 export function setBannerRequired(v: boolean): void {
-  bannerRequired = v
+  mode = v ? 'OPT_IN' : 'NONE'
 }
 export function isBannerRequired(): boolean {
-  return bannerRequired
+  return mode !== 'NONE'
+}
+
+/**
+ * The mode for a loaded shop. The server's `cookieBanner.mode` is authoritative; an older API that only sends `enabled`
+ * is read as before (enabled → OPT_IN); anything missing or unrecognised is OPT_IN, never permissive.
+ */
+export function consentModeFromShop(shop: unknown): ConsentMode {
+  const cb = (shop as { cookieBanner?: { enabled?: unknown; mode?: unknown } | null } | undefined)
+    ?.cookieBanner
+  if (!cb || typeof cb !== 'object') return 'OPT_IN'
+  if (cb.mode === 'OPT_IN' || cb.mode === 'OPT_OUT' || cb.mode === 'NONE') return cb.mode
+  if (cb.mode !== undefined && cb.mode !== null) return 'OPT_IN'
+  return cb.enabled ? 'OPT_IN' : 'NONE'
+}
+
+function gpcSignalled(): boolean {
+  try {
+    return (navigator as { globalPrivacyControl?: boolean }).globalPrivacyControl === true
+  } catch {
+    return false
+  }
 }
 
 /** The stored decision, or null when the shopper hasn't chosen yet. */
@@ -63,9 +102,11 @@ export function setConsent(c: Consent): void {
 
 /** True when `purpose` may run right now (see gate semantics above). */
 export function hasConsent(purpose: keyof Consent): boolean {
-  if (!bannerRequired) return true
+  if (mode === 'NONE') return true
   const c = getConsent()
-  return c ? c[purpose] : false
+  if (c) return c[purpose]
+  if (mode === 'OPT_OUT') return purpose === 'marketing' ? !gpcSignalled() : true
+  return false
 }
 
 /** Subscribe to consent changes; returns an unsubscribe fn. */

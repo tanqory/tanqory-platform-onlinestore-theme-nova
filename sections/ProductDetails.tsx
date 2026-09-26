@@ -245,7 +245,14 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
   const variants = useMemo(() => product?.variants ?? [], [product])
 
   useEffect(() => {
-    const seed = variants.find((v) => v.availableForSale) ?? variants[0]
+    // `?variant=<id>` (feed and share links) names the variant to open on, sold out or not: the page must agree with
+    // the feed row it was reached from. Anything unknown falls back to the first available variant.
+    const requested =
+      typeof window === 'undefined' ? '' : (new URLSearchParams(window.location.search).get('variant') ?? '').trim()
+    const seed =
+      (requested ? variants.find((v) => v.id === requested) : undefined) ??
+      variants.find((v) => v.availableForSale) ??
+      variants[0]
     if (seed?.selectedOptions?.length) {
       setSelected(Object.fromEntries(seed.selectedOptions.map((o) => [o.name, o.value])))
     }

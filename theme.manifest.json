@@ -7194,7 +7194,7 @@
       "title": "Product details",
       "description": "Gallery, price, variants and Add to cart for the current product.",
       "source": "sections/ProductDetails.tsx",
-      "sourceHash": "800edce407cc365761c6b81cdec0cc2f",
+      "sourceHash": "db90308bcb6519294777618de4e0ac36",
       "category": "commerce",
       "icon": "◉",
       "role": "section",

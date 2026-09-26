@@ -22,8 +22,9 @@ const text = (v: unknown): string => (typeof v === 'string' ? v.trim() : '')
 const absolute = (url: string | undefined | null, origin: string): string => {
   const u = text(url)
   if (!u) return ''
+  // Crawlers can only fetch http(s): a `data:` placeholder or a `javascript:` URL is never an image URL.
   if (/^https?:\/\//.test(u)) return u
-  if (!origin) return ''
+  if (/^[a-z][a-z0-9+.-]*:/i.test(u) || !origin) return ''
   try {
     return new URL(u, origin).toString()
   } catch {

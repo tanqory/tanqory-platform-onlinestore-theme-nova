@@ -80,6 +80,18 @@ describe('productJsonLd', () => {
     expect(productJsonLd({ ...base, title: '  ' } as never, ctx)).toBeNull()
   })
 
+  it('NEGATIVE CONTROL: only http(s) images are listed (a data: placeholder or javascript: URL is dropped)', () => {
+    const ld = productJsonLd(
+      {
+        ...base,
+        featuredImage: { url: 'data:image/svg+xml,%3Csvg%3E' },
+        images: [{ url: 'javascript:alert(1)' }, { url: '//cdn.example.com/a.jpg' }, { url: 'https://cdn.example.com/b.jpg' }],
+      } as never,
+      ctx,
+    ) as { image?: string[] }
+    expect(ld.image).toEqual(['https://cdn.example.com/a.jpg', 'https://cdn.example.com/b.jpg'])
+  })
+
   it('description: merchant SEO description, else plaintext body; HTML stripped', () => {
     const seo = productJsonLd({ ...base, seo: { description: 'SEO words' }, description: 'body' } as never, ctx) as Record<string, unknown>
     expect(seo.description).toBe('SEO words')

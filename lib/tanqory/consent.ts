@@ -15,7 +15,8 @@
  * can only add protection. Until that verdict arrives the mode is OPT_IN.
  *
  * Gate semantics (`hasConsent`):
- *   - mode NONE    (no consent statute applies to this shopper) → allowed, except MARKETING when GPC is signalled.
+ *   - GPC signalled → MARKETING is denied in every mode, even after an accept-all (analytics unaffected).
+ *   - mode NONE    (no consent statute applies to this shopper) → allowed.
  *   - mode OPT_IN  + undecided → denied (GDPR/ePrivacy/UK/CH/LGPD/PDPA/Quebec, and unknown location).
  *   - mode OPT_OUT + undecided → allowed, except MARKETING when the shopper sends
  *     Global Privacy Control (a decline without a click). US opt-out states.
@@ -102,13 +103,13 @@ export function setConsent(c: Consent): void {
 
 /** True when `purpose` may run right now (see gate semantics above). */
 export function hasConsent(purpose: keyof Consent): boolean {
-  const c = getConsent()
-  // An explicit decision on this site beats every default, in every mode.
-  if (c) return c[purpose]
-  // Global Privacy Control is honoured EVERYWHERE, not only where a banner is required: undecided + GPC → no marketing.
+  // Global Privacy Control is honoured EVERYWHERE and beats even a stored "accept all": marketing is never allowed while
+  // the browser signals GPC (conservative reading, matches admin-api's "GPC always wins"; analytics is unaffected).
   if (purpose === 'marketing' && gpcSignalled()) return false
-  if (mode === 'NONE') return true
-  if (mode === 'OPT_OUT') return true
+  const c = getConsent()
+  // An explicit decision on this site beats every default.
+  if (c) return c[purpose]
+  if (mode === 'NONE' || mode === 'OPT_OUT') return true
   return false
 }
 

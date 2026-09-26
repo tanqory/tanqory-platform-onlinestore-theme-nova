@@ -106,11 +106,22 @@ describe('consent gate', () => {
       setConsentMode('NONE')
       expect(hasConsent('marketing')).toBe(true)
     })
-    it('an EXPLICIT accept still wins over GPC (the shopper chose it on this site)', () => {
+    it('GPC beats even a stored accept-all: marketing STILL denied, analytics allowed (W4 case; conservative — Legal may relax)', () => {
+      for (const m of ['NONE', 'OPT_OUT', 'OPT_IN'] as const) {
+        setConsentMode(m)
+        gpc()
+        setConsent({ analytics: true, marketing: true })
+        expect(hasConsent('marketing')).toBe(false)
+        expect(hasConsent('analytics')).toBe(true)
+      }
+    })
+    it('a missing navigator never throws and is not GPC', () => {
+      const orig = Object.getOwnPropertyDescriptor(globalThis, 'navigator')
+      // @ts-expect-error simulate an environment with no navigator
+      delete globalThis.navigator
       setConsentMode('NONE')
-      gpc()
-      setConsent({ analytics: true, marketing: true })
       expect(hasConsent('marketing')).toBe(true)
+      if (orig) Object.defineProperty(globalThis, 'navigator', orig)
     })
     it('isBannerRequired stays false for NONE (GPC does not force a banner)', () => {
       setConsentMode('NONE')

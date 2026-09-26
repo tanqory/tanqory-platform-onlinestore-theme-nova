@@ -44,8 +44,13 @@ async function fresh() {
   return { ...mod, analytics }
 }
 
+const GRANT = JSON.stringify({ analytics: true, marketing: true })
+
 beforeEach(() => {
   localStorage.clear()
+  // A purchase is only published on an EXPLICIT marketing grant (see the consent-gate describe below).
+  localStorage.setItem('tq-cookie-consent', GRANT)
+  Object.defineProperty(navigator, 'globalPrivacyControl', { value: undefined, configurable: true })
   Object.defineProperty(navigator, 'sendBeacon', { value: vi.fn(() => true), configurable: true })
 })
 
@@ -81,6 +86,7 @@ describe('checkout_completed on the pixel bus', () => {
 
   it('needs marketing consent, and a purchase seen before consent is NOT lost or marked sent', async () => {
     const { analytics, subscribe, setBannerRequired, setConsent } = await fresh()
+    localStorage.removeItem('tq-cookie-consent') // undecided
     setBannerRequired(true) // deny until decided
     const seen: unknown[] = []
     subscribe('checkout_completed', (e) => seen.push(e))
@@ -97,7 +103,7 @@ describe('checkout_completed on the pixel bus', () => {
   it('global: the currency is the ORDER’s — USD, EUR, THB, JPY — and an unknown one is refused, never defaulted', async () => {
     for (const [cur, total] of [['USD', 105], ['EUR', 99.9], ['THB', 3590], ['JPY', 15000]] as const) {
       const { analytics, subscribe } = await fresh()
-      localStorage.clear()
+      localStorage.removeItem('tq-px-sent')
       let got: any
       subscribe('checkout_completed', (e) => (got = e))
       expect(analytics.checkoutCompleted(completed(cur, total) as any)).toBe(true)
@@ -111,6 +117,71 @@ describe('checkout_completed on the pixel bus', () => {
     mismatch.checkout.currencyCode = 'THB'
     expect(analytics.checkoutCompleted(mismatch as any)).toBe(false)
     expect(analytics.checkoutCompleted(completed('USD', 5, '') as any)).toBe(false)
+  })
+})
+
+describe('consent gate — deny until decided, and Global Privacy Control (S8 B-1)', () => {
+  const capture = async () => {
+    const m = await fresh()
+    const seen: any[] = []
+    m.subscribe('checkout_completed', (e) => seen.push(e))
+    return { ...m, seen }
+  }
+  const withEmail = () => {
+    const c = completed('USD', 20)
+    ;(c.checkout as any).emailSha256 = 'a'.repeat(64)
+    return c
+  }
+
+  it('NO banner configured and NO stored decision → nothing is delivered (the theme default is fail-open, this event is not)', async () => {
+    const { analytics, seen, setBannerRequired } = await capture()
+    localStorage.removeItem('tq-cookie-consent')
+    setBannerRequired(false)
+    expect(analytics.checkoutCompleted(withEmail() as any)).toBe(false)
+    expect(seen).toHaveLength(0)
+    expect(localStorage.getItem('tq-px-sent')).toBeNull()
+  })
+
+  it('Global Privacy Control on → nothing is delivered, even with a stored grant', async () => {
+    const { analytics, seen } = await capture()
+    Object.defineProperty(navigator, 'globalPrivacyControl', { value: true, configurable: true })
+    expect(analytics.checkoutCompleted(withEmail() as any)).toBe(false)
+    expect(seen).toHaveLength(0)
+  })
+
+  it('a stored decision without marketing → nothing; with marketing → exactly one delivery', async () => {
+    const { analytics, seen } = await capture()
+    localStorage.setItem('tq-cookie-consent', JSON.stringify({ analytics: true, marketing: false }))
+    expect(analytics.checkoutCompleted(withEmail() as any)).toBe(false)
+    localStorage.setItem('tq-cookie-consent', 'declined')
+    expect(analytics.checkoutCompleted(withEmail() as any)).toBe(false)
+    localStorage.setItem('tq-cookie-consent', 'accepted')
+    expect(analytics.checkoutCompleted(withEmail() as any)).toBe(true)
+    expect(seen).toHaveLength(1)
+  })
+
+  it('the gate cannot be bypassed by calling track() directly', async () => {
+    const { analytics, seen, setBannerRequired } = await capture()
+    localStorage.removeItem('tq-cookie-consent')
+    setBannerRequired(false)
+    analytics.track('CHECKOUT_COMPLETED', withEmail() as any)
+    expect(seen).toHaveLength(0)
+  })
+
+  it('the hashed email never rides the first-party telemetry beacon', async () => {
+    const { analytics } = await capture()
+    const beacon = navigator.sendBeacon as unknown as ReturnType<typeof vi.fn>
+    expect(analytics.checkoutCompleted(withEmail() as any)).toBe(true)
+    analytics.flush()
+    const readBlob = (b: Blob) =>
+      new Promise<string>((resolve) => {
+        const r = new FileReader()
+        r.onload = () => resolve(String(r.result))
+        r.readAsText(b)
+      })
+    const bodies = await Promise.all(beacon.mock.calls.map((c: any[]) => readBlob(c[1] as Blob)))
+    expect(bodies.join('')).toContain('checkout_completed')
+    expect(bodies.join('')).not.toContain('a'.repeat(64))
   })
 })
 

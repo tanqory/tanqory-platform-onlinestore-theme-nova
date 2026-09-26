@@ -34,16 +34,51 @@ export type ConsentMode = 'OPT_IN' | 'OPT_OUT' | 'NONE'
 
 // Fail closed until the theme has the shop's verdict.
 let mode: ConsentMode = 'OPT_IN'
+/**
+ * True once an AUTHORITATIVE verdict for THIS shopper has set the mode (the LIVE per-request answer). A snapshot or a
+ * default never arms it. The banner is shown only when armed — so a not-yet-armed gate is closed AND silent.
+ */
+let armed = false
+const MODE_EVENT = 'tq-consent-mode'
 
+const announce = (): void => {
+  try {
+    window.dispatchEvent(new CustomEvent(MODE_EVENT))
+  } catch {
+    /* SSR / no window */
+  }
+}
+
+/** Set the mode from an authoritative (live) verdict. The ONLY way the gate opens — components must not call it. */
 export function setConsentMode(m: ConsentMode): void {
   mode = m
+  armed = true
+  announce()
+}
+/** Force the gate closed (OPT_IN) and un-armed — the SSG boot, until the live answer arrives. */
+export function holdConsentClosed(): void {
+  mode = 'OPT_IN'
+  armed = false
+  announce()
 }
 export function getConsentMode(): ConsentMode {
   return mode
 }
+export function isConsentArmed(): boolean {
+  return armed
+}
+/** Subscribe to mode/armed changes (banner display); returns an unsubscribe fn. */
+export function onConsentModeChange(cb: () => void): () => void {
+  try {
+    window.addEventListener(MODE_EVENT, cb)
+    return () => window.removeEventListener(MODE_EVENT, cb)
+  } catch {
+    return () => {}
+  }
+}
 /** Back-compat for callers that only know a boolean: true → OPT_IN, false → NONE. */
 export function setBannerRequired(v: boolean): void {
-  mode = v ? 'OPT_IN' : 'NONE'
+  setConsentMode(v ? 'OPT_IN' : 'NONE')
 }
 export function isBannerRequired(): boolean {
   return mode !== 'NONE'

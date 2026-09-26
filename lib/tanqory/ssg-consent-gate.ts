@@ -1,4 +1,4 @@
-import { consentModeFromShop, setConsentMode } from './consent'
+import { consentModeFromShop, holdConsentClosed, setConsentMode } from './consent'
 import type { DataApi } from './data'
 
 /**
@@ -11,7 +11,7 @@ import type { DataApi } from './data'
 export function createSsgConsentGate(emit: (data: DataApi) => void): {
   onLive: (live: DataApi | null | undefined) => void
 } {
-  setConsentMode('OPT_IN')
+  holdConsentClosed() // OPT_IN and NOT armed: closed and silent until the live answer
   let armed = false
   return {
     onLive(live) {

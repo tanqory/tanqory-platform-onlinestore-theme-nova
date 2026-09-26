@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import {
   useData,
   setConsent,
-  setConsentMode,
-  consentModeFromShop,
+  getConsentMode,
+  isConsentArmed,
+  onConsentModeChange,
   hasDecided,
   useT,
 } from '../lib/tanqory/index'
@@ -33,21 +34,25 @@ export function CookieConsent(): JSX.Element | null {
   const t = useT()
   const { shop } = useData()
   const cfg = ((shop as { cookieBanner?: BannerConfig })?.cookieBanner ?? {}) as BannerConfig
-  // Shop not loaded yet ⇒ nothing to show, and the gate stays closed (OPT_IN) until it is.
-  const mode = shop ? consentModeFromShop(shop) : 'OPT_IN'
-  const enabled = Boolean(shop) && mode !== 'NONE'
+  // READ-ONLY view of the gate (S8 C-1). The mode is set ONLY by an authoritative LIVE verdict (`createSsgConsentGate.onLive`
+  // on the SSG boot, `armConsent` on the live boot) — never from the `useData().shop` this component renders with, which on
+  // the SSG boot is the build-time snapshot. Until armed the gate is closed and no banner is shown.
+  const [, bump] = useState(0)
+  useEffect(() => onConsentModeChange(() => bump((n) => n + 1)), [])
+  const mode = getConsentMode()
+  const enabled = Boolean(shop) && isConsentArmed() && mode !== 'NONE'
   const [show, setShow] = useState(false)
   const [managing, setManaging] = useState(false)
   // Under consent-first law a pre-ticked box is not consent — start unticked.
-  const [analytics, setAnalytics] = useState(mode === 'OPT_OUT')
-  const [marketing, setMarketing] = useState(mode === 'OPT_OUT')
+  const [analytics, setAnalytics] = useState(false)
+  const [marketing, setMarketing] = useState(false)
 
   useEffect(() => {
-    if (!shop) return
-    // Tell the consent layer the verdict for THIS shopper (this gates tracking).
-    setConsentMode(mode)
-    if (mode !== 'NONE' && !hasDecided()) setShow(true)
-  }, [shop, mode])
+    if (!enabled) return
+    setAnalytics(mode === 'OPT_OUT')
+    setMarketing(mode === 'OPT_OUT')
+    if (!hasDecided()) setShow(true)
+  }, [enabled, mode])
 
   if (!enabled || !show) return null
 

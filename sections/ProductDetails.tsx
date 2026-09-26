@@ -6,7 +6,7 @@ import {
   useT,
   type Product,
   type SectionProps,
-} from '@tanqory/theme-kit'
+} from '../lib/tanqory/index'
 import { localizedCopy } from '../lib/theme-locale'
 import { handleFromPath } from '../lib/handle'
 import { isEditorPreview } from '../lib/runtime'
@@ -275,7 +275,7 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
 
   if (!product) {
     return (
-      <section className="section">
+      <section {...sharedRootProps(attributes)} className="section">
         <div className="container">
           <div className="not-found">
             {/* This state IS the page: without an h1 the product route had no
@@ -482,11 +482,11 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
 
   return (
     <ProductProvider value={ctx}>
-    <section className="section">
+    <section {...sharedRootProps(attributes)} className="section">
       <div className="container">
         <Breadcrumb
           trail={[
-            { label: 'Home', href: '/' },
+            { label: t('nav.home'), href: '/' },
             ...(product.collections?.[0]
               ? [{ label: product.collections[0].title, href: `/collections/${product.collections[0].handle}` }]
               : []),
@@ -516,7 +516,7 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
                 <Price value={displayPrice} size="pdp" showSave />
               </div>
               {showSku && selectedVariant?.sku && (
-                <p className="product-details__sku">SKU {selectedVariant.sku}</p>
+                <p className="product-details__sku">{t('product.sku')} {selectedVariant.sku}</p>
               )}
             </div>
 
@@ -546,7 +546,7 @@ export function ProductDetails({ attributes, children }: SectionProps): JSX.Elem
                   <QuantityStepper
                     value={quantity}
                     onChange={setQuantity}
-                    label={`Quantity for ${product.title}`}
+                    label={`${t('product.quantityFor')} ${product.title}`}
                   />
                 )}
                 <Button
@@ -616,6 +616,7 @@ export default defineSection({
   role: 'section',
   requiresContext: ['product'],
   title: 'Product details',
+  description: 'Gallery, price, variants and Add to cart for the current product.',
   category: 'commerce',
   icon: '◉',
   attributes: withShared({

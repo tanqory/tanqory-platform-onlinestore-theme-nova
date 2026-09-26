@@ -9,7 +9,7 @@
  *
  * `Money` is kept as a thin alias so existing imports keep working.
  */
-import { formatMoney, type Money as MoneyValue } from '@tanqory/theme-kit'
+import { formatMoney, type Money as MoneyValue } from '../lib/tanqory/index'
 
 export interface PriceProps {
   value?: MoneyValue | null

@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { sanitizeSettingHtml } from '../lib/safe-html'
 
 /** Generic ACCORDION block — a collapsible heading + body for any container. */
@@ -21,6 +21,7 @@ export default defineSection({
   name: 'accordion',
   role: 'block',
   title: 'Accordion',
+  description: 'One expandable question and its answer.',
   category: 'block',
   icon: '▽',
   attributes: {

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { decodeHandle } from '../lib/handle'
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { routeHandle } from '../lib/routes'
+import { defineSection, useData, type SectionProps } from '../lib/tanqory/index'
 import { Container } from '../components/Container'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
-import { sanitizeSettingHtml } from '../lib/safe-html'
+import { richTextHtml } from '../lib/safe-html'
 
 interface ArticleCard {
   handle: string
@@ -32,9 +32,7 @@ export function BlogPosts({ attributes }: SectionProps): JSX.Element {
   const blogOverride = (attributes.blog as string | undefined)?.trim() || undefined
 
   const blogHandle =
-    (typeof window !== 'undefined'
-      ? decodeHandle(window.location.pathname.match(/^\/blogs\/([^/]+)\/?$/)?.[1])
-      : undefined) ?? blogOverride
+    (typeof window !== 'undefined' ? routeHandle(window.location.pathname, 'blog') : undefined) ?? blogOverride
 
   const [blog, setBlog] = useState<{ title: string; articles: ArticleCard[] } | null>(null)
   const [loaded, setLoaded] = useState(false)
@@ -134,7 +132,7 @@ export function BlogPosts({ attributes }: SectionProps): JSX.Element {
         {showEmpty && fallbackEmpty && (
           <div
             className="blog-posts__empty rich-text"
-            dangerouslySetInnerHTML={{ __html: sanitizeSettingHtml(fallbackEmpty) }}
+            dangerouslySetInnerHTML={{ __html: richTextHtml(fallbackEmpty) }}
           />
         )}
       </Container>
@@ -147,6 +145,7 @@ export default defineSection({
   role: 'section',
   requiresContext: ['blog'],
   title: 'Blog posts',
+  description: 'Latest articles from a blog, as cards.',
   category: 'content',
   icon: '✎',
   attributes: withShared({
@@ -176,7 +175,7 @@ export default defineSection({
       ],
     },
     fallbackEmpty: {
-      type: 'textarea',
+      type: 'richtext',
       label: 'Fallback (when empty)',
       default: '',
     },

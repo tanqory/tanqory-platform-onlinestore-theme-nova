@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useData, type Product } from '@tanqory/theme-kit'
+import { useData, type Product, useT } from '../lib/tanqory/index'
 import { Modal } from '../components/Modal'
 import { ImageResponsive } from '../components/ImageResponsive'
 import { Money } from '../components/Money'
@@ -28,6 +28,7 @@ interface SearchModalProps {
  * offline development and the editor preview, where there is no endpoint.
  */
 export function SearchModal(props: SearchModalProps): JSX.Element {
+  const t = useT()
   const open = useOverlay('search')
   const data = useData()
   const { placeholder, ctaLabel, maxWidth, debounceMs, maxResults } = props
@@ -144,7 +145,7 @@ export function SearchModal(props: SearchModalProps): JSX.Element {
             <button
               type="button"
               className="search-modal__clear"
-              aria-label="Clear search"
+              aria-label={t('search.clear')}
               onClick={() => setTerm('')}
             >
               ✕
@@ -153,9 +154,9 @@ export function SearchModal(props: SearchModalProps): JSX.Element {
         </label>
 
         {debouncedTerm && (
-          <div className="search-modal__results" role="listbox" aria-label="Search results">
+          <div className="search-modal__results" role="listbox" aria-label={t('search.results')}>
             {pending ? (
-              <p className="search-modal__empty u-text-muted" role="status">Searching…</p>
+              <p className="search-modal__empty u-text-muted" role="status">{t('search.searching')}</p>
             ) : results.length === 0 ? (
               <p className="search-modal__empty u-text-muted">No matches for “{debouncedTerm}”.</p>
             ) : (

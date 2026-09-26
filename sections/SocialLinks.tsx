@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { Icon } from '../components/Icon'
 
 const PLATFORMS = [
@@ -37,6 +37,7 @@ export default defineSection({
   name: 'social-links',
   role: 'block',
   title: 'Social links',
+  description: 'Links to your social profiles.',
   category: 'block',
   icon: '@',
   attributes: {

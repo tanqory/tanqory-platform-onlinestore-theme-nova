@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
 /**
@@ -30,6 +30,7 @@ export default defineSection({
   name: 'group',
   role: 'section',
   title: 'Group',
+  description: 'A container that lays out other sections together.',
   category: 'layout',
   icon: '▤',
   attributes: withShared({

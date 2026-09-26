@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { useProductContext } from '../components/product-context'
 import { VariantPicker as VariantPickerControl } from '../components/VariantPicker'
 
@@ -39,6 +39,7 @@ export default defineSection({
   role: 'block',
   requiresContext: ['product'],
   title: 'Variant picker',
+  description: 'Size, colour and other options for the current product.',
   category: 'block',
   icon: '◧',
   attributes: {},

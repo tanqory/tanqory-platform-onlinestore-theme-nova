@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 
 /**
  * Divider — a visual break, or pure space.
@@ -23,6 +23,7 @@ export default defineSection({
   name: 'divider',
   role: 'section',
   title: 'Divider',
+  description: 'A thin rule between two sections.',
   category: 'layout',
   icon: '—',
   attributes: {

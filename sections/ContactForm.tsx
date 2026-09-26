@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { defineSection, useT, type SectionProps } from '@tanqory/theme-kit'
+import { isEditorPreview } from '../lib/runtime'
+import { defineSection, useT, type SectionProps } from '../lib/tanqory/index'
 import { SectionHead } from '../components/SectionHead'
 import { StateBlock } from '../components/StateBlock'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
@@ -29,7 +30,9 @@ export function ContactForm({ attributes }: SectionProps): JSX.Element {
   // and is still honoured, so saved merchant content is not orphaned.
   const subheading = stockCopy(attributes.description ?? attributes.subheading, STOCK, undefined, t)
   const buttonLabel = stockCopy(attributes.buttonLabel, STOCK, 'Send message', t)
-  const action = (attributes.action as string) ?? '/_api/contact'
+  // No default endpoint — see Newsletter. Without an action the heading and
+  // copy render; the form does not, and the editor says why.
+  const action = (attributes.action as string | undefined)?.trim() || undefined
   const layout = (attributes.layout as string) ?? 'stacked'
   const successMessage =
     (attributes.successMessage as string) ?? 'Thanks \u2014 we\u2019ll reply soon.'
@@ -55,12 +58,13 @@ export function ContactForm({ attributes }: SectionProps): JSX.Element {
     setSending(true)
     setError(null)
     try {
+      if (!action) return
       const res = await fetch(action, { method: 'POST', body: new FormData(form) })
       if (!res.ok) throw new Error(String(res.status))
       setSent(true)
       form.reset()
     } catch {
-      setError('Your message could not be sent. Please try again.')
+      setError(t('contact.sendFailed'))
     } finally {
       setSending(false)
     }
@@ -77,10 +81,14 @@ export function ContactForm({ attributes }: SectionProps): JSX.Element {
   }
 
   return (
-    <section className="section">
+    <section {...sharedRootProps(attributes)} className="section">
       <div className="container">
         <div className="contact" data-layout={layout}>
           <SectionHead heading={heading} description={subheading} />
+          {!action && isEditorPreview() && (
+            <p className="u-text-muted" role="note">{t('contact.noAction')}</p>
+          )}
+          {action && (
           <form className="contact__form" action={action} method="post" onSubmit={(e) => void submit(e)}>
             {showName && (
               <>
@@ -136,6 +144,7 @@ export function ContactForm({ attributes }: SectionProps): JSX.Element {
               </button>
             </div>
           </form>
+          )}
         </div>
       </div>
     </section>
@@ -146,10 +155,11 @@ export default defineSection({
   name: 'contact-form',
   role: 'section',
   title: 'Contact form',
+  description: 'Name, email and message fields that send to you.',
   category: 'forms',
   icon: '✉',
   attributes: withShared({
-    description: { type: 'textarea', group: 'Content', label: 'Description' },
+    description: { type: 'richtext', group: 'Content', label: 'Description' },
     heading: { type: 'text', default: 'Get in touch', label: 'Heading' },
     subheading: {
       type: 'text',
@@ -181,7 +191,7 @@ export default defineSection({
       label: 'Success message',
     },
     buttonLabel: { type: 'text', default: 'Send message', label: 'Button label' },
-    action: { type: 'url', label: 'Form action URL' },
+    action: { type: 'url', label: 'Form action URL', info: 'Where the message is posted. The form is shown only when this is set.' },
   }),
   component: ContactForm,
 })

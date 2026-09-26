@@ -1,4 +1,5 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { richTextHtml } from '../lib/safe-html'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { useFaqCoordination } from '../components/faq-coordination'
 
 /**
@@ -44,7 +45,7 @@ export function FaqItem({ attributes }: SectionProps): JSX.Element {
           aria-labelledby={`faq-trigger-${index}`}
           hidden={!open}
         >
-          {a && <div className="accordion__body">{a}</div>}
+          {a && <div className="accordion__body rich-text-body" dangerouslySetInnerHTML={{ __html: richTextHtml(a) }} />}
         </div>
       </div>
     )
@@ -54,7 +55,7 @@ export function FaqItem({ attributes }: SectionProps): JSX.Element {
   return (
     <details className="faq__item">
       <summary className="faq__summary">{q ?? 'Question'}</summary>
-      {a && <p className="faq__body">{a}</p>}
+      {a && <div className="faq__body rich-text-body" dangerouslySetInnerHTML={{ __html: richTextHtml(a) }} />}
     </details>
   )
 }
@@ -63,11 +64,12 @@ export default defineSection({
   name: 'faq-item',
   role: 'block',
   title: 'Question',
+  description: 'One question and its answer.',
   category: 'block',
   icon: '?',
   attributes: {
     question: { type: 'text', default: 'Your question?', label: 'Question' },
-    answer: { type: 'textarea', label: 'Answer' },
+    answer: { type: 'richtext', label: 'Answer' },
   },
   component: FaqItem,
 })

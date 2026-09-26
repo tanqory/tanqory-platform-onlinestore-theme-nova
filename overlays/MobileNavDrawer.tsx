@@ -1,4 +1,4 @@
-import { useT } from '@tanqory/theme-kit'
+import { useT } from '../lib/tanqory/index'
 import { fallbackNav } from '../lib/fallback-nav'
 import { Drawer } from '../components/Drawer'
 import { useOverlay, closeOverlay } from '../components/useOverlayChannel'
@@ -41,13 +41,13 @@ export function MobileNavDrawer(props: MobileNavDrawerProps): JSX.Element {
         <button
           type="button"
           className="drawer__close"
-          aria-label="Close menu"
+          aria-label={t('nav.closeMenu')}
           onClick={() => closeOverlay()}
         >
           ✕
         </button>
       </div>
-      <nav className="mobile-nav" aria-label="Mobile primary">
+      <nav className="mobile-nav" aria-label={t('nav.mobilePrimary')}>
         <ul>
           {navItems.map((item) => (
             <li key={`${item.url}-${item.title}`}>

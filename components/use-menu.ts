@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useData, type Menu } from '@tanqory/theme-kit'
+import { useData, type Menu } from '../lib/tanqory/index'
 
 /**
  * Resolve a single menu by handle for the footer/header blocks. Seeds

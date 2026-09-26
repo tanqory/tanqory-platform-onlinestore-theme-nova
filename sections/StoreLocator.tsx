@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useData, type SectionProps, useT } from '../lib/tanqory/index'
 import { Container } from '../components/Container'
 import { StateBlock } from '../components/StateBlock'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
@@ -34,6 +34,7 @@ interface Loc {
  * "Map" / store-locator links to that page.
  */
 export function StoreLocator({ attributes }: SectionProps): JSX.Element {
+  const t = useT()
   const { locations } = useData()
   const [list, setList] = useState<Loc[]>([])
   const [loaded, setLoaded] = useState(false)
@@ -84,28 +85,28 @@ export function StoreLocator({ attributes }: SectionProps): JSX.Element {
         <h2 className="store-locator__heading">{heading}</h2>
         {loaded && list.length > 1 && (
           <label className="store-locator__search field">
-            <span className="u-visually-hidden">Search stores</span>
+            <span className="u-visually-hidden">{t('store.search')}</span>
             <input
               className="field__input"
               type="search"
               value={query}
               onChange={(e) => setQuery(e.currentTarget.value)}
-              placeholder="Search by city or postcode"
+              placeholder={t('store.searchPlaceholder')}
             />
           </label>
         )}
         {!loaded ? (
-          <p className="u-text-muted">Loading locations…</p>
+          <p className="u-text-muted">{t('store.loading')}</p>
         ) : list.length === 0 ? (
           <StateBlock
-            title="No store locations yet"
-            body="Add a location in the admin and it will appear here."
+            title={t('store.empty.title')}
+            body={t('store.empty.body')}
           />
         ) : matches.length === 0 ? (
           <StateBlock
-            title={`No stores match “${query}”`}
-            body="Try a city, a postcode, or clear the search to see every location."
-            ctaLabel="Show all stores"
+            title={`${t('store.noMatch')} “${query}”`}
+            body={t('store.noMatch.body')}
+            ctaLabel={t('store.showAll')}
             onCta={() => setQuery('')}
           />
         ) : (
@@ -164,6 +165,7 @@ export default defineSection({
   name: 'store-locator',
   role: 'section',
   title: 'Store locator',
+  description: 'Your store addresses and opening hours.',
   category: 'commerce',
   icon: 'pin',
   attributes: withShared({

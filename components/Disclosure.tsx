@@ -1,3 +1,4 @@
+import { useT } from '../lib/tanqory/index'
 /**
  * Accordion, Tabs, Breadcrumb, Pagination — the four disclosure/navigation
  * primitives. Grouped in one file because they share the same keyboard
@@ -199,10 +200,11 @@ export function Breadcrumb({
 }: {
   trail: { label: string; href?: string }[]
 }): JSX.Element | null {
+  const t = useT()
   if (trail.length === 0) return null
   const parent = trail.length > 1 ? trail[trail.length - 2] : undefined
   return (
-    <nav className="breadcrumb" aria-label="Breadcrumb">
+    <nav className="breadcrumb" aria-label={t('common.breadcrumb')}>
       <ol className="breadcrumb__list">
         {trail.map((c, i) => {
           const last = i === trail.length - 1
@@ -243,6 +245,7 @@ export function Pagination({
   /** When given, renders real links so the pages are crawlable. */
   hrefFor?: (page: number) => string
 }): JSX.Element | null {
+  const t = useT()
   if (pageCount <= 1) return null
 
   // A window around the current page — never every page of a 200-page catalog.
@@ -273,7 +276,7 @@ export function Pagination({
     )
 
   return (
-    <nav className="pagination" aria-label="Pagination">
+    <nav className="pagination" aria-label={t('common.pagination')}>
       <button
         type="button"
         className="pagination__step"

@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { Button } from '../components/Button'
 import { useProductContext } from '../components/product-context'
 
@@ -26,6 +26,7 @@ export default defineSection({
   role: 'block',
   requiresContext: ['product'],
   title: 'Add to cart',
+  description: 'The Add to cart button for the current product.',
   category: 'block',
   icon: '+',
   attributes: {

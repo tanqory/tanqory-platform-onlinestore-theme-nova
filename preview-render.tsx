@@ -4,7 +4,7 @@
 // routing, no client SPA — using synchronous MOCK data so the markup is instant
 // (the standard fast preview). The live storefront still uses main.tsx.
 
-import { renderSectionPreviewHTML, createMockData } from '@tanqory/theme-kit'
+import { renderSectionPreviewHTML, createMockData } from './lib/tanqory/index'
 import mockCollections from './lib/collections.json'
 import settings from './config/settings.json'
 import locale from './locales/en.json'

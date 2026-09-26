@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 
 /**
  * Marquee — a continuously scrolling text strip. The text repeats to fill the
@@ -41,6 +41,7 @@ export default defineSection({
   name: 'marquee',
   role: 'section',
   title: 'Marquee',
+  description: 'A line of text that scrolls across the page.',
   category: 'content',
   icon: '↔',
   attributes: {

@@ -1,4 +1,4 @@
-import { defineSettings, type AttrSpec } from '@tanqory/theme-kit'
+import { defineSettings, type AttrSpec } from '../lib/tanqory/index'
 import { FONT_OPTIONS } from '../lib/theme-settings'
 
 /** A theme setting: a theme-kit control plus the editor group it sits in. */

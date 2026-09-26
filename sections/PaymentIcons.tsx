@@ -1,4 +1,4 @@
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useData, type SectionProps, useT } from '../lib/tanqory/index'
 
 /** SDL enum value → display label for a payment badge. */
 const LABELS: Record<string, string> = {
@@ -25,6 +25,7 @@ const LABELS: Record<string, string> = {
  * wins, for full control.
  */
 export function PaymentIcons({ attributes }: SectionProps): JSX.Element {
+  const t = useT()
   const data = useData()
   const override = ((attributes.methods as string) || '').trim()
 
@@ -43,7 +44,7 @@ export function PaymentIcons({ attributes }: SectionProps): JSX.Element {
 
   if (list.length === 0) return <></>
   return (
-    <div className="payment-icons" aria-label="Accepted payment methods">
+    <div className="payment-icons" aria-label={t('payment.accepted')}>
       {list.map((m) => (
         <span key={m} className="payment-icon">
           {m}
@@ -57,6 +58,7 @@ export default defineSection({
   name: 'payment-icons',
   role: 'block',
   title: 'Payment icons',
+  description: 'The payment methods you accept, as icons.',
   category: 'block',
   icon: '▭',
   attributes: {

@@ -15,8 +15,8 @@
  * twice (StrictMode, a re-render mid-navigation), and a double PRODUCT_VIEWED
  * is a silently wrong number in the merchant's reports.
  */
-import { getAnalytics } from '@tanqory/theme-kit'
-import type { DataApi } from '@tanqory/theme-kit'
+import { getAnalytics } from './tanqory/index'
+import type { DataApi } from './tanqory/index'
 import { matchRoute } from './routes.ts'
 
 let lastEmitted: string | null = null

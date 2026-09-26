@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 
 /** Generic JUMBO TEXT block — oversized display type for a statement moment. */
 export function JumboText({ attributes }: SectionProps): JSX.Element {
@@ -15,6 +15,7 @@ export default defineSection({
   name: 'jumbo-text',
   role: 'block',
   title: 'Jumbo text',
+  description: 'One oversized line of text.',
   category: 'block',
   icon: 'A',
   attributes: {

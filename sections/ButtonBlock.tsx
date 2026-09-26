@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { Button } from '../components/Button'
 
 /** Generic BUTTON block — a call-to-action you place in any container. */
@@ -20,6 +20,7 @@ export default defineSection({
   name: 'button',
   role: 'block',
   title: 'Button',
+  description: 'A single link styled as a button.',
   category: 'block',
   icon: '⬚',
   attributes: {

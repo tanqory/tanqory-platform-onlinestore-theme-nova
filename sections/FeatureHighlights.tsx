@@ -1,5 +1,5 @@
 // @tq:ai-generated
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
 export function FeatureHighlights({ attributes }: SectionProps): JSX.Element {
@@ -46,7 +46,7 @@ export function FeatureHighlights({ attributes }: SectionProps): JSX.Element {
           data-icon={iconStyle}
         >
           {features.map((feature, index) => (
-            <div key={index} className="feature-highlights__item">
+            <div key={`${feature.icon}|${feature.title ?? ''}|${index}`} className="feature-highlights__item">
               <div className="feature-highlights__icon">
                 <svg><use href={`#${feature.icon}`} /></svg>
               </div>
@@ -64,6 +64,7 @@ export default defineSection({
   name: 'feature-highlights',
   role: 'section',
   title: 'Feature Highlights',
+  description: 'Three or four features with icons and short text.',
   category: 'content',
   icon: 'star',
   attributes: withShared({

@@ -1,4 +1,5 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { richTextHtml } from '../lib/safe-html'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { ImageResponsive } from '../components/ImageResponsive'
 import { Button } from '../components/Button'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
@@ -36,7 +37,7 @@ export function ImageWithText({ attributes }: SectionProps): JSX.Element {
           <div className="iwt__body">
             {eyebrow && <span className="eyebrow">{eyebrow}</span>}
             <h2>{heading}</h2>
-            {body && <p>{body}</p>}
+            {body && <div className="rich-text-body" dangerouslySetInnerHTML={{ __html: richTextHtml(body) }} />}
             {buttonLabel && (
               <div className="cluster">
                 <Button
@@ -58,6 +59,7 @@ export default defineSection({
   name: 'image-with-text',
   role: 'section',
   title: 'Image with text',
+  description: 'Image beside a heading and short paragraph.',
   category: 'content',
   icon: '◧',
   attributes: withShared({
@@ -117,7 +119,7 @@ export default defineSection({
     eyebrow: { type: 'text', label: 'Eyebrow' },
     heading: { type: 'text', default: 'A story worth telling', label: 'Heading' },
     body: {
-      type: 'textarea',
+      type: 'richtext',
       label: 'Body',
       default:
         'Crafted in small batches with materials that age well. Every piece earns its place in your routine.',

@@ -1,5 +1,6 @@
+import { richTextHtml } from '../lib/safe-html'
 import { useEffect, useState } from 'react'
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useData, type SectionProps } from '../lib/tanqory/index'
 import { ImageResponsive } from '../components/ImageResponsive'
 import { Money } from '../components/Money'
 import { Button } from '../components/Button'
@@ -105,6 +106,7 @@ export function FeaturedProduct({ attributes }: SectionProps): JSX.Element {
 
   return (
     <section
+      {...sharedRootProps(attributes)}
       className="section section--alt"
       data-media={mediaPosition}
       data-ratio={mediaRatio}
@@ -124,12 +126,11 @@ export function FeaturedProduct({ attributes }: SectionProps): JSX.Element {
               <Money value={product.price} />
             </span>
             {body && descriptionLines !== 'none' && (
-              <p
-                className="u-text-muted featured-product__desc"
+              <div
+                className="u-text-muted featured-product__desc rich-text-body"
                 data-clamp={descriptionLines === '3' ? '3' : undefined}
-              >
-                {body}
-              </p>
+                dangerouslySetInnerHTML={{ __html: richTextHtml(body) }}
+              />
             )}
             <div className="cluster">
               <Button
@@ -157,12 +158,13 @@ export default defineSection({
   name: 'featured-product',
   role: 'section',
   title: 'Featured product',
+  description: 'One product with price, variants and Add to cart.',
   category: 'commerce',
   icon: '★',
   attributes: withShared({
     eyebrow: { type: 'text', label: 'Eyebrow' },
     product: { type: 'product', label: 'Product' },
-    body: { type: 'textarea', label: 'Description' },
+    body: { type: 'richtext', label: 'Description' },
     buttonLabel: { type: 'text', default: 'Shop now', label: 'Button label' },
     buttonLink: { type: 'url', label: 'Button link (auto = product page)' },
     mediaPosition: {

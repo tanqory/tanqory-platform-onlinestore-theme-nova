@@ -1,0 +1,200 @@
+import React, { type FC, type ReactNode } from 'react'
+import { createRoot, hydrateRoot } from 'react-dom/client'
+
+import { registerSections } from './registry'
+import { SectionTree } from './SectionTree'
+import { DataProvider, type DataApi } from './data'
+import { CartProvider } from './cart'
+import { ThemeProvider } from './theme-context'
+import { Editor } from './editor'
+import { PreviewBridge } from './preview-bridge'
+import type { SectionDef, PageDoc, ContentNode, SectionGroupDoc } from './types'
+import { resolvePage, type GroupMap } from './contract/groups'
+import { isPreviewPlane, flagOn } from './preview-origins'
+
+// Vite's import.meta.glob(..., { eager: true }) types each value as `unknown`,
+// so the theme entry passes plain glob maps with no generics. We narrow here.
+type GlobMap = Record<string, unknown>
+
+export interface MountOptions {
+  /** import.meta.glob('./sections/*.tsx', { eager: true }) — run in the THEME. */
+  sections: GlobMap
+  /** import.meta.glob('./templates/*.json', { eager: true }). */
+  pages: GlobMap
+  /** import.meta.glob('./layouts/*.tsx', { eager: true }) — optional. */
+  shell?: GlobMap
+  /**
+   * import.meta.glob('./groups/*.json', { eager: true }) — the shared
+   * header/footer groups a template may bind. Optional: a theme with no
+   * `groups/` renders its templates' inline header/footer exactly as before.
+   */
+  groups?: GlobMap
+  /** Data source the theme provides (createMockData(...) or a live client). */
+  data: DataApi
+  /** Global settings values (config/settings.json). */
+  settings?: Record<string, unknown>
+  /** Locale strings (locales/<lang>.json). */
+  locale?: Record<string, string>
+  /** Which page to render (default 'index'). */
+  page?: string
+  /** Mount target id (default 'root'). */
+  rootId?: string
+  /**
+   * SWR refresh: the initial render uses `data` (the SSG snapshot — so
+   * hydration matches the server markup by construction), then this runs once
+   * after mount and the fresh result is swapped in. Return null/reject to keep
+   * the snapshot data (e.g. the network is down).
+   */
+  revalidate?: () => Promise<DataApi | null>
+  /**
+   * Force client rendering even when SSG markup exists in the root (wipe +
+   * createRoot instead of hydrateRoot). Pass when the prerendered markup is
+   * known NOT to match what the client will render — a different page than the
+   * one that was prerendered, or no data snapshot to hydrate with — because
+   * hydrating against mismatched markup throws React #418/#425.
+   */
+  forceClientRender?: boolean
+  /**
+   * Exact studio origins allowed to drive the preview bridge (and the only
+   * targets it posts to). Defaults to the platform's studio hosts; a loopback
+   * page also accepts any loopback origin so the laptop loop works on any port.
+   */
+  previewOrigins?: readonly string[]
+}
+
+function defaultsOf<T>(map: GlobMap): T[] {
+  return Object.values(map).map((m) => (m as { default: T }).default)
+}
+
+function pickByName<T>(map: GlobMap, name: string): T | undefined {
+  const hit = Object.entries(map).find(
+    ([key]) => key.endsWith(`/${name}.json`) || key.endsWith(`/${name}.tsx`),
+  )
+  return hit ? (hit[1] as { default: T }).default : undefined
+}
+
+/** `groups/<name>.json` glob → name-keyed map for `resolvePage`. */
+export function groupsFromGlob(map?: GlobMap): GroupMap {
+  const out: GroupMap = {}
+  for (const [key, mod] of Object.entries(map ?? {})) {
+    const name = key.replace(/^.*\//, '').replace(/\.json$/, '')
+    const doc = (mod as { default?: SectionGroupDoc }).default
+    if (doc) out[name] = doc
+  }
+  return out
+}
+
+/**
+ * The section list a template renders — header group, body, footer group —
+ * through the ONE resolver the editor and the AI tools also use.
+ */
+export function resolvePageSections(doc: PageDoc | undefined, groups: GroupMap): ContentNode[] {
+  if (!doc) return []
+  return resolvePage(doc as Parameters<typeof resolvePage>[0], groups).sections as ContentNode[]
+}
+
+/**
+ * Boot a theme. The theme's entry passes its globbed sections/templates/layouts
+ * (so Vite resolves them relative to the theme) plus a data source. Everything
+ * else — registry, tree rendering, providers — is the framework.
+ */
+export function mount(opts: MountOptions): void {
+  registerSections(defaultsOf<SectionDef>(opts.sections))
+
+  const shells = opts.shell ? defaultsOf<FC<{ children: ReactNode }>>(opts.shell) : []
+  const Shell: FC<{ children: ReactNode }> = shells[0] ?? (({ children }) => <>{children}</>)
+
+  const groups = groupsFromGlob(opts.groups)
+  const pageDoc = pickByName<PageDoc>(opts.pages, opts.page ?? 'index') ?? { sections: [] }
+  const pageSections = resolvePageSections(pageDoc, groups)
+  const rootEl = document.getElementById(opts.rootId ?? 'root')
+  if (!rootEl) throw new Error('[tanqory] mount target not found')
+
+  // `?edit=true` → visual editor (EDIT plane); otherwise the storefront (SERVE).
+  // Bare `?edit` counts as on; an explicit falsey value (`?edit=false` / `?edit=0`)
+  // stays on the storefront, so the flag can be toggled off from the URL without
+  // dropping the param. Editing only persists on the EDIT-plane sandbox (vite dev,
+  // `preview-<slug>`); the published `<slug>` is static and has no save endpoint.
+  const loc = typeof location !== 'undefined' ? location : { hostname: '', search: '' }
+  const on = (k: string) => flagOn(loc.search, k)
+  // PREVIEW plane = the dedicated `preview-<themeId>.<domain>` host (the editor
+  // canvas), or a loopback host with `?preview` (the laptop loop) — render the
+  // postMessage bridge. A published `<slug>` host stays on the SERVE plane no
+  // matter what its query string says: the bridge takes content from
+  // postMessage, so it must never mount on a page shoppers can be sent to.
+  const previewMode = isPreviewPlane(loc)
+  const editMode = on('edit')
+
+  // All pages (name → sections) so the editor can switch between templates.
+  const pagesByName: Record<string, ContentNode[]> = {}
+  for (const [key, mod] of Object.entries(opts.pages)) {
+    const name = key.replace(/^.*\//, '').replace(/\.json$/, '')
+    pagesByName[name] = resolvePageSections((mod as { default?: PageDoc }).default, groups)
+  }
+
+  const content = previewMode ? (
+    <PreviewBridge
+      pages={pagesByName}
+      initialPage={opts.page ?? 'index'}
+      Shell={Shell}
+      allowedOrigins={opts.previewOrigins}
+    />
+  ) : editMode ? (
+    <Editor pages={pagesByName} initialPage={opts.page ?? 'index'} />
+  ) : (
+    <Shell>
+      <SectionTree tree={pageSections} />
+    </Shell>
+  )
+
+  // Holds the DataApi in state so `revalidate` can swap fresh data in AFTER
+  // hydration: first render = the SSG snapshot (markup matches the server
+  // byte-for-byte), then the fresh fetch reconciles in place (SWR).
+  const Root: FC = () => {
+    const [data, setData] = React.useState(opts.data)
+    React.useEffect(() => {
+      if (!opts.revalidate) return
+      let live = true
+      opts
+        .revalidate()
+        .then((fresh) => {
+          if (live && fresh) setData(fresh)
+        })
+        .catch(() => {
+          /* keep the snapshot data — a failed refresh must not blank the page */
+        })
+      return () => {
+        live = false
+      }
+      // mount() runs once per page load; opts never changes afterwards.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+    return (
+      <DataProvider value={data}>
+        <ThemeProvider settings={opts.settings} locale={opts.locale}>
+          <CartProvider>{content}</CartProvider>
+        </ThemeProvider>
+      </DataProvider>
+    )
+  }
+
+  const app = (
+    <React.StrictMode>
+      <Root />
+    </React.StrictMode>
+  )
+
+  // Storefront (SERVE plane) is prerendered to static HTML at build time (SSG,
+  // see ssg.tsx) — hydrate it so the markup is reused (no flash, SEO-ready).
+  // Preview/edit planes are always client-rendered (not prerendered).
+  // forceClientRender = the SSG markup is known not to match (different page /
+  // no snapshot): wipe it and client-render — hydrating would mismatch (#418).
+  const isStorefront = !previewMode && !editMode
+  const hasSSG = rootEl.firstChild != null
+  if (isStorefront && hasSSG && !opts.forceClientRender) {
+    hydrateRoot(rootEl, app)
+  } else {
+    if (hasSSG) rootEl.replaceChildren()
+    createRoot(rootEl).render(app)
+  }
+}

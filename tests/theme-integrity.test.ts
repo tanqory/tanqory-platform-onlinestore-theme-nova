@@ -96,6 +96,11 @@ describe('starter content makes no claims on the merchant’s behalf', () => {
     /returns? within \d+/i,
     /organic cotton/i,
     /ships in \d+ ?h/i,
+    // A discount is a promise the merchant has to honour; "no spam /
+    // unsubscribe anytime" is a policy statement. Both came back in newsletter.
+    /\d+ ?% off/i,
+    /no spam/i,
+    /unsubscribe anytime/i,
   ]
 
   it('no template ships a shipping/returns/materials claim', () => {

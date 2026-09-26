@@ -1,9 +1,11 @@
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { richTextHtml } from '../lib/safe-html'
+import { defineSection, useData, type SectionProps, useT } from '../lib/tanqory/index'
 import { Button } from '../components/Button'
 import { CollectionCard, toCollectionCard } from '../components/CollectionCard'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
 export function NotFound({ attributes }: SectionProps): JSX.Element {
+  const t = useT()
   const { allCollections } = useData()
   const heading = (attributes.heading as string) ?? 'Page not found'
   const body =
@@ -28,7 +30,7 @@ export function NotFound({ attributes }: SectionProps): JSX.Element {
               is an apology and a way out, not a display of the error code. */}
           <span className="eyebrow not-found__code">Error 404</span>
           <h1>{heading}</h1>
-          <p className="u-text-muted">{body}</p>
+          <div className="u-text-muted rich-text-body" dangerouslySetInnerHTML={{ __html: richTextHtml(body) }} />
 
           {showSearch && (
             <form className="not-found__search" action="/search" method="get" role="search">
@@ -36,11 +38,11 @@ export function NotFound({ attributes }: SectionProps): JSX.Element {
                 className="field__input"
                 type="search"
                 name="q"
-                placeholder="Search the store"
-                aria-label="Search the store"
+                placeholder={t('search.theStore')}
+                aria-label={t('search.theStore')}
               />
               <button className="btn btn--secondary" type="submit">
-                Search
+                {t('search.button')}
               </button>
             </form>
           )}
@@ -49,7 +51,7 @@ export function NotFound({ attributes }: SectionProps): JSX.Element {
             {/* "Not-found without search enabled: single primary button." */}
             <Button label={buttonLabel} link={buttonLink} variant="primary" size="lg" />
             {showSearch && (
-              <Button label="Browse the shop" link="/collections/all" variant="ghost" size="lg" />
+              <Button label={t('search.browseShop')} link="/collections/all" variant="ghost" size="lg" />
             )}
           </div>
 
@@ -70,12 +72,13 @@ export default defineSection({
   name: 'not-found',
   role: 'section',
   title: '404',
+  description: 'The page shown when a link goes nowhere.',
   category: 'system',
   icon: '⚠',
   attributes: withShared({
     heading: { type: 'text', default: 'Page not found', label: 'Heading' },
     body: {
-      type: 'textarea',
+      type: 'richtext',
       default: 'The page you\'re looking for doesn\'t exist or may have moved.',
       label: 'Body',
     },

@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 
 /** Generic VIDEO block — embeds a YouTube/Vimeo URL, or plays a video file. */
 export function VideoBlock({ attributes }: SectionProps): JSX.Element {
@@ -49,6 +49,7 @@ export default defineSection({
   name: 'video',
   role: 'block',
   title: 'Video',
+  description: 'An embedded or uploaded video.',
   category: 'block',
   icon: '▷',
   attributes: {

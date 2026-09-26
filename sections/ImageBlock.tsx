@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 
 /**
  * Generic IMAGE block — a picture (optionally linked) for any container.
@@ -40,6 +40,7 @@ export default defineSection({
   name: 'image',
   role: 'block',
   title: 'Image',
+  description: 'One image, optionally linked.',
   category: 'block',
   icon: '▥',
   attributes: {

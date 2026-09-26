@@ -14,7 +14,7 @@ import settings from '../config/settings.json'
 import settingsSchema from '../config/settings.schema'
 import pkg from '../package.json'
 import { SHARED_ATTRIBUTES, CONTENT_SLOTS } from '../lib/shared-section-props'
-import type { SectionDef, AttrSpec, SectionGroupDoc } from '@tanqory/theme-kit'
+import type { SectionDef, AttrSpec, SectionGroupDoc } from '../lib/tanqory/index'
 import {
   CONTRACT_VERSION,
   CURRENT_CONTENT_VERSION,
@@ -22,7 +22,7 @@ import {
   resolvePage,
   roleOf,
   type GroupedPageDoc,
-} from '@tanqory/theme-kit/contract'
+} from '../lib/tanqory/contract/index'
 
 type SectionModule = { default?: SectionDef }
 interface TemplateNode {
@@ -83,6 +83,7 @@ function serializeSection(def: SectionDef, parentsOf: Map<string, string[]>, sou
   return {
     name: def.name,
     title: def.title,
+    ...(def.description ? { description: def.description } : {}),
     // Provenance: which file this entry was generated from and its hash at
     // generation time. Lets a consumer tell a stale entry from a current one
     // instead of trusting the manifest blindly.

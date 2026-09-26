@@ -16,7 +16,7 @@ The always-loaded invariants are in `.claude/rules/theme-standards.md`.
 ## The shape
 
 ```tsx
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
 export function Marquee({ attributes, children }: SectionProps): JSX.Element {

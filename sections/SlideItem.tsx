@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { HeroComposition } from '../components/HeroComposition'
 import { useSlidePosition } from '../components/slide-position'
 
@@ -48,6 +48,7 @@ export default defineSection({
   name: 'slide',
   role: 'block',
   title: 'Slide',
+  description: 'One slide in a slideshow.',
   category: 'block',
   icon: '▭',
   attributes: {
@@ -55,7 +56,7 @@ export default defineSection({
     mobileImage: { type: 'image', label: 'Mobile image (optional)' },
     eyebrow: { type: 'text', label: 'Eyebrow' },
     heading: { type: 'text', default: 'New slide', label: 'Heading' },
-    body: { type: 'textarea', label: 'Body' },
+    body: { type: 'richtext', label: 'Body' },
     buttonLabel: { type: 'text', label: 'Button label' },
     buttonLink: { type: 'url', label: 'Button link' },
     secondaryLabel: { type: 'text', label: 'Secondary button' },

@@ -1,4 +1,5 @@
-import { defineSection, useBoundText, type SectionProps } from '@tanqory/theme-kit'
+import { richTextHtml } from '../lib/safe-html'
+import { defineSection, useBoundText, type SectionProps } from '../lib/tanqory/index'
 
 /**
  * Footer BLOCK — a free text column (heading + paragraph). For store hours,
@@ -20,7 +21,7 @@ export function FooterText({ attributes }: SectionProps): JSX.Element {
       {/* Matches the other footer columns, which are labels rather than
           headings — an <h6> here jumped four levels from the page h2. */}
       {heading && <span className="site-footer__col-title">{heading}</span>}
-      {body && <p className="site-footer__muted">{body}</p>}
+      {body && <div className="site-footer__muted rich-text-body" dangerouslySetInnerHTML={{ __html: richTextHtml(body) }} />}
     </div>
   )
 }
@@ -29,11 +30,12 @@ export default defineSection({
   name: 'footer-text',
   role: 'block',
   title: 'Text',
+  description: 'A short paragraph in the footer.',
   category: 'block',
   icon: '¶',
   attributes: {
     heading: { type: 'text', label: 'Heading', dynamic: true },
-    body: { type: 'textarea', label: 'Text', dynamic: true },
+    body: { type: 'richtext', label: 'Text', dynamic: true },
   },
   component: FooterText,
 })

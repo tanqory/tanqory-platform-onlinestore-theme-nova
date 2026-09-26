@@ -1,7 +1,7 @@
 # nova — Tanqory React theme
 
 A standalone Tanqory theme. Runs **offline** with mock data; depends on
-`@tanqory/theme-kit` for the framework. The model: **React component = block**,
+its own `lib/tanqory/` glue (no framework package to install). The model: **React component = block**,
 **content = JSON tree** (not HTML), edited by the visual editor.
 
 ```bash
@@ -73,7 +73,7 @@ package.json          manifest + deps
 - A **section** (`sections/*.tsx`) is one definition serving three consumers: dev writes
   the React component + `attributes` schema; the editor auto-builds settings UI from
   the schema; the storefront renders it. Content stays a **JSON tree** the editor edits.
-- `@tanqory/theme-kit` auto-discovers `sections/`, `templates/`, `layouts/` and mounts.
+- `lib/tanqory` (the theme's own glue) auto-discovers `sections/`, `templates/`, `layouts/` and mounts.
 - typed React sections (no proprietary templating); reusable bits are plain **components/** (not a
   separate `snippets/`); schema/values split by file extension (`.ts` vs `.json`).
 

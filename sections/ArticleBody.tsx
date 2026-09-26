@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
-import { decodeHandle } from '../lib/handle'
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { matchRoute } from '../lib/routes'
+import { defineSection, useData, type SectionProps } from '../lib/tanqory/index'
 import { Container } from '../components/Container'
 import { Button } from '../components/Button'
 import { Chip } from '../components/Chip'
 import { showToast } from '../components/Overlays'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
-import { sanitizeSettingHtml } from '../lib/safe-html'
+import { richTextHtml } from '../lib/safe-html'
 
 interface ArticleDetail {
   title: string
@@ -29,12 +29,10 @@ export function ArticleBody({ attributes }: SectionProps): JSX.Element {
   // Shared transport, not a hand-built fetch — see PageBody.
   const { graphql } = useData()
 
-  const handles =
-    typeof window !== 'undefined'
-      ? window.location.pathname.match(/^\/blogs\/([^/]+)\/([^/]+)\/?$/)
-      : null
-  const blogHandle = decodeHandle(handles?.[1])
-  const articleHandle = decodeHandle(handles?.[2])
+  // The ONE route table (lib/routes.ts) says which article this URL addresses.
+  const route = typeof window !== 'undefined' ? matchRoute(window.location.pathname) : null
+  const blogHandle = route?.resource === 'article' ? route.blogHandle : undefined
+  const articleHandle = route?.resource === 'article' ? route.handle : undefined
 
   const [article, setArticle] = useState<ArticleDetail | null>(null)
   const [loaded, setLoaded] = useState(false)
@@ -107,7 +105,7 @@ export function ArticleBody({ attributes }: SectionProps): JSX.Element {
   const title = article?.title ?? (loaded ? fallbackTitle ?? '' : '')
   // The article is the merchant's published content; the fallback is a section
   // setting, so only its formatting tags may render.
-  const body = article?.contentHtml ?? (loaded ? sanitizeSettingHtml(fallbackBody) : '')
+  const body = article?.contentHtml ?? (loaded ? richTextHtml(fallbackBody) : '')
 
   return (
     <article className="article-body" {...sharedRootProps(attributes)}>
@@ -185,11 +183,12 @@ export default defineSection({
   role: 'section',
   requiresContext: ['article'],
   title: 'Article content',
+  description: 'The full text and images of a blog article.',
   category: 'content',
   icon: '✎',
   attributes: withShared({
     fallbackTitle: { type: 'text', label: 'Fallback title', default: 'Article' },
-    fallbackBody: { type: 'textarea', label: 'Fallback body (HTML)', default: '' },
+    fallbackBody: { type: 'richtext', label: 'Fallback body (HTML)', default: '' },
     showDate: { type: 'boolean', default: true, label: 'Show date' },
     showAuthor: { type: 'boolean', default: false, label: 'Show author' },
     showFeaturedImage: { type: 'boolean', default: true, label: 'Show featured image' },

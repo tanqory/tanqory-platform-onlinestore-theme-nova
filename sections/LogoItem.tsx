@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 
 /**
  * Logo — CHILD BLOCK of Logo list. One brand mark (image URL + alt +
@@ -30,6 +30,7 @@ export default defineSection({
   name: 'logo',
   role: 'block',
   title: 'Logo',
+  description: 'One logo in a logo list.',
   category: 'block',
   icon: '◍',
   attributes: {

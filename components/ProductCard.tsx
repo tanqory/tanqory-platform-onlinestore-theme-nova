@@ -12,7 +12,7 @@
  * (`ImageResponsive` vs raw `<img>`) and money (`Money` vs `Price`), so a fix
  * to one never reached the others.
  */
-import type { ImageRef, Money as MoneyValue, Product } from '@tanqory/theme-kit'
+import type { ImageRef, Money as MoneyValue, Product } from '../lib/tanqory/index'
 import { ImageResponsive } from './ImageResponsive'
 import { Price } from './Price'
 import { Link } from './Link'

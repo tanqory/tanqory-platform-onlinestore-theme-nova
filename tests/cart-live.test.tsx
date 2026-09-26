@@ -11,7 +11,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import { act } from 'react'
-import { useCart, type CartApi } from '@tanqory/theme-kit'
+import { useCart, type CartApi } from '../lib/tanqory/index'
 import { ProductDetails } from '../sections/ProductDetails'
 import { click, product, renderSection, setUrl, stubData } from './helpers/render'
 import en from '../locales/en.json'

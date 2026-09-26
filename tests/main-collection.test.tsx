@@ -6,7 +6,7 @@
  * and every other collection URL listed the `all` collection.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { DataApi, Product } from '@tanqory/theme-kit'
+import type { DataApi, Product } from '../lib/tanqory/index'
 import { MainCollection } from '../sections/MainCollection'
 import { product, renderSection, setUrl, stubData } from './helpers/render'
 

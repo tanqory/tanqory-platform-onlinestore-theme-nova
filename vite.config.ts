@@ -134,6 +134,25 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), studioSave(), sectionPreview()] as PluginOption[],
+    // Client bundle for the Tanqory runtime (spec v1): dist/client/ with a
+    // Vite manifest, so the SSR entry can link the hashed files for THIS version.
+    build: {
+      outDir: 'dist/client',
+      manifest: true,
+      emptyOutDir: true,
+      // One 586 kB chunk for every page. React and the theme's Tanqory glue
+      // change on their own cadence; splitting them lets a section edit ship
+      // without re-downloading either.
+      rollupOptions: {
+        output: {
+          manualChunks(id: string) {
+            if (id.includes('node_modules/react')) return 'react'
+            if (id.includes('/lib/tanqory/')) return 'tanqory'
+            return undefined
+          },
+        },
+      },
+    },
     server: {
       port: 4321,
       // Accept any ingress host (e.g. <slug>.mytanqory.com).

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { customerTokenStore, defineSection, formatMoney, useData, type SectionProps } from '@tanqory/theme-kit'
+import { customerTokenStore, defineSection, formatMoney, useData, type SectionProps, useT } from '../lib/tanqory/index'
 import { Container } from '../components/Container'
 import { Link } from '../components/Link'
 import { Pagination } from '../components/Disclosure'
@@ -12,8 +12,8 @@ import { withShared, sharedRootProps } from '../lib/shared-section-props'
  * local shape this file used to declare left most of that on the floor and a
  * cast invented `totalPrice`.
  */
-type Order = import('@tanqory/theme-kit').Order
-type Me = import('@tanqory/theme-kit').Customer
+type Order = import('../lib/tanqory/index').Order
+type Me = import('../lib/tanqory/index').Customer
 
 /**
  * Customer account — shows the signed-in customer + their orders, or a sign-in
@@ -22,6 +22,7 @@ type Me = import('@tanqory/theme-kit').Customer
  * mock mode shows the signed-out state.
  */
 export function AccountPage({ attributes }: SectionProps): JSX.Element {
+  const t = useT()
   const { customer } = useData()
   const showOrderHistory = attributes.showOrderHistory !== false
   const ordersPerPage = Number(attributes.ordersPerPage ?? 10) === 20 ? 20 : 10
@@ -58,21 +59,21 @@ export function AccountPage({ attributes }: SectionProps): JSX.Element {
     <section {...sharedRootProps(attributes)} className="section account">
       <Container className="account__inner">
         {loading ? (
-          <p className="u-text-muted">Loading your account…</p>
+          <p className="u-text-muted">{t('account.loading')}</p>
         ) : !me ? (
           <div className="account__login" data-layout={loginLayout}>
             <div className="stack stack--sm">
-              <h1>Account</h1>
-              <p className="lede u-text-muted">Sign in to see your orders and saved addresses.</p>
+              <h1>{t('account.title')}</h1>
+              <p className="lede u-text-muted">{t('account.signInSub')}</p>
               <Link href="/account/login" className="btn btn--primary">
-                Sign in
+                {t('account.signIn')}
               </Link>
             </div>
             <div className="stack stack--sm account__login-aside">
-              <h2>New here?</h2>
-              <p className="u-text-muted">Sign in with your email — an account is created the first time you do.</p>
+              <h2>{t('account.newHere')}</h2>
+              <p className="u-text-muted">{t('account.newHereSub')}</p>
               <Link href="/account/login" className="btn btn--secondary">
-                Sign in
+                {t('account.signIn')}
               </Link>
             </div>
           </div>
@@ -81,25 +82,25 @@ export function AccountPage({ attributes }: SectionProps): JSX.Element {
             {/* Side nav beside a content panel, per the design — the page was a
                 bare list with no way to reach addresses or details. Below 1024
                 it becomes a scrollable row of tabs. */}
-            <nav className="account__nav" aria-label="Account">
-              <h1 className="account__title">Account</h1>
+            <nav className="account__nav" aria-label={t('account.title')}>
+              <h1 className="account__title">{t('account.title')}</h1>
               <ul>
-                <li><a className="is-current" aria-current="page" href="/account">Orders</a></li>
-                <li><a href="/account/addresses">Addresses</a></li>
+                <li><a className="is-current" aria-current="page" href="/account">{t('account.orders')}</a></li>
+                <li><a href="/account/addresses">{t('account.addresses')}</a></li>
               </ul>
-              <a className="account__signout" href="/account/logout">Sign out</a>
+              <a className="account__signout" href="/account/logout">{t('account.signOut')}</a>
             </nav>
 
             <div className="account__content stack">
-            <h2 className="account__greeting">Hi {me.firstName ?? 'there'}</h2>
+            <h2 className="account__greeting">{t('account.hi')} {me.firstName ?? t('account.there')}</h2>
             {showOrderHistory && (
               <section className="account__orders stack stack--sm">
-                <h2>Orders</h2>
+                <h2>{t('account.orders')}</h2>
                 {orders.length === 0 ? (
                   <StateBlock
-                    title="No orders yet"
-                    body="Your orders will appear here once you place one."
-                    ctaLabel="Start shopping"
+                    title={t('account.noOrders')}
+                    body={t('account.noOrdersSub')}
+                    ctaLabel={t('account.startShopping')}
                     ctaHref="/collections/all"
                   />
                 ) : (
@@ -109,10 +110,10 @@ export function AccountPage({ attributes }: SectionProps): JSX.Element {
                     <table className="account__orders-table">
                       <thead>
                         <tr>
-                          <th scope="col">Order</th>
-                          <th scope="col">Date</th>
-                          <th scope="col">Status</th>
-                          <th scope="col">Total</th>
+                          <th scope="col">{t('account.order')}</th>
+                          <th scope="col">{t('account.date')}</th>
+                          <th scope="col">{t('account.status')}</th>
+                          <th scope="col">{t('account.total')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -143,7 +144,7 @@ export function AccountPage({ attributes }: SectionProps): JSX.Element {
                                   className="account__status"
                                   data-status={(o.fulfillmentStatus || 'unfulfilled').toLowerCase()}
                                 >
-                                  {o.cancelled ? 'Cancelled' : o.fulfillmentStatus || 'Unfulfilled'}
+                                  {o.cancelled ? t('account.cancelled') : o.fulfillmentStatus || t('account.unfulfilled')}
                                 </span>
                               </td>
                               <td data-label="Total">{formatMoney(o.totalPrice)}</td>
@@ -171,7 +172,9 @@ export function AccountPage({ attributes }: SectionProps): JSX.Element {
 export default defineSection({
   name: 'account',
   role: 'section',
+  requiresContext: ['customer'],
   title: 'Account',
+  description: 'Sign-in, orders and saved addresses for the customer.',
   category: 'commerce',
   icon: 'user',
   attributes: withShared({

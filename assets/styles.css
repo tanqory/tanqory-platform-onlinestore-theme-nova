@@ -2963,7 +2963,7 @@ body.tq-preview [data-tq-section-id].tq-preview-selected::before {
 .gallery__thumb-play {
   position: absolute; inset: 0;
   display: grid; place-items: center;
-  background: rgba(0, 0, 0, 0.3); color: #fff; font-size: 14px;
+  background: var(--color-overlay-scrim); color: var(--color-fg-inverse); font-size: var(--type-body-sm);
 }
 .gallery__swipe, .gallery__dots { display: none; }
 
@@ -3695,8 +3695,8 @@ body.tq-preview [data-tq-section-id].tq-preview-selected::before {
 .cart-line__thumb:not(:has(img)) {
   background-image: repeating-linear-gradient(
     135deg,
-    #efeeeb 0 8px,
-    #e8e6e2 8px 16px
+    var(--color-bg-muted) 0 8px,
+    var(--color-bg-muted-hover) 8px 16px
   );
   background-color: var(--color-bg-muted);
 }
@@ -4092,3 +4092,10 @@ body.tq-preview [data-tq-section-id].tq-preview-selected::before {
   max-width: 120px;
   border-radius: var(--radius-sm);
 }
+
+/* A `richtext` setting rendered as HTML. The wrapper keeps the section's own
+   class (colour, size, clamp); the paragraphs inside come from the merchant's
+   value, so they get spacing here and nowhere else. */
+.rich-text-body > p { margin: 0; }
+.rich-text-body > p + p { margin-top: var(--space-3); }
+.rich-text-body a { text-decoration: underline; text-underline-offset: 0.15em; }

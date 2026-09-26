@@ -1,3 +1,4 @@
+import { useT } from '../lib/tanqory/index'
 /**
  * QuantityStepper — the one quantity control.
  *
@@ -31,6 +32,7 @@ export function QuantityStepper({
   size = 'md',
   disabled = false,
 }: QuantityStepperProps): JSX.Element {
+  const t = useT()
   const atMin = value <= min
   const atMax = max !== undefined && value >= max
 
@@ -39,7 +41,7 @@ export function QuantityStepper({
       <button
         type="button"
         className="qty__btn"
-        aria-label="Decrease quantity"
+        aria-label={t('product.decrease')}
         disabled={disabled || atMin}
         onClick={() => onChange(Math.max(min, value - 1))}
       >
@@ -53,7 +55,7 @@ export function QuantityStepper({
       <button
         type="button"
         className="qty__btn"
-        aria-label="Increase quantity"
+        aria-label={t('product.increase')}
         disabled={disabled || atMax}
         onClick={() => onChange(max === undefined ? value + 1 : Math.min(max, value + 1))}
       >

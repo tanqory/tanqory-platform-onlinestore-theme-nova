@@ -11,6 +11,7 @@
  * So the composition lives here and both render it. The slideshow adds a track
  * and controls on top; it composes nothing of its own.
  */
+import { richTextHtml } from '../lib/safe-html'
 import { Button } from './Button'
 
 /** Everything a slide/hero says. */
@@ -86,7 +87,7 @@ export function HeroComposition({
       <div className="hero__content">
         {eyebrow && <span className="hero__eyebrow">{eyebrow}</span>}
         {heading && <Heading className="hero__heading">{heading}</Heading>}
-        {subtext && <p className="hero__subtext">{subtext}</p>}
+        {subtext && <div className="hero__subtext rich-text-body" dangerouslySetInnerHTML={{ __html: richTextHtml(subtext) }} />}
         {(buttonLabel || secondaryLabel) && (
           <div className="hero__actions">
             {buttonLabel && (

@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { useProductContext } from '../components/product-context'
 
 // A few common colour names → hex so a "Color" option renders as real swatches.
@@ -50,6 +50,7 @@ export default defineSection({
   role: 'block',
   requiresContext: ['product'],
   title: 'Swatches',
+  description: 'Colour swatches for the current product.',
   category: 'block',
   icon: '●',
   attributes: {},

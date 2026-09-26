@@ -1,5 +1,5 @@
 import { createContext, useContext, type ReactNode } from 'react'
-import type { Product, ProductOption, ProductVariant, Money, ImageRef } from '@tanqory/theme-kit'
+import type { Product, ProductOption, ProductVariant, Money, ImageRef } from '../lib/tanqory/index'
 import type { OptionValueState } from './VariantPicker'
 
 /**

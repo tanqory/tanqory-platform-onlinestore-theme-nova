@@ -11,10 +11,10 @@ import {
   type ContentNode,
   type PageDoc,
   type ResourceContextValue,
-} from '@tanqory/theme-kit'
+} from '../lib/tanqory/index'
 import { applyHead, computeHead } from '../lib/head'
 import { emitRoute } from '../lib/route-analytics'
-import { resolvePageTemplate } from '../lib/routes'
+import { resolvePageTemplate, routeHandle } from '../lib/routes'
 import { isEditorPreview } from '../lib/runtime'
 import { ToastHost } from '../components/Overlays'
 import { useMenu } from '../components/use-menu'
@@ -22,7 +22,7 @@ import { CartDrawer } from '../overlays/CartDrawer'
 import { SearchModal } from '../overlays/SearchModal'
 import { AccountMenu } from '../overlays/AccountMenu'
 import { MobileNavDrawer } from '../overlays/MobileNavDrawer'
-import { openOverlay, closeOverlay } from '../components/useOverlayChannel'
+import { openOverlay, closeOverlay, useOverlay } from '../components/useOverlayChannel'
 import { CookieConsent } from '../components/CookieConsent'
 import { TrackingPixels } from '../components/TrackingPixels'
 import { Select } from '../components/Select'
@@ -30,6 +30,7 @@ import { ThemeSettingsProvider, useThemeSettings } from '../components/ThemeSett
 import { resolveLogo, type BrandFallback } from '../lib/theme-settings'
 import { localizedCopy } from '../lib/theme-locale'
 import { fallbackNav } from '../lib/fallback-nav'
+import { safeHref } from '../lib/safe-href'
 
 /**
  * Templates are bundled into the layout so the SPA router can swap them in
@@ -659,6 +660,8 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
     ? (attributes?.sticky as string)
     : 'always'
   const headerState = useHeaderScroll(sticky)
+  const accountOpen = useOverlay('account')
+  const t = useT()
   // Three header controls that were declared in the editor and read nowhere.
   const searchStyle = (attributes?.searchStyle as string) === 'inline-field' ? 'inline-field' : 'icon'
   const cartAction = (attributes?.cartAction as string) === 'page' ? 'page' : 'drawer'
@@ -687,7 +690,7 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
             <button
               type="button"
               className="site-header__hamburger"
-              aria-label="Open menu"
+              aria-label={t('nav.openMenu')}
               onClick={() => openOverlay('mobile-nav')}
             >
               <Icon name="menu" />
@@ -704,9 +707,9 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
               shopName
             )}
           </a>
-          <nav className="site-nav" aria-label="Primary">
+          <nav className="site-nav" aria-label={t('nav.primary')}>
             {navItems.map((item) => (
-              <a key={`${item.url}-${item.title}`} href={item.url}>
+              <a key={`${item.url}-${item.title}`} href={safeHref(item.url) ?? '#'}>
                 {item.title}
               </a>
             ))}
@@ -727,8 +730,8 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
                 <input
                   type="search"
                   name="q"
-                  placeholder="Search"
-                  aria-label="Search the store"
+                  placeholder={t('search.button')}
+                  aria-label={t('search.theStore')}
                   className="site-header__search-input"
                 />
               </form>
@@ -736,13 +739,13 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
               <button
                 type="button"
                 className="site-header__icon"
-                aria-label="Search"
+                aria-label={t('search.button')}
                 onClick={() => openOverlay('search')}
               >
                 <Icon name="search" />
               </button>
             ) : (
-              <a href="/search" className="site-header__icon" aria-label="Search">
+              <a href="/search" className="site-header__icon" aria-label={t('search.button')}>
                 <Icon name="search" />
               </a>
             )}
@@ -751,16 +754,11 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
                 <button
                   type="button"
                   className="site-header__icon"
-                  aria-label="Account"
+                  aria-label={t('account.myAccount')}
                   aria-haspopup="dialog"
+                  aria-expanded={accountOpen}
                   data-overlay-trigger="account"
-                  onClick={() => {
-                    const isOpen = document
-                      .querySelector('.account-menu')
-                      ?.classList.contains('account-menu--open')
-                    if (isOpen) closeOverlay()
-                    else openOverlay('account')
-                  }}
+                  onClick={() => (accountOpen ? closeOverlay() : openOverlay('account'))}
                 >
                   <Icon name="user" />
                 </button>
@@ -776,7 +774,7 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
                 />
               </div>
             ) : (
-              <a href="/account" className="site-header__icon" aria-label="Account">
+              <a href="/account" className="site-header__icon" aria-label={t('account.myAccount')}>
                 <Icon name="user" />
               </a>
             )}
@@ -784,7 +782,7 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
               <button
                 type="button"
                 className="site-header__icon site-header__cart"
-                aria-label={`Cart${totalQuantity > 0 ? ` (${totalQuantity})` : ''}`}
+                aria-label={`${t('cart')}${totalQuantity > 0 ? ` (${totalQuantity})` : ''}`}
                 onClick={() => openOverlay('cart')}
               >
                 <Icon name="bag" />
@@ -794,7 +792,7 @@ export function SiteHeader({ attributes }: { attributes?: Record<string, unknown
               <a
                 href="/cart"
                 className="site-header__icon site-header__cart"
-                aria-label={`Cart${totalQuantity > 0 ? ` (${totalQuantity})` : ''}`}
+                aria-label={`${t('cart')}${totalQuantity > 0 ? ` (${totalQuantity})` : ''}`}
               >
                 <Icon name="bag" />
                 {totalQuantity > 0 && <span className="site-header__cart-count">{totalQuantity}</span>}
@@ -846,12 +844,12 @@ export function SiteFooter({
                   )}
                 </div>
                 {footerColumns.map((col, i) => (
-                  <div className="site-footer__col" key={i}>
+                  <div className="site-footer__col" key={`${col.title}|${i}`}>
                     {col.title && <h3 className="site-footer__col-title">{col.title}</h3>}
                     <ul>
                       {col.links.map((item) => (
                         <li key={`${item.url}-${item.title}`}>
-                          <a href={item.url}>{item.title}</a>
+                          <a href={safeHref(item.url) ?? '#'}>{item.title}</a>
                         </li>
                       ))}
                     </ul>
@@ -867,11 +865,11 @@ export function SiteFooter({
           <div className="site-footer__bottom">
             <small>© {year} {shopName}. {t('footer.rights', 'All rights reserved.')}</small>
             {(legalMenu?.items ?? []).length > 0 && (
-              <nav className="site-footer__legal-links" aria-label="Legal">
+              <nav className="site-footer__legal-links" aria-label={t('footer.legal')}>
                 {(legalMenu?.items ?? [])
                   .filter((it) => Boolean(it.url))
                   .map((it) => (
-                    <a key={`${it.url}-${it.title}`} href={it.url as string}>
+                    <a key={`${it.url}-${it.title}`} href={safeHref(it.url) ?? '#'}>
                       {it.title}
                     </a>
                   ))}
@@ -997,24 +995,33 @@ function LayoutBody({ children }: { children: ReactNode }): JSX.Element {
     let cancelled = false
     void (async () => {
       const next: ResourceContextValue = {}
-      if (boundIds.shop.length && data.fetchShopMetafields && data.shop) {
-        const mf = await data.fetchShopMetafields(boundIds.shop)
-        next.shop = { ...data.shop, metafields: mf }
-      }
-      const productHandle = currentPath.match(/\/products\/([^/?#]+)/)?.[1]
-      if (productHandle) {
-        next.product = data.fetchProduct
-          ? await data.fetchProduct(productHandle, { metafields: boundIds.product })
-          : data.productByHandle?.(productHandle) ?? null
-      }
-      const collectionHandle = currentPath.match(/\/collections\/([^/?#]+)/)?.[1]
-      if (collectionHandle) {
-        const base = data.collectionByHandle?.(collectionHandle) ?? null
-        const cmf =
-          boundIds.collection.length && data.fetchCollectionMetafields
-            ? await data.fetchCollectionMetafields(collectionHandle, boundIds.collection)
-            : {}
-        next.collection = base ? { ...base, metafields: cmf } : null
+      try {
+        if (boundIds.shop.length && data.fetchShopMetafields && data.shop) {
+          const mf = await data.fetchShopMetafields(boundIds.shop)
+          next.shop = { ...data.shop, metafields: mf }
+        }
+        // The ONE route table decodes the handle — a Thai or CJK product handle
+        // read raw from the pathname matched nothing in the bootstrap.
+        const productHandle = routeHandle(currentPath, 'product')
+        if (productHandle) {
+          next.product = data.fetchProduct
+            ? await data.fetchProduct(productHandle, { metafields: boundIds.product })
+            : data.productByHandle?.(productHandle) ?? null
+        }
+        const collectionHandle = routeHandle(currentPath, 'collection')
+        if (collectionHandle) {
+          const base = data.collectionByHandle?.(collectionHandle) ?? null
+          const cmf =
+            boundIds.collection.length && data.fetchCollectionMetafields
+              ? await data.fetchCollectionMetafields(collectionHandle, boundIds.collection)
+              : {}
+          next.collection = base ? { ...base, metafields: cmf } : null
+        }
+      } catch (err) {
+        // A metafield fetch that fails must not become an unhandled rejection
+        // with the resource context silently left empty: keep what resolved.
+        // eslint-disable-next-line no-console
+        console.warn('[nova] dynamic-source resources failed:', err)
       }
       // Bail when nothing changed (the common case: an empty context on a page
       // with no bound sources), so this effect can never feed its own re-run.
@@ -1122,10 +1129,10 @@ function LocaleSwitch({
   if (compact) {
     return (
       <details className="locale-switch locale-switch--compact">
-        <summary className="site-header__icon" aria-label="Region and language">
+        <summary className="site-header__icon" aria-label={t('footer.regionAndLanguage')}>
           <Icon name="globe" />
         </summary>
-        <div className="locale-switch__panel" role="dialog" aria-label="Region and language">
+        <div className="locale-switch__panel" role="dialog" aria-label={t('footer.regionAndLanguage')}>
           {locales.length > 0 && (
             <div className="locale-switch__group">
               <span className="locale-switch__label">{label.language}</span>

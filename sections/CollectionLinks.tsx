@@ -1,4 +1,4 @@
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useData, type SectionProps } from '../lib/tanqory/index'
 import { SectionHead } from '../components/SectionHead'
 import { useMenu } from '../components/use-menu'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
@@ -75,10 +75,11 @@ export default defineSection({
   name: 'collection-links',
   role: 'section',
   title: 'Collection links',
+  description: 'Quick links to a few collections.',
   category: 'content',
   icon: '▦',
   attributes: withShared({
-    description: { type: 'textarea', group: 'Content', label: 'Description' },
+    description: { type: 'richtext', group: 'Content', label: 'Description' },
     heading: { type: 'text', default: 'Shop by collection', label: 'Heading' },
     columns: { type: 'range', default: 3, min: 2, max: 5, step: 1, label: 'Columns' },
     limit: { type: 'range', default: 6, min: 2, max: 12, step: 1, label: 'Collections to show' },

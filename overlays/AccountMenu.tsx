@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useT } from '@tanqory/theme-kit'
+import { useT } from '../lib/tanqory/index'
 import { closeOverlay, useOverlay } from '../components/useOverlayChannel'
 import { inertWhenClosed } from '../components/inert'
 import { Button } from '../components/Button'

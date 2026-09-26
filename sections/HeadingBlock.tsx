@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 
 /** Generic HEADING block — a title at a chosen level you place in any container. */
 export function HeadingBlock({ attributes }: SectionProps): JSX.Element {
@@ -18,6 +18,7 @@ export default defineSection({
   name: 'heading',
   role: 'block',
   title: 'Heading',
+  description: 'A heading line.',
   category: 'block',
   icon: 'H',
   attributes: {

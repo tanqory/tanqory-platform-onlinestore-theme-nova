@@ -1,5 +1,5 @@
 import { Children } from 'react'
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { SectionHead } from '../components/SectionHead'
 import { Icon } from '../components/Icon'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
@@ -60,7 +60,7 @@ export function Multicolumn({ attributes, children }: SectionProps): JSX.Element
           data-carousel-mobile={carouselOnMobile ? 'true' : undefined}
         >
           {hasBlocks ? children : list.map((item, i) => (
-            <div key={i} className="multicolumn__item">
+            <div key={`${item.heading ?? ''}|${item.body ?? ''}|${i}`} className="multicolumn__item">
               {item.icon && <div className="multicolumn__icon"><Icon name={item.icon} /></div>}
               {item.heading && <h3>{item.heading}</h3>}
               {item.body && <p className="u-text-muted">{item.body}</p>}
@@ -76,10 +76,11 @@ export default defineSection({
   name: 'multicolumn',
   role: 'section',
   title: 'Multicolumn',
+  description: 'Two to four columns of heading and text.',
   category: 'content',
   icon: '⫴',
   attributes: withShared({
-    description: { type: 'textarea', group: 'Content', label: 'Description' },
+    description: { type: 'richtext', group: 'Content', label: 'Description' },
     eyebrow: { type: 'text', label: 'Eyebrow' },
     heading: { type: 'text', default: 'Why shop with us', label: 'Heading' },
     subheading: { type: 'text', label: 'Subheading' },

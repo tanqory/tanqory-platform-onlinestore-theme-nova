@@ -228,7 +228,8 @@ describe('component inventory', () => {
     // Three existed: `.quantity`, `.cart__qty` and `.drawer__qty`, which
     // disagreed on radius, hit area and whether they stopped at the minimum.
     const src = sourceFiles()
-    const steppers = src.filter((f) => /aria-label="Decrease quantity"/.test(f.body))
+    // The label is a locale key now (product.decrease), not English in the markup.
+    const steppers = src.filter((f) => /product\.decrease/.test(f.body))
     expect(steppers.map((f) => f.name)).toEqual(['components/QuantityStepper.tsx'])
   })
 

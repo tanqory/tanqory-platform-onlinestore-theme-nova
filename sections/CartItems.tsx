@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { localizedCopy } from '../lib/theme-locale'
-import { defineSection, getAnalytics, useCart, useData, useT, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, getAnalytics, useCart, useData, useT, type SectionProps } from '../lib/tanqory/index'
 import { SectionHead } from '../components/SectionHead'
 import { ProductGrid } from '../components/ProductGrid'
 import { toCard } from '../components/ProductCard'
@@ -241,6 +241,7 @@ export default defineSection({
   role: 'section',
   requiresContext: ['cart'],
   title: 'Cart items',
+  description: 'Everything in the cart, with quantities and totals.',
   category: 'commerce',
   icon: '⊞',
   attributes: withShared({

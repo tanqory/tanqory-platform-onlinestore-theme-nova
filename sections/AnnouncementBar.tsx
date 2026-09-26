@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps, useT } from '../lib/tanqory/index'
 import { IconButton } from '../components/IconButton'
 
 /**
@@ -27,6 +27,7 @@ function parseMessages(attributes: Record<string, unknown>): { text: string; lin
 }
 
 export function AnnouncementBar({ attributes }: SectionProps): JSX.Element {
+  const t = useT()
   const messages = parseMessages(attributes)
   const background = (attributes.background as string) ?? 'primary'
   const rotation = attributes.rotation === true && messages.length > 1
@@ -67,7 +68,7 @@ export function AnnouncementBar({ attributes }: SectionProps): JSX.Element {
       <div className="container announcement-bar__inner">
         {showArrows && (
           <IconButton
-            label="Previous announcement"
+            label={t('announcement.previous')}
             className="announcement-bar__arrow"
             onClick={() => setIdx((i) => (i - 1 + messages.length) % messages.length)}
           >
@@ -87,7 +88,7 @@ export function AnnouncementBar({ attributes }: SectionProps): JSX.Element {
         </p>
         {showArrows && (
           <IconButton
-            label="Next announcement"
+            label={t('announcement.next')}
             className="announcement-bar__arrow"
             onClick={() => setIdx((i) => (i + 1) % messages.length)}
           >
@@ -96,7 +97,7 @@ export function AnnouncementBar({ attributes }: SectionProps): JSX.Element {
         )}
         {dismissible && (
           <IconButton
-            label="Dismiss announcement"
+            label={t('announcement.dismiss')}
             className="announcement-bar__dismiss"
             onClick={() => {
               setDismissed(true)
@@ -120,6 +121,7 @@ export default defineSection({
   role: 'layout',
   area: 'header',
   title: 'Announcement bar',
+  description: 'A one-line message across the top of every page.',
   category: 'layout',
   icon: '▔',
   attributes: {

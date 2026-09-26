@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useData, hasConsent, onConsentChange } from '@tanqory/theme-kit'
+import { useData, hasConsent, onConsentChange } from '../lib/tanqory/index'
 
 /**
  * Injects the store's CONNECTED tracking pixels (Settings → Customer events) on

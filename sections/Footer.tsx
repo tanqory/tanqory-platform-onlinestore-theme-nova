@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { SiteFooter } from '../layouts/layout'
 
 /**
@@ -17,6 +17,7 @@ export default defineSection({
   role: 'layout',
   area: 'footer',
   title: 'Footer',
+  description: 'Menus, brand details and legal links at the bottom of every page.',
   category: 'layout',
   icon: '▬',
   attributes: {

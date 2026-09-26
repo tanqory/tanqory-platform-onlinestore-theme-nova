@@ -1,4 +1,4 @@
-import { getAnalytics, useCart, useT } from '@tanqory/theme-kit'
+import { getAnalytics, useCart, useT } from '../lib/tanqory/index'
 import { useEffect } from 'react'
 import { Drawer } from '../components/Drawer'
 import { showToast } from '../components/Overlays'
@@ -51,7 +51,7 @@ export function CartDrawer(props: CartDrawerProps): JSX.Element {
         <button
           type="button"
           className="drawer__close"
-          aria-label="Close cart"
+          aria-label={t('cart.close')}
           onClick={() => closeOverlay()}
         >
           ✕

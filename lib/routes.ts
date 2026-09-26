@@ -17,7 +17,7 @@ export interface RouteMatch {
   /** Base template name — a file under `templates/<name>.json`. */
   template: string
   /** Resource kind, for the record types that carry a `templateSuffix`. */
-  resource?: 'product' | 'collection' | 'page' | 'blog' | 'article'
+  resource?: 'product' | 'collection' | 'page' | 'blog' | 'article' | 'policy'
   /** Decoded handle of the addressed resource. */
   handle?: string
   /** Blog handle, for article routes (`/blogs/<blog>/<article>`). */
@@ -53,7 +53,8 @@ export function matchRoute(pathname: string): RouteMatch {
     return { template: 'page', resource: 'page', handle: decodeHandle(m[1]) }
   // Shop policies (Settings) — a menu item of type "Policy" links to
   // /policies/<handle> (privacy-policy, refund-policy, …).
-  if (/^\/policies\/[^/]+$/.test(p)) return { template: 'policy' }
+  if ((m = p.match(/^\/policies\/([^/]+)$/)))
+    return { template: 'policy', resource: 'policy', handle: decodeHandle(m[1]) }
   // Customer account — /account and its sub-routes (login, orders, addresses).
   if (p === '/account' || /^\/account\/[^/]+/.test(p)) return { template: 'account' }
   if ((m = p.match(/^\/blogs\/([^/]+)\/([^/]+)$/)))

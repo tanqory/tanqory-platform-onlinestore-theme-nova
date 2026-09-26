@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { useData, useSettings } from '@tanqory/theme-kit'
+import { useData, useSettings } from '../lib/tanqory/index'
 import {
   fontStylesheetHref,
   resolveRootFlags,

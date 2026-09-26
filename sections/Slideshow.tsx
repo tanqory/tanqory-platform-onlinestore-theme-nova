@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps, useT } from '../lib/tanqory/index'
 import { Children, useEffect, useState } from 'react'
 import { HeroComposition } from '../components/HeroComposition'
 import { SlidePositionProvider } from '../components/slide-position'
@@ -45,6 +45,7 @@ const DEFAULT_SLIDES: Slide[] = [
 ]
 
 export function Slideshow({ attributes, children }: SectionProps): JSX.Element {
+  const t = useT()
   const parsed = parseSlides(attributes.slides)
   // BLOCK MODE: child `slide` blocks (editor-managed, reorderable) win over
   // the legacy slides array in settings; DEFAULT_SLIDES only backs a fully
@@ -109,7 +110,7 @@ export function Slideshow({ attributes, children }: SectionProps): JSX.Element {
                 </div>
               ))
             : slides.map((slide, i) => (
-            <div key={i} className="tq-slideshow__slide" data-active={i === idx ? 'true' : 'false'}>
+            <div key={`${slide.heading ?? ''}|${slide.image ?? ''}|${i}`} className="tq-slideshow__slide" data-active={i === idx ? 'true' : 'false'}>
               <HeroComposition
                 content={{
                   eyebrow: slide.eyebrow,
@@ -146,13 +147,13 @@ export function Slideshow({ attributes, children }: SectionProps): JSX.Element {
         {hasControls && (
           <div className="tq-slideshow__controls">
             {showDots && (
-              <div className="tq-slideshow__dots" role="tablist" aria-label="Slides">
+              <div className="tq-slideshow__dots" role="tablist" aria-label={t('slides.label')}>
                 {Array.from({ length: slideCount }).map((_, i) => (
                   <button
                     key={i}
                     type="button"
                     className="tq-slideshow__dot"
-                    aria-label={`Slide ${i + 1}`}
+                    aria-label={`${t('slides.slide')} ${i + 1}`}
                     aria-current={i === idx}
                     role="tab"
                     onClick={() => go(i)}
@@ -165,7 +166,7 @@ export function Slideshow({ attributes, children }: SectionProps): JSX.Element {
               <button
                 className="tq-slideshow__ctl"
                 type="button"
-                aria-label="Previous slide"
+                aria-label={t('slides.previous')}
                 onClick={() => go(idx - 1)}
               >
                 <Arrow direction="left" />
@@ -176,7 +177,7 @@ export function Slideshow({ attributes, children }: SectionProps): JSX.Element {
               <button
                 className="tq-slideshow__ctl"
                 type="button"
-                aria-label="Next slide"
+                aria-label={t('slides.next')}
                 onClick={() => go(idx + 1)}
               >
                 <Arrow direction="right" />
@@ -225,6 +226,7 @@ export default defineSection({
   name: 'slideshow',
   role: 'section',
   title: 'Slideshow',
+  description: 'Up to 5 rotating banners.',
   category: 'layout',
   icon: '▷',
   attributes: withShared({

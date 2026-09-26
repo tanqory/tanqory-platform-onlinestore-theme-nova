@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { Icon } from '../components/Icon'
 
 /** Generic ICON block — a named inline SVG (no emoji) for any container. */
@@ -14,6 +14,7 @@ export default defineSection({
   name: 'icon',
   role: 'block',
   title: 'Icon',
+  description: 'A single icon.',
   category: 'block',
   icon: '✶',
   attributes: {

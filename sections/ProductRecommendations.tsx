@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { decodeHandle } from '../lib/handle'
-import { defineSection, useData, type SectionProps, type Product } from '@tanqory/theme-kit'
+import { routeHandle } from '../lib/routes'
+import { defineSection, useData, type SectionProps, type Product } from '../lib/tanqory/index'
 import { SectionHead } from '../components/SectionHead'
 import { ProductGrid as CardGrid } from '../components/ProductGrid'
 import { toCard } from '../components/ProductCard'
@@ -13,10 +13,7 @@ import { withShared, sharedRootProps } from '../lib/shared-section-props'
  */
 export function ProductRecommendations({ attributes }: SectionProps): JSX.Element {
   const { productByHandle, collectionByHandle, productRecommendations } = useData()
-  const handle =
-    typeof window !== 'undefined'
-      ? decodeHandle(window.location.pathname.match(/\/products\/([^/]+)/)?.[1])
-      : undefined
+  const handle = typeof window !== 'undefined' ? routeHandle(window.location.pathname, 'product') : undefined
   const [recommended, setRecommended] = useState<Product[]>([])
   const intent = (attributes.intent as string) ?? 'related'
 
@@ -31,7 +28,14 @@ export function ProductRecommendations({ attributes }: SectionProps): JSX.Elemen
         productRecommendations.length > 1
           ? (productRecommendations as (id: string, o: { intent: string }) => Promise<Product[]>)(base.id, { intent })
           : productRecommendations(base.id)
-      call.then((r) => { if (!cancelled) setRecommended(r) }).catch(() => {})
+      call
+        .then((r) => { if (!cancelled) setRecommended(r) })
+        .catch((err: unknown) => {
+          // A silent catch made a broken recommendations endpoint look like a
+          // product with nothing related to it.
+          // eslint-disable-next-line no-console
+          console.warn(`[nova] productRecommendations(${base.id}) failed:`, err)
+        })
     }
     return () => { cancelled = true }
   }, [handle, productByHandle, productRecommendations, intent])
@@ -60,10 +64,11 @@ export default defineSection({
   name: 'product-recommendations',
   role: 'section',
   title: 'Product recommendations',
+  description: 'Products related to the one being viewed.',
   category: 'product',
   icon: '✧',
   attributes: withShared({
-    description: { type: 'textarea', group: 'Content', label: 'Description' },
+    description: { type: 'richtext', group: 'Content', label: 'Description' },
     heading: { type: 'text', default: 'You may also like', label: 'Heading' },
     limit: { type: 'range', default: 4, min: 2, max: 8, step: 1, label: 'Products to show' },
     layout: {

@@ -1,4 +1,4 @@
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useData, type SectionProps } from '../lib/tanqory/index'
 import { CollectionCard, toCollectionCard } from '../components/CollectionCard'
 import { isEditorPreview } from '../lib/runtime'
 
@@ -47,6 +47,7 @@ export default defineSection({
   name: 'collection-item',
   role: 'block',
   title: 'Collection',
+  description: 'One collection, as a linked tile.',
   category: 'block',
   icon: '▢',
   attributes: {

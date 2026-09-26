@@ -9,8 +9,8 @@
 //
 // An UNCONFIGURED build (offline dev, a theme with no store attached) renders
 // the bundled fixtures, which is the whole point of mock mode.
-import { renderStorefrontHTML } from '@tanqory/theme-kit/ssg'
-import { createMockData, createLiveData, type DataApi } from '@tanqory/theme-kit'
+import { renderStorefrontHTML } from './lib/tanqory/ssg'
+import { createMockData, createLiveData, type DataApi } from './lib/tanqory/index'
 import collections from './lib/collections.json'
 import settings from './config/settings.json'
 import { documentTitle, shopNameOf } from './lib/head'

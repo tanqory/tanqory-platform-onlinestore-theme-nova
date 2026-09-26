@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { useProductContext } from '../components/product-context'
 
 /** PDP BLOCK — the selected variant's SKU (only after the full product loads). */
@@ -14,6 +14,7 @@ export default defineSection({
   role: 'block',
   requiresContext: ['product'],
   title: 'Product SKU',
+  description: 'The SKU of the current product.',
   category: 'block',
   icon: '⌗',
   attributes: {},

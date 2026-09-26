@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { useMenu } from '../components/use-menu'
 
 /**
@@ -48,6 +48,7 @@ export default defineSection({
   name: 'footer-menu',
   role: 'block',
   title: 'Menu',
+  description: 'One column of links in the footer.',
   category: 'block',
   icon: 'chat',
   attributes: {

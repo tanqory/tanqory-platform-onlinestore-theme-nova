@@ -22,7 +22,16 @@
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { extractGroups, resolvePage } from '@tanqory/theme-kit/contract'
+import { spawnSync } from 'node:child_process'
+
+// The contract is the theme's own TypeScript (lib/tanqory/contract). A plain
+// `node scripts/migrate-groups.mjs` re-executes itself with type stripping on
+// so callers (tests, CI, a developer) need no flag.
+if (!process.execArgv.some((a) => a.includes('strip-types')) && !process.features?.typescript) {
+  const r = spawnSync(process.execPath, ['--experimental-strip-types', '--no-warnings', ...process.argv.slice(1)], { stdio: 'inherit' })
+  process.exit(r.status ?? 1)
+}
+const { extractGroups, resolvePage } = await import('../lib/tanqory/contract/index.ts')
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const TEMPLATES = join(ROOT, 'templates')

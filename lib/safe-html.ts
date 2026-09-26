@@ -53,3 +53,27 @@ export function sanitizeSettingHtml(html: unknown): string {
       return `<${name}>`
     })
 }
+
+const escapeText = (v: string): string =>
+  v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+/**
+ * A `richtext` setting as HTML, ready for `dangerouslySetInnerHTML`.
+ *
+ * Twenty-five of this theme's prose fields were `textarea` — plain text the
+ * sections printed inside a `<p>`. They are `richtext` now, and richtext is
+ * stored as HTML. Every value written before the change is still plain text,
+ * so a store that upgrades must not lose a line break or gain a literal
+ * `<p>`. The rule: a value with no tags is legacy plain text — paragraphs on
+ * blank lines, `<br>` on single ones — and a value with tags is sanitised
+ * HTML. One place, so no section has to know which era its data is from.
+ */
+export function richTextHtml(value: unknown): string {
+  if (typeof value !== 'string' || !value.trim()) return ''
+  if (/<[a-zA-Z]/.test(value)) return sanitizeSettingHtml(value)
+  return value
+    .trim()
+    .split(/\n{2,}/)
+    .map((para) => `<p>${escapeText(para).replace(/\n/g, '<br>')}</p>`)
+    .join('')
+}

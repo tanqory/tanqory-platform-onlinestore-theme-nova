@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { useProductContext } from '../components/product-context'
 import { QuantityStepper } from '../components/QuantityStepper'
 
@@ -14,6 +14,7 @@ export default defineSection({
   role: 'block',
   requiresContext: ['product'],
   title: 'Quantity',
+  description: 'A quantity stepper for the current product.',
   category: 'block',
   icon: '#',
   attributes: {},

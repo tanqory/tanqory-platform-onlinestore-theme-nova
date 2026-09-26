@@ -1,4 +1,4 @@
-import { defineTheme } from '@tanqory/theme-kit'
+import { defineTheme } from './lib/tanqory/index'
 
 /**
  * Single typed config for the theme. `data.mode: 'mock'` lets the theme run

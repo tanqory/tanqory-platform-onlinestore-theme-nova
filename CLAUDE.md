@@ -1,9 +1,11 @@
 # Nova — Tanqory React theme
 
 A standalone storefront theme. **React component = section/block, content = JSON
-tree.** The visual editor writes the JSON; you write the `.tsx`. The framework
-(`@tanqory/theme-kit`) owns routing data, cart, storefront API and the editor
-transport — the theme owns presentation, schema and composition.
+tree.** The visual editor writes the JSON; you write the `.tsx`. The theme owns
+ALL of its code, including the Tanqory glue in `lib/tanqory/` (routing data,
+cart, storefront API, editor transport, SSR entry) — there is no framework
+package to install. What Tanqory fixes is only the spec: `entry.ts` must export
+`render(request, ctx)` + `manifest` (`@tanqory/theme-spec`, checked by `pnpm check`).
 
 There is no template language here: no markup files with embedded schema
 blocks, no partials folder. A section's schema lives in code, next to its
@@ -39,14 +41,16 @@ merchant content, so treat it as starter data, not as code.
 ├── docs/             DESIGN-GAPS.md (deliberate deviations from the design)
 ├── groups/           header.json / footer.json — the SHARED chrome     [.json data]
 ├── layouts/          layout.tsx — the site shell: header, footer, SPA router
-├── lib/              framework-adjacent helpers: routes, head, theme settings
+├── lib/              helpers: routes, head, theme settings
+│   └── tanqory/      the theme's OWN Tanqory glue: defineSection, data, cart, mount, SSR, bridge, contract
 ├── locales/          en.json / th.json — system strings (NOT merchant content)
 ├── overlays/         cart drawer, search modal, account menu, mobile nav
 ├── scripts/          the manifest generator and the check-* gates
 ├── sections/         editor sections and blocks — React + schema  ← most work
 ├── templates/        per-page composition                          [.json data]
 ├── tests/            vitest regression suites
-└── vendor/           the pinned @tanqory/theme-kit tarball + checksum (see vendor/README.md)
+├── entry.ts          the v2 SSR entry: render(request, ctx) — what the platform's isolate calls
+└── vite.ssr.config.ts  builds entry.ts to dist/ssr/entry.mjs (pnpm build runs both configs)
 ```
 
 ### `sections/`
@@ -58,7 +62,7 @@ inside Slideshow, FaqItem inside FAQ). Both are declared the same way — the
 difference is whether anything lists it in `allowedBlocks`.
 
 ```tsx
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
 export function Hero({ attributes, children }: SectionProps): JSX.Element {
@@ -227,7 +231,7 @@ cart page. `category` is a picker label, not a placement rule.
 
 ## Data
 
-Sections read data through `useData()` from the kit. Everything optional is
+Sections read data through `useData()` from `lib/tanqory`. Everything optional is
 optional because an offline/editor payload may not have it — always guard.
 
 ```tsx
@@ -380,20 +384,20 @@ Three skills carry the ✅/❌ patterns. Load the one that matches the task
   whether a field collapsed to 34px; run `verify:live`.
 - **The dev server is on 4321**, and it may be pointed at a live backend rather
   than fixtures — check the console before assuming mock data.
-- **The kit is installed from `vendor/`, not the registry.** `package.json`
-  pins `file:vendor/tanqory-theme-kit-<version>.tgz` and the lockfile pins its
-  integrity, so replacing the tarball without `pnpm install --force` makes
-  `--frozen-lockfile` fail on a clean clone. `vendor/README.md` has the switch
-  to the registry. Never add a local `.d.ts` shim to paper over a kit type —
-  fix the kit and ship a new tarball.
+- **`lib/tanqory/` is a copy, not a link.** It started as `@tanqory/theme-kit`
+  0.2.0-rc.2 and is now this theme's code: fix it here. A kit fix does not arrive
+  by itself. Node scripts that import it (`scripts/migrate-groups.mjs`) run with
+  `--experimental-strip-types`, so every relative import inside `lib/tanqory/`
+  carries its `.ts` extension — an extensionless import compiles under Vite and
+  fails under Node.
 - **This repository is public.** Never name another commerce platform, its
   themes, its template language or its documentation — in code, comments, docs,
   tests, commit messages or pull requests. Describe what THIS theme does.
   `tests/theme-integrity.test.ts` fails on the known names; it cannot know
   every one, so the rule is yours to keep. Internal reviews, audits and
   anything that names an unpatched weakness do not belong here either.
-- **This repo is one of four.** The Studio editor, studio-api and the AI agent
-  live elsewhere and read this theme through `theme.manifest.json`, `groups/`,
-  `templates/` and the `defineSection` schemas. If a change here alters one of
+- **The platform reads this theme through its shapes.** The Studio editor,
+  studio-api and the AI agent read `theme.manifest.json`, `groups/`,
+  `templates/`, the `defineSection` schemas and the `entry.ts` contract. If a change here alters one of
   those shapes, it is a contract change: regenerate the manifest, run
   `pnpm verify`, and say so — do not assume the other side adapts.

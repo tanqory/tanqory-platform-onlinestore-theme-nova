@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { decodeHandle } from '../lib/handle'
-import { defineSection, useData, useT, type SectionProps } from '@tanqory/theme-kit'
+import { routeHandle } from '../lib/routes'
+import { defineSection, useData, useT, type SectionProps } from '../lib/tanqory/index'
 import { Container } from '../components/Container'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
 import { policyTitle } from '../lib/theme-locale'
@@ -33,10 +33,7 @@ interface Policy {
 export function PolicyPage({ attributes }: SectionProps): JSX.Element {
   const data = useData()
   const t = useT()
-  const handleFromUrl =
-    typeof window !== 'undefined'
-      ? decodeHandle(window.location.pathname.match(/\/policies\/([^/]+)/)?.[1])
-      : undefined
+  const handleFromUrl = typeof window !== 'undefined' ? routeHandle(window.location.pathname, 'policy') : undefined
   const handle = (attributes.policy as string | undefined) || handleFromUrl || ''
 
   // Title/handle are present instantly from the boot shop.policies (mock also
@@ -113,8 +110,8 @@ export function PolicyPage({ attributes }: SectionProps): JSX.Element {
               </p>
             )}
             {showToc && headings.length > 0 && (
-              <nav className="policy-page__toc" aria-label="On this page">
-                <p className="policy-page__toc-title">On this page</p>
+              <nav className="policy-page__toc" aria-label={t('policy.onThisPage')}>
+                <p className="policy-page__toc-title">{t('policy.onThisPage')}</p>
                 <ol>
                   {headings.map((h) => (
                     <li key={h.id} data-level={h.level}>
@@ -146,7 +143,9 @@ export function PolicyPage({ attributes }: SectionProps): JSX.Element {
 export default defineSection({
   name: 'policy-page',
   role: 'section',
+  requiresContext: ['policy'],
   title: 'Policy',
+  description: 'The full text of a store policy.',
   category: 'commerce',
   icon: 'doc',
   attributes: withShared({

@@ -8,7 +8,7 @@
  */
 import { act } from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import type { Product } from '@tanqory/theme-kit'
+import type { Product } from '../lib/tanqory/index'
 import { SearchModal } from '../overlays/SearchModal'
 import { openOverlay } from '../components/useOverlayChannel'
 import { product, renderSection, stubData } from './helpers/render'

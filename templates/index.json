@@ -504,10 +504,9 @@
       "id": "s-newsletter",
       "settings": {
         "heading": "Join the newsletter",
-        "body": "Be the first to hear about new arrivals and member-only sales — and get 10% off your first order.",
+        "body": "Be the first to hear about new arrivals and member-only sales.",
         "placeholder": "you@example.com",
         "buttonLabel": "Subscribe",
-        "note": "No spam. Unsubscribe anytime.",
         "layout": "centered",
         "background": "surface-secondary",
         "showConsent": false
@@ -618,11 +617,10 @@
               "id": "b-newsletter-38",
               "settings": {
                 "heading": "Join the newsletter",
-                "body": "Be the first to hear about new arrivals and member-only sales — and get 10% off your first order.",
+                "body": "Be the first to hear about new arrivals and member-only sales.",
                 "placeholder": "you@example.com",
                 "buttonLabel": "Subscribe",
-                "note": "No spam. Unsubscribe anytime.",
-                "layout": "centered",
+                        "layout": "centered",
                 "background": "surface-secondary",
                 "showConsent": false
               }

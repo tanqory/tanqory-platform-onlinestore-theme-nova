@@ -1,4 +1,5 @@
-import { defineSection, useBoundText, useData, type SectionProps } from '@tanqory/theme-kit'
+import { richTextHtml } from '../lib/safe-html'
+import { defineSection, useBoundText, useData, type SectionProps } from '../lib/tanqory/index'
 import { useThemeSettings } from '../components/ThemeSettings'
 
 /**
@@ -39,7 +40,7 @@ export function FooterBrand({ attributes }: SectionProps): JSX.Element {
   return (
     <div className="site-footer__brand">
       <h2>{name}</h2>
-      {tagline && <p className="site-footer__muted">{tagline}</p>}
+      {tagline && <div className="site-footer__muted rich-text-body" dangerouslySetInnerHTML={{ __html: richTextHtml(tagline) }} />}
       {(email || phone) && (
         <p className="site-footer__contact site-footer__muted">
           {email && (
@@ -63,12 +64,13 @@ export default defineSection({
   name: 'footer-brand',
   role: 'block',
   title: 'Brand information',
+  description: 'Logo, tagline and social links in the footer.',
   category: 'block',
   icon: '◈',
   attributes: {
     title: { type: 'text', label: 'Brand name (blank = store name)', dynamic: true },
     tagline: {
-      type: 'textarea',
+      type: 'richtext',
       label: 'Tagline (blank = theme tagline, then brand slogan)',
       dynamic: true,
     },

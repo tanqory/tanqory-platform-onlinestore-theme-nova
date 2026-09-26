@@ -21,7 +21,7 @@ import {
   type DataApi,
   type LiveDataOptions,
   type MountOptions,
-} from '@tanqory/theme-kit'
+} from './lib/tanqory/index'
 import { apiBase } from './lib/api-base'
 import { applyHead, computeHead, headFrom, shopNameOf } from './lib/head'
 import { emitRoute } from './lib/route-analytics'
@@ -37,7 +37,7 @@ import { studioOrigins } from './lib/live-settings'
 import { localeStrings, themeLocaleOf } from './lib/theme-locale'
 import './assets/styles.css'
 import mockCollections from './lib/collections.json'
-import settings from './config/settings.json'
+import bundledSettings from './config/settings.json'
 
 // All bundled UI-string maps, e.g. { './locales/en.json': {default:{…}}, './locales/th.json': … }.
 // The active locale is chosen at boot from ?locale= / localStorage / the theme's own.
@@ -57,6 +57,8 @@ const localeMaps: Record<string, Record<string, string>> = Object.fromEntries(
  * A theme built for a Thai shop draws its account menu, contact form and policy
  * headings in Thai (lib/theme-locale.ts).
  */
+const settings: Record<string, unknown> = { ...(bundledSettings as Record<string, unknown>), ...(typeof window !== 'undefined' ? window.__TQ_CONTENT__?.settings ?? {} : {}) }
+
 const DEFAULT_LOCALE = themeLocaleOf(
   (settings as { locale?: unknown }).locale,
   Object.keys(localeMaps),
@@ -71,8 +73,22 @@ const env = import.meta.env as ImportMetaEnv & {
 const page =
   typeof window !== 'undefined' ? resolveTemplate(window.location.pathname) : 'index'
 
+// The store's content revision, embedded by entry.ts (spec v1). When present it
+// replaces the theme's bundled starter templates/groups/settings, so the client
+// hydrates exactly what the server rendered — and the theme never needs a
+// rebuild for a content or settings change.
+declare global {
+  interface Window {
+    __TQ_CONTENT__?: { revision: string | null; templates: Record<string, unknown>; groups: Record<string, unknown>; settings: Record<string, unknown> }
+  }
+}
+const revisionContent = typeof window !== 'undefined' ? window.__TQ_CONTENT__ : undefined
+const asGlob = (map: Record<string, unknown> | undefined, dir: string) =>
+  map && Object.keys(map).length ? Object.fromEntries(Object.entries(map).map(([n, d]) => [`./${dir}/${n}.json`, { default: d }])) : null
+
 // Read the template glob once so both the mount and the variant check share it.
-const templateModules = import.meta.glob('./templates/*.json', { eager: true })
+const templateModules = asGlob(revisionContent?.templates, 'templates') ?? import.meta.glob('./templates/*.json', { eager: true })
+const groupModules = asGlob(revisionContent?.groups, 'groups') ?? import.meta.glob('./groups/*.json', { eager: true })
 
 /** True when `templates/<name>.json` exists in this theme. */
 function templateExists(name: string): boolean {
@@ -237,7 +253,7 @@ const baseMountOptions = (data: DataApi): MountOptions => ({
   // Shared header/footer. A template binds them with `groups: { header, footer }`;
   // the kit's `resolvePage` — the same function the editor and the AI tools
   // use — turns template + groups into the section list that renders.
-  groups: import.meta.glob('./groups/*.json', { eager: true }),
+  groups: groupModules,
   shell: import.meta.glob('./layouts/*.tsx', { eager: true }),
   data,
   settings,

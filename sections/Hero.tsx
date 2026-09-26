@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { HeroComposition } from '../components/HeroComposition'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
@@ -47,13 +47,14 @@ export default defineSection({
   name: 'hero',
   role: 'section',
   title: 'Hero',
+  description: 'Full-width image with heading, text and a button.',
   category: 'layout',
   icon: '✦',
   attributes: withShared({
     eyebrow: { type: 'text', label: 'Eyebrow' },
     heading: { type: 'text', default: 'Modern essentials', label: 'Heading' },
     subtext: {
-      type: 'textarea',
+      type: 'richtext',
       label: 'Subtext',
       default: 'Designed for everyday rituals — built to last beyond the season.',
     },

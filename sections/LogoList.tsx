@@ -1,5 +1,5 @@
 import { Children } from 'react'
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { SectionHead } from '../components/SectionHead'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
@@ -57,7 +57,7 @@ export function LogoList({ attributes, children }: SectionProps): JSX.Element {
                 <span>{logo.alt}</span>
               )
               return logo.href ? (
-                <a key={i} href={logo.href} className="logo-list__item">
+                <a key={`${logo.href}|${i}`} href={logo.href} className="logo-list__item">
                   {inner}
                 </a>
               ) : (
@@ -77,10 +77,11 @@ export default defineSection({
   name: 'logo-list',
   role: 'section',
   title: 'Logo list',
+  description: 'Press or stockist logos in a row.',
   category: 'social-proof',
   icon: '◍',
   attributes: withShared({
-    description: { type: 'textarea', group: 'Content', label: 'Description' },
+    description: { type: 'richtext', group: 'Content', label: 'Description' },
     heading: { type: 'text', default: 'As seen in', label: 'Heading' },
     grayscale: { type: 'boolean', default: true, label: 'Grayscale logos' },
     columns: {

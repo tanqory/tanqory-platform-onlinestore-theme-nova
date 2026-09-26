@@ -1,4 +1,4 @@
-import { defineSection, useBoundText, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useBoundText, type SectionProps } from '../lib/tanqory/index'
 import { SectionHead } from '../components/SectionHead'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
@@ -44,10 +44,11 @@ export default defineSection({
   name: 'feature-grid-blocks',
   role: 'section',
   title: 'Feature grid (blocks)',
+  description: 'A grid of features you compose from blocks.',
   category: 'content',
   icon: 'star',
   attributes: withShared({
-    description: { type: 'textarea', group: 'Content', label: 'Description' },
+    description: { type: 'richtext', group: 'Content', label: 'Description' },
     eyebrow: { type: 'text', label: 'Eyebrow', dynamic: true },
     heading: { type: 'text', default: 'Why shop with us', label: 'Heading', dynamic: true },
     columns: { type: 'range', default: 3, min: 2, max: 4, label: 'Columns' },

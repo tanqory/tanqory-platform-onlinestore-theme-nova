@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   defineSection, useData, useT,
   type Article, type Product, type SectionProps,
-} from '@tanqory/theme-kit'
+} from '../lib/tanqory/index'
 import { ProductGrid as CardGrid } from '../components/ProductGrid'
 import { CollectionCard, toCollectionCard } from '../components/CollectionCard'
 import { toCard } from '../components/ProductCard'
@@ -120,7 +120,7 @@ export function SearchResults({ attributes }: SectionProps): JSX.Element {
             action="/search"
             method="get"
             role="search"
-            aria-label="Search products"
+            aria-label={t('search.products')}
           >
             <input
               className="field__input"
@@ -140,10 +140,10 @@ export function SearchResults({ attributes }: SectionProps): JSX.Element {
           ) : (
             <>
               <div className="search__toolbar">
-                {showTabs && <Tabs tabs={tabs} active={tab} onChange={setTab} label="Result type" />}
+                {showTabs && <Tabs tabs={tabs} active={tab} onChange={setTab} label={t('search.resultType')} />}
                 {showSort && products.length > 0 && (
                   <Popover
-                    label="Sort results"
+                    label={t('search.sortResults')}
                     align="end"
                     trigger={({ props }) => (
                       <button type="button" className="btn btn--secondary btn--sm" {...props}>
@@ -238,6 +238,7 @@ export default defineSection({
   role: 'section',
   requiresContext: ['search'],
   title: 'Search results',
+  description: 'Products matching what the customer searched for.',
   category: 'commerce',
   icon: '⌕',
   attributes: withShared({

@@ -11,7 +11,7 @@
  *   error    — inline Critical message, quantity reverted
  */
 import type { ReactNode } from 'react'
-import type { Money } from '@tanqory/theme-kit'
+import type { Money } from '../lib/tanqory/index'
 import { ImageResponsive } from './ImageResponsive'
 import { Price } from './Price'
 import { QuantityStepper } from './QuantityStepper'

@@ -1,3 +1,4 @@
+import { useT } from '../lib/tanqory/index'
 /**
  * CollectionToolbar — result count, sort and filters.
  *
@@ -124,12 +125,13 @@ export function CollectionFilters({
   applied: AppliedFilters
   onAppliedChange: (a: AppliedFilters) => void
 }): JSX.Element | null {
+  const t = useT()
   if (facets.length === 0) return null
   const anyApplied = Object.values(applied).some((v) => v.length > 0)
   return (
-    <aside className="collection-filters" aria-label="Filters">
+    <aside className="collection-filters" aria-label={t('collection.filters')}>
       <div className="collection-filters__head">
-        <h2 className="collection-filters__title">Filter</h2>
+        <h2 className="collection-filters__title">{t('collection.filter')}</h2>
         {anyApplied && (
           <button type="button" className="btn btn--link btn--sm" onClick={() => onAppliedChange({})}>
             Clear all
@@ -211,6 +213,7 @@ export function CollectionToolbar({
    */
   sidebarVisible?: boolean
 }): JSX.Element {
+  const t = useT()
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const appliedList = useMemo(
@@ -248,7 +251,7 @@ export function CollectionToolbar({
           )}
           {showSort && (
             <Popover
-              label="Sort products"
+              label={t('collection.sortProducts')}
               align="end"
               trigger={({ props }) => (
                 <button type="button" className="btn btn--secondary btn--sm" {...props}>
@@ -287,8 +290,8 @@ export function CollectionToolbar({
 
       <Drawer open={drawerOpen} side="left" ariaLabel="Filters" onClose={() => setDrawerOpen(false)}>
         <div className="drawer__header">
-          <h2>Filter</h2>
-          <button type="button" className="drawer__close" aria-label="Close" onClick={() => setDrawerOpen(false)}>
+          <h2>{t('collection.filter')}</h2>
+          <button type="button" className="drawer__close" aria-label={t('common.close')} onClick={() => setDrawerOpen(false)}>
             ×
           </button>
         </div>

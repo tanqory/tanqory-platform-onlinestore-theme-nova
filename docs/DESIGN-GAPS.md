@@ -41,7 +41,7 @@ the nearest honest behaviour.
 
 ## Data-layer gaps
 
-These block a prop outright. The fix is in `@tanqory/theme-kit` / the storefront
+These block a prop outright. The fix is in `lib/tanqory` / the storefront
 API, not here.
 
 | # | Design asks for | Why not | Ships instead |
@@ -53,6 +53,8 @@ API, not here.
 | ~~**F22**~~ | `search-results` over articles and pages | ~~There is no content search endpoint.~~ | **Resolved 2026-09-19.** The storefront does have `search(query, {types})` covering products, pages and articles. The section used to filter the bootstrap's `all` collection in the browser, which finds NOTHING on a live store because that collection is not in the boot payload. Now wired to the real endpoint; all three tabs report real counts. |
 | **F24** | Colour swatches on a product card | `ProductOption` is `{name, values: string[]}` — the contract carries no swatch colour or image. | Swatches are mapped from the product's real colour option values. A circle is tinted only when the value names a CSS colour the browser resolves; otherwise it stays neutral and keeps the value as its accessible name, so the information survives even when the hue cannot. |
 | **F25** | Collection sorting | The storefront ignores `sortKey` and `reverse` on a collection query — verified against the live store: default, `PRICE`, `TITLE` and `PRICE`+`reverse` all return identical order. | The request still sends the arguments, and the theme additionally orders the loaded products client-side so the Sort control actually reorders what the shopper sees. With load-more this orders the loaded set, not the whole catalogue; it becomes exact once the backend honours the arguments. |
+| **F26** | `newsletter` / `contact-form` submit somewhere | The platform serves no form endpoint: nothing answers a POST from the storefront (no route in the gateway, the router, the BFFs or store-api). The sections used to default `action` to a made-up path, which sent every shopper to a 404. | `action` has no default. Without one the section renders its copy and no form, and the editor canvas says why. The form returns the day a public endpoint exists. |
+| **F27** | `account` template | `/account*` is intercepted at the edge and served by the accounts service, so the theme's `account` template never renders on a published store. | The template and `account` section stay for the editor canvas and offline dev. Sign-in state on the storefront comes from the accounts service's session (`overlays/AccountMenu.tsx`). |
 | **F23** | `product-grid` facets from the API | `collectionProducts` accepts a `filters` argument but returns no facet list. | Facets are **derived client-side** from the loaded products (vendor, type, tags) in `components/CollectionToolbar.tsx`. The options shown are exactly those present in the loaded results — correct, but not the full catalogue's facets until every page is loaded. |
 
 ## Editor / field-type gaps

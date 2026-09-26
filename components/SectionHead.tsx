@@ -10,6 +10,7 @@
  * the header and below the grid as a secondary button — so alignment changes
  * where the link renders, not just how it aligns.
  */
+import { richTextHtml } from '../lib/safe-html'
 import { Link } from './Link'
 
 export interface SectionHeadProps {
@@ -45,7 +46,7 @@ export function SectionHead({
       <div className="section-head__text">
         {eyebrow && <span className="eyebrow">{eyebrow}</span>}
         {heading && <Heading className="section-head__heading">{heading}</Heading>}
-        {description && <p className="section-head__sub">{description}</p>}
+        {description && <div className="section-head__sub rich-text-body" dangerouslySetInnerHTML={{ __html: richTextHtml(description) }} />}
       </div>
       {showInlineLink && (
         <Link href={linkHref} className="btn btn--link section-head__link">

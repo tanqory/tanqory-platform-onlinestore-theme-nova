@@ -14,7 +14,7 @@ import {
   ThemeProvider,
   type DataApi,
   type Product,
-} from '@tanqory/theme-kit'
+} from '../../lib/tanqory/index'
 import type { ReactNode } from 'react'
 import en from '../../locales/en.json'
 

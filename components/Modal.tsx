@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react'
+import { useT } from '../lib/tanqory/index'
 import { closeOverlay } from './useOverlayChannel'
 import { inertWhenClosed } from './inert'
 
@@ -37,6 +38,7 @@ export function Modal({
   onClose?: () => void
   children: ReactNode
 }): JSX.Element {
+  const t = useT()
   const close = onClose ?? closeOverlay
   const panelRef = useRef<HTMLDivElement>(null)
   const previouslyFocused = useRef<HTMLElement | null>(null)
@@ -116,7 +118,7 @@ export function Modal({
         {title && (
           <header className="modal__header">
             <h2 className="modal__title">{title}</h2>
-            <button type="button" className="modal__close" aria-label="Close" onClick={close}>
+            <button type="button" className="modal__close" aria-label={t('common.close')} onClick={close}>
               ×
             </button>
           </header>

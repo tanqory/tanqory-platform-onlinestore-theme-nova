@@ -1,5 +1,5 @@
 import { Children, useState } from 'react'
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { SectionHead } from '../components/SectionHead'
 import { Accordion } from '../components/Disclosure'
 import { FaqCoordinationProvider } from '../components/faq-coordination'
@@ -110,10 +110,11 @@ export default defineSection({
   name: 'faq',
   role: 'section',
   title: 'FAQ',
+  description: 'Questions and answers that open on tap.',
   category: 'content',
   icon: '?',
   attributes: withShared({
-    description: { type: 'textarea', group: 'Content', label: 'Description' },
+    description: { type: 'richtext', group: 'Content', label: 'Description' },
     eyebrow: { type: 'text', label: 'Eyebrow' },
     heading: { type: 'text', default: 'Frequently asked questions', label: 'Heading' },
     singleOpen: { type: 'boolean', default: false, label: 'Only one answer open at a time' },

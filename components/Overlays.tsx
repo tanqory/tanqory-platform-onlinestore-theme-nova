@@ -1,3 +1,4 @@
+import { useT } from '../lib/tanqory/index'
 /**
  * Tooltip, Popover and Toast — the three transient overlays the theme had none
  * of. Grouped because they share the dismissal contract: Escape closes, focus
@@ -158,6 +159,7 @@ export function dismissToast(): void {
 
 /** Mount once, in the layout. `role=status` so it is announced, not focused. */
 export function ToastHost(): JSX.Element | null {
+  const t = useT()
   const [toast, setToast] = useState<Toast | null>(current)
   const [paused, setPaused] = useState(false)
 
@@ -214,7 +216,7 @@ export function ToastHost(): JSX.Element | null {
             {toast.action.label}
           </button>
         )}
-        <button type="button" className="toast__close" aria-label="Dismiss" onClick={dismissToast}>
+        <button type="button" className="toast__close" aria-label={t('common.dismiss')} onClick={dismissToast}>
           ×
         </button>
       </div>

@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { useProductContext } from '../components/product-context'
 
 /** PDP BLOCK — the product title, from the shared product context. */
@@ -13,6 +13,7 @@ export default defineSection({
   role: 'block',
   requiresContext: ['product'],
   title: 'Product title',
+  description: 'The name of the current product.',
   category: 'block',
   icon: 'T',
   attributes: {},

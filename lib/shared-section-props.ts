@@ -13,7 +13,7 @@
  * wins over the shared one.
  */
 
-import type { AttrSpec } from '@tanqory/theme-kit'
+import type { AttrSpec } from './tanqory/index'
 
 const SPACING = [
   { value: 'none', label: 'None' },

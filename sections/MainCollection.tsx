@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { defineSection, useData, useT, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useData, useT, type SectionProps } from '../lib/tanqory/index'
 import { routeHandle } from '../lib/routes'
 import { isEditorPreview } from '../lib/runtime'
 import { Button } from '../components/Button'
@@ -112,6 +112,7 @@ export default defineSection({
   role: 'section',
   requiresContext: ['collection'],
   title: 'Collection products',
+  description: 'The products of the current collection, with filters and sorting.',
   category: 'commerce',
   icon: '▤',
   attributes: {

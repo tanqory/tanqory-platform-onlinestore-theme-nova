@@ -1,4 +1,4 @@
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useData, type SectionProps } from '../lib/tanqory/index'
 import { SectionHead } from '../components/SectionHead'
 import { CollectionBody } from '../components/CollectionBody'
 import { toCard } from '../components/ProductCard'
@@ -52,10 +52,11 @@ export default defineSection({
   name: 'product-grid',
   role: 'section',
   title: 'Product grid',
+  description: 'A grid of products you choose.',
   category: 'commerce',
   icon: '▦',
   attributes: withShared({
-    description: { type: 'textarea', group: 'Content', label: 'Description' },
+    description: { type: 'richtext', group: 'Content', label: 'Description' },
     heading: { type: 'text', default: 'Shop the collection', label: 'Heading' },
     subheading: { type: 'text', label: 'Subheading' },
     collection: { type: 'collection', default: 'all', label: 'Collection' },

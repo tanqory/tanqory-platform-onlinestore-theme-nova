@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useData, setConsent, setBannerRequired, hasDecided } from '@tanqory/theme-kit'
+import { useData, setConsent, setBannerRequired, hasDecided, useT } from '../lib/tanqory/index'
 import { Link } from './Link'
 
 interface BannerConfig {
@@ -21,6 +21,7 @@ interface BannerConfig {
  * layout Shell, so it wraps every page.
  */
 export function CookieConsent(): JSX.Element | null {
+  const t = useT()
   const { shop } = useData()
   const cfg = ((shop as { cookieBanner?: BannerConfig })?.cookieBanner ?? {}) as BannerConfig
   const enabled = Boolean(cfg.enabled)
@@ -49,7 +50,7 @@ export function CookieConsent(): JSX.Element | null {
     <div
       className={`cookie-consent ${position} ${theme}`}
       role="dialog"
-      aria-label="Cookie consent"
+      aria-label={t('cookie.consent')}
     >
       <div className="cookie-consent__inner">
         <div className="cookie-consent__copy">

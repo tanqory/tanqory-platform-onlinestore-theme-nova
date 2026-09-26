@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { Money } from '../components/Money'
 import { useProductContext } from '../components/product-context'
 
@@ -18,6 +18,7 @@ export default defineSection({
   role: 'block',
   requiresContext: ['product'],
   title: 'Product price',
+  description: 'The price of the current product.',
   category: 'block',
   icon: '$',
   attributes: {},

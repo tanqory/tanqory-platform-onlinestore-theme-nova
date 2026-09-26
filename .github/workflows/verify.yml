@@ -1,0 +1,54 @@
+# The theme's own CI. It is INERT inside the platform monorepo (GitHub only
+# runs workflows at the repository root) and active in the public mirror, which
+# is a `git subtree split` of this directory — so it has to live here, or the
+# mirror arrives with no CI at all.
+#
+# The gates it runs are the theme's: typecheck, manifest, spec, inert settings,
+# design coverage, page headings, tests and a build.
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # --frozen-lockfile is the point: a clean clone installs exactly the
+      # lockfile the mirror generated, with no vendored tarball and no
+      # workspace to resolve.
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm verify
+
+  # The live gates drive a real browser against the dev server, so they cannot
+  # share the job above. They are advisory until the storefront they audit is
+  # reachable from CI.
+  verify-live:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright-core install --with-deps chromium
+      - name: start dev server
+        run: |
+          pnpm dev &
+          npx wait-on http://localhost:4321 --timeout 120000
+      - run: pnpm verify:live

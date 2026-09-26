@@ -1,3 +1,4 @@
+import { useT } from '../lib/tanqory/index'
 /**
  * ProductGallery — main media plus thumbnails.
  *
@@ -39,6 +40,7 @@ export function ProductGallery({
   onActiveIndexChange?: (i: number) => void
   badge?: React.ReactNode
 }): JSX.Element | null {
+  const t = useT()
   const [internal, setInternal] = useState(0)
   const [zoomed, setZoomed] = useState(false)
   const strip = useRef<HTMLDivElement>(null)
@@ -97,7 +99,7 @@ export function ProductGallery({
         )}
         {enableZoom && current.type !== 'video' && (
           <IconButton
-            label="Zoom image"
+            label={t('product.zoom')}
             variant="bordered"
             className="gallery__zoom"
             onClick={() => setZoomed(true)}
@@ -117,7 +119,7 @@ export function ProductGallery({
         ref={strip}
         aria-hidden={media.length < 2}
         {...(media.length > 1
-          ? { tabIndex: 0, role: 'group' as const, 'aria-label': 'Product photos, scrollable' }
+          ? { tabIndex: 0, role: 'group' as const, 'aria-label': t('product.photosScrollable') }
           : {})}
       >
         {media.map((m, i) => (
@@ -126,14 +128,14 @@ export function ProductGallery({
       </div>
 
       {!single && (
-        <div className="gallery__thumbs" role="listbox" aria-label="Product media">
+        <div className="gallery__thumbs" role="listbox" aria-label={t('product.media')}>
           {media.map((m, i) => (
             <button
               key={`${m.url}-${i}`}
               type="button"
               role="option"
               aria-selected={i === index}
-              aria-label={`Show image ${i + 1} of ${media.length}`}
+              aria-label={`${t('product.showImage')} ${i + 1} ${t('product.of')} ${media.length}`}
               className={`gallery__thumb${i === index ? ' is-active' : ''}`}
               onClick={() => select(i)}
               onKeyDown={(e) => {

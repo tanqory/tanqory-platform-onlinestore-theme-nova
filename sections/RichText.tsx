@@ -1,4 +1,5 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { richTextHtml } from '../lib/safe-html'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { Button } from '../components/Button'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
 
@@ -32,7 +33,7 @@ export function RichText({ attributes }: SectionProps): JSX.Element {
         >
           {eyebrow && <span className="eyebrow">{eyebrow}</span>}
           {heading && <Heading className={`rich-text__heading rich-text__heading--${headingSize}`}>{heading}</Heading>}
-          {body && <p>{body}</p>}
+          {body && <div className="rich-text-body" dangerouslySetInnerHTML={{ __html: richTextHtml(body) }} />}
           {buttonLabel && <Button label={buttonLabel} link={buttonLink} variant={buttonVariant} />}
         </div>
       </div>
@@ -44,13 +45,14 @@ export default defineSection({
   name: 'rich-text',
   role: 'section',
   title: 'Rich text',
+  description: 'Heading, paragraph and a button, centred.',
   category: 'content',
   icon: '¶',
   attributes: withShared({
     eyebrow: { type: 'text', label: 'Eyebrow' },
     heading: { type: 'text', default: 'About our store', label: 'Heading' },
     body: {
-      type: 'textarea',
+      type: 'richtext',
       default:
         'Tell your story here. A short paragraph about who you are, what you make, and why it matters — three or four sentences is plenty.',
       label: 'Body',

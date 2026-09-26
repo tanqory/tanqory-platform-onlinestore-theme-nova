@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { decodeHandle } from '../lib/handle'
-import { defineSection, useData, type SectionProps } from '@tanqory/theme-kit'
+import { routeHandle } from '../lib/routes'
+import { defineSection, useData, type SectionProps } from '../lib/tanqory/index'
 import { Container } from '../components/Container'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
-import { sanitizeSettingHtml } from '../lib/safe-html'
+import { richTextHtml } from '../lib/safe-html'
 
 /**
  * Renders the merchant's published Page content for the current `/pages/<handle>`
@@ -27,10 +27,7 @@ export function PageBody({ attributes }: SectionProps): JSX.Element {
   // to build its own fetch, its own headers and its own error handling.
   const { graphql, pageByHandle } = useData()
 
-  const handle =
-    typeof window !== 'undefined'
-      ? decodeHandle(window.location.pathname.match(/^\/pages\/([^/]+)\/?$/)?.[1])
-      : undefined
+  const handle = typeof window !== 'undefined' ? routeHandle(window.location.pathname, 'page') : undefined
 
   const [page, setPage] = useState<{ title: string; body: string } | null>(null)
   const [loaded, setLoaded] = useState(false)
@@ -72,7 +69,7 @@ export function PageBody({ attributes }: SectionProps): JSX.Element {
   const title = page?.title ?? (loaded ? fallbackTitle ?? '' : '')
   // The published page body is the merchant's admin-formatted content; the
   // fallback is a section setting, so only its formatting tags may render.
-  const body = page?.body ?? (loaded ? sanitizeSettingHtml(fallbackBody) : '')
+  const body = page?.body ?? (loaded ? richTextHtml(fallbackBody) : '')
 
   const showTitle = attributes.showTitle !== false
   const textWidth = (attributes.textWidth as string) ?? 'content'
@@ -97,6 +94,7 @@ export default defineSection({
   role: 'section',
   requiresContext: ['page'],
   title: 'Page content',
+  description: 'The content of the current page.',
   category: 'content',
   icon: '¶',
   attributes: withShared({
@@ -106,7 +104,7 @@ export default defineSection({
       default: 'Page',
     },
     fallbackBody: {
-      type: 'textarea',
+      type: 'richtext',
       label: 'Fallback body (HTML)',
       default: '',
     },

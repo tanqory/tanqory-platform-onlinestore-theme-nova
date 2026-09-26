@@ -1,4 +1,5 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { richTextHtml } from '../lib/safe-html'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { Icon } from '../components/Icon'
 
 /**
@@ -19,7 +20,7 @@ export function ColumnItem({ attributes }: SectionProps): JSX.Element {
         </div>
       )}
       {heading && <h3>{heading}</h3>}
-      {body && <p className="u-text-muted">{body}</p>}
+      {body && <div className="u-text-muted rich-text-body" dangerouslySetInnerHTML={{ __html: richTextHtml(body) }} />}
     </div>
   )
 }
@@ -28,6 +29,7 @@ export default defineSection({
   name: 'column',
   role: 'block',
   title: 'Column',
+  description: 'One column of heading, text and an optional link.',
   category: 'block',
   icon: '▥',
   attributes: {
@@ -47,7 +49,7 @@ export default defineSection({
       ],
     },
     heading: { type: 'text', default: 'Feature', label: 'Heading' },
-    body: { type: 'textarea', label: 'Body' },
+    body: { type: 'richtext', label: 'Body' },
   },
   component: ColumnItem,
 })

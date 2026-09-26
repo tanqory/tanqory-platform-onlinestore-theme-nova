@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { SiteHeader } from '../layouts/layout'
 
 /**
@@ -16,6 +16,7 @@ export default defineSection({
   role: 'layout',
   area: 'header',
   title: 'Header',
+  description: 'Logo, navigation, search and cart at the top of every page.',
   category: 'layout',
   icon: '▭',
   attributes: {

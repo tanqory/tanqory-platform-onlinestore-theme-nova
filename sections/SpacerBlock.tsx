@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 
 /** Generic SPACER block — vertical whitespace inside a container. */
 export function SpacerBlock({ attributes }: SectionProps): JSX.Element {
@@ -9,6 +9,7 @@ export default defineSection({
   name: 'spacer',
   role: 'block',
   title: 'Spacer',
+  description: 'Empty vertical space.',
   category: 'block',
   icon: '↕',
   attributes: {

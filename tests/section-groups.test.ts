@@ -26,7 +26,7 @@ import {
   templateContext,
   type GroupedPageDoc,
   type SectionGroupDoc,
-} from '@tanqory/theme-kit/contract'
+} from '../lib/tanqory/contract/index'
 import manifest from '../theme.manifest.json'
 
 const ROOT = join(__dirname, '..')
@@ -175,7 +175,9 @@ describe('the runtime resolves through the contract', () => {
     const main = readFileSync(join(ROOT, 'main.tsx'), 'utf8')
     const ssg = readFileSync(join(ROOT, 'entry-server.tsx'), 'utf8')
     expect(layout).toMatch(/resolvePageSections\(mod\.default, GROUPS\)/)
-    expect(main).toMatch(/groups: import\.meta\.glob\('\.\/groups\/\*\.json'/)
+    // main.tsx prefers the published revision's groups (window.__TQ_CONTENT__) and falls back to the bundled glob
+    expect(main).toMatch(/const groupModules = asGlob\(revisionContent\?\.groups, 'groups'\) \?\? import\.meta\.glob\('\.\/groups\/\*\.json'/)
+    expect(main).toMatch(/groups: groupModules,/)
     expect(ssg).toMatch(/groups: import\.meta\.glob\('\.\/groups\/\*\.json'/)
   })
 

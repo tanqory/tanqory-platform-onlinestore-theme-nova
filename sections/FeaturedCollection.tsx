@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { defineSection, useData, useT, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useData, useT, type SectionProps } from '../lib/tanqory/index'
 import { SectionHead } from '../components/SectionHead'
 import { ProductGrid, ProductGridEmpty, toCard, type ProductCardData } from '../components/ProductGrid'
 import { withShared, sharedRootProps } from '../lib/shared-section-props'
@@ -115,10 +115,11 @@ export default defineSection({
   name: 'featured-collection',
   role: 'section',
   title: 'Featured collection',
+  description: 'A grid of products from one collection.',
   category: 'commerce',
   icon: '▦',
   attributes: withShared({
-    description: { type: 'textarea', group: 'Content', label: 'Description' },
+    description: { type: 'richtext', group: 'Content', label: 'Description' },
     eyebrow: { type: 'text', label: 'Eyebrow' },
     heading: { type: 'text', default: 'Featured', label: 'Heading' },
     subheading: { type: 'text', label: 'Subheading' },

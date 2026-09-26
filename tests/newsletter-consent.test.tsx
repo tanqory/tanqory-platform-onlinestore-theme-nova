@@ -14,7 +14,7 @@ import { renderSection, stubData } from './helpers/render'
 describe('newsletter consent', () => {
   it('is inside the form, so the browser serializes it', async () => {
     const { container, unmount } = await renderSection(
-      <Newsletter attributes={{ showConsent: true }}/>,
+      <Newsletter attributes={{ showConsent: true, action: '/subscribe' }}/>,
       stubData({}),
     )
     const form = container.querySelector('form.newsletter__form')
@@ -28,16 +28,26 @@ describe('newsletter consent', () => {
 
   it('is never pre-ticked', async () => {
     const { container, unmount } = await renderSection(
-      <Newsletter attributes={{ showConsent: true }}/>,
+      <Newsletter attributes={{ showConsent: true, action: '/subscribe' }}/>,
       stubData({}),
     )
     expect((container.querySelector('input[name="marketingConsent"]') as HTMLInputElement).checked).toBe(false)
     unmount()
   })
 
+  it('renders no form at all without an action URL — there is no default endpoint', async () => {
+    const { container, unmount } = await renderSection(
+      <Newsletter attributes={{ showConsent: true }}/>,
+      stubData({}),
+    )
+    expect(container.querySelector('form.newsletter__form')).toBeNull()
+    expect(container.querySelector('h2')).not.toBeNull()
+    unmount()
+  })
+
   it('renders no consent field when the merchant has not enabled it', async () => {
     const { container, unmount } = await renderSection(
-      <Newsletter attributes={{}}/>,
+      <Newsletter attributes={{ action: '/subscribe' }}/>,
       stubData({}),
     )
     expect(container.querySelector('input[name="marketingConsent"]')).toBeNull()

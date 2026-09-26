@@ -9,7 +9,7 @@
  * than in two copies that drift.
  */
 import { useCallback, useRef, useEffect, useMemo, useState } from 'react'
-import { useData, useT } from '@tanqory/theme-kit'
+import { useData, useT } from '../lib/tanqory/index'
 import { ProductGrid as CardGrid, ProductGridEmpty } from './ProductGrid'
 import { ProductCardSkeleton, toCard, type ProductCardData } from './ProductCard'
 import { Button } from './Button'

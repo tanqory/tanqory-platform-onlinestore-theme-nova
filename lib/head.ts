@@ -12,7 +12,7 @@
  * "<resource title> — <shop>" → the shop name. Description: SEO description →
  * page bodySummary → shop description (home only).
  */
-import type { DataApi } from '@tanqory/theme-kit'
+import type { DataApi } from './tanqory/index'
 import { matchRoute } from './routes.ts'
 
 /** Build a HeadMeta from a resource's SEO (shared by blog/article, which resolve

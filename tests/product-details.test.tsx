@@ -5,7 +5,7 @@
  * thing a future change must not quietly reintroduce.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Product } from '@tanqory/theme-kit'
+import type { Product } from '../lib/tanqory/index'
 import { ProductDetails } from '../sections/ProductDetails'
 import { click, product, renderSection, setUrl, stubData } from './helpers/render'
 

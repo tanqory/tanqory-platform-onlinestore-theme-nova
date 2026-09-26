@@ -1,5 +1,5 @@
 import { Children, useEffect, useState } from 'react'
-import { defineSection, useData, useT, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, useData, useT, type SectionProps } from '../lib/tanqory/index'
 import { matchRoute } from '../lib/routes'
 import { SectionHead } from '../components/SectionHead'
 import { CollectionCard, toCollectionCard } from '../components/CollectionCard'
@@ -131,10 +131,11 @@ export default defineSection({
   name: 'collection-list',
   role: 'section',
   title: 'Collection list',
+  description: 'A grid of collections with their images.',
   category: 'commerce',
   icon: '☷',
   attributes: withShared({
-    description: { type: 'textarea', group: 'Content', label: 'Description' },
+    description: { type: 'richtext', group: 'Content', label: 'Description' },
     heading: { type: 'text', default: 'Shop by collection', label: 'Heading' },
     pageHeading: {
       type: 'boolean',

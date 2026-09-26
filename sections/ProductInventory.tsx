@@ -1,4 +1,4 @@
-import { defineSection, type SectionProps } from '@tanqory/theme-kit'
+import { defineSection, type SectionProps } from '../lib/tanqory/index'
 import { useProductContext } from '../components/product-context'
 
 /** PDP BLOCK — stock status badge, from the shared product context. */
@@ -15,6 +15,7 @@ export default defineSection({
   role: 'block',
   requiresContext: ['product'],
   title: 'Product inventory',
+  description: 'How many of the current product are in stock.',
   category: 'block',
   icon: '◔',
   attributes: {

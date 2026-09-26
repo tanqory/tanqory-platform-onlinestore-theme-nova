@@ -42,8 +42,9 @@
     {
       "name": "accordion",
       "title": "Accordion",
+      "description": "One expandable question and its answer.",
       "source": "sections/AccordionBlock.tsx",
-      "sourceHash": "cf4bee9ae3ba74113b4acded0962ff7d",
+      "sourceHash": "7e3be2448986d7be98af6a990fe70c9f",
       "category": "block",
       "icon": "▽",
       "role": "block",
@@ -77,13 +78,16 @@
     {
       "name": "account",
       "title": "Account",
+      "description": "Sign-in, orders and saved addresses for the customer.",
       "source": "sections/AccountPage.tsx",
-      "sourceHash": "0b4236cee5050f8cf8981a64b1238cad",
+      "sourceHash": "6fac5a104b99bbe12b433dd9d2b2961c",
       "category": "commerce",
       "icon": "user",
       "role": "section",
       "placement": {},
-      "requiresContext": [],
+      "requiresContext": [
+        "customer"
+      ],
       "attributes": {
         "sectionWidth": {
           "type": "select",
@@ -314,8 +318,9 @@
     {
       "name": "add-to-cart",
       "title": "Add to cart",
+      "description": "The Add to cart button for the current product.",
       "source": "sections/AddToCart.tsx",
-      "sourceHash": "e340f2533d0d14c434758655076f68d7",
+      "sourceHash": "065880c891cee919f7bc037e84371a08",
       "category": "block",
       "icon": "+",
       "role": "block",
@@ -340,8 +345,9 @@
     {
       "name": "announcement-bar",
       "title": "Announcement bar",
+      "description": "A one-line message across the top of every page.",
       "source": "sections/AnnouncementBar.tsx",
-      "sourceHash": "3e5e6559206fe10cd7a9d2995a2e0fe2",
+      "sourceHash": "bf6146209b1c6f42fc84f4e86280b2b6",
       "category": "layout",
       "icon": "▔",
       "role": "layout",
@@ -417,8 +423,9 @@
     {
       "name": "article-body",
       "title": "Article content",
+      "description": "The full text and images of a blog article.",
       "source": "sections/ArticleBody.tsx",
-      "sourceHash": "d79d825b4bc1e658d511973d6e5d2236",
+      "sourceHash": "6c414e058a00222e90c3a9f703afb8a1",
       "category": "content",
       "icon": "✎",
       "role": "section",
@@ -619,7 +626,7 @@
           "default": "Article"
         },
         "fallbackBody": {
-          "type": "textarea",
+          "type": "richtext",
           "label": "Fallback body (HTML)",
           "default": ""
         },
@@ -655,8 +662,9 @@
     {
       "name": "blog-posts",
       "title": "Blog posts",
+      "description": "Latest articles from a blog, as cards.",
       "source": "sections/BlogPosts.tsx",
-      "sourceHash": "5c5c0ef6d78c6c964f620c373fd76e65",
+      "sourceHash": "c6f4d9e665ec150a87861b6cd34976d3",
       "category": "content",
       "icon": "✎",
       "role": "section",
@@ -917,7 +925,7 @@
           ]
         },
         "fallbackEmpty": {
-          "type": "textarea",
+          "type": "richtext",
           "label": "Fallback (when empty)",
           "default": ""
         }
@@ -928,8 +936,9 @@
     {
       "name": "button",
       "title": "Button",
+      "description": "A single link styled as a button.",
       "source": "sections/ButtonBlock.tsx",
-      "sourceHash": "0f17741f80e8d49cc2749b254a3c30ea",
+      "sourceHash": "0d8981688a145441c82a2c627435c744",
       "category": "block",
       "icon": "⬚",
       "role": "block",
@@ -999,8 +1008,9 @@
     {
       "name": "cart-items",
       "title": "Cart items",
+      "description": "Everything in the cart, with quantities and totals.",
       "source": "sections/CartItems.tsx",
-      "sourceHash": "8399adcbe6ca943fe9a1fd4b36a93b59",
+      "sourceHash": "7ca41f2ee3d88960c48e4000b65e804b",
       "category": "commerce",
       "icon": "⊞",
       "role": "section",
@@ -1255,8 +1265,9 @@
     {
       "name": "collection-item",
       "title": "Collection",
+      "description": "One collection, as a linked tile.",
       "source": "sections/CollectionItem.tsx",
-      "sourceHash": "522a0ff680bb4c532425f4be518d8c13",
+      "sourceHash": "baca93eb4b5b755830a83b243963938a",
       "category": "block",
       "icon": "▢",
       "role": "block",
@@ -1282,8 +1293,9 @@
     {
       "name": "collection-links",
       "title": "Collection links",
+      "description": "Quick links to a few collections.",
       "source": "sections/CollectionLinks.tsx",
-      "sourceHash": "2fcc0082b2348137faeb7c5289aaade0",
+      "sourceHash": "0c3ca567e5274a4ef8895ce491a23a3e",
       "category": "content",
       "icon": "▦",
       "role": "section",
@@ -1477,7 +1489,7 @@
           "info": "Makes the section an in-page link target, e.g. #shipping."
         },
         "description": {
-          "type": "textarea",
+          "type": "richtext",
           "group": "Content",
           "label": "Description"
         },
@@ -1543,8 +1555,9 @@
     {
       "name": "collection-list",
       "title": "Collection list",
+      "description": "A grid of collections with their images.",
       "source": "sections/CollectionList.tsx",
-      "sourceHash": "5b058c6ef1d195468a227780e25abfa7",
+      "sourceHash": "b1e92c7463e914e87967236ee760355d",
       "category": "commerce",
       "icon": "☷",
       "role": "section",
@@ -1738,7 +1751,7 @@
           "info": "Makes the section an in-page link target, e.g. #shipping."
         },
         "description": {
-          "type": "textarea",
+          "type": "richtext",
           "group": "Content",
           "label": "Description"
         },
@@ -1877,8 +1890,9 @@
     {
       "name": "column",
       "title": "Column",
+      "description": "One column of heading, text and an optional link.",
       "source": "sections/ColumnItem.tsx",
-      "sourceHash": "8bb68cfd98da55814875b5ada9a55f3a",
+      "sourceHash": "5be714359ad3830ca1669be28a431436",
       "category": "block",
       "icon": "▥",
       "role": "block",
@@ -1935,7 +1949,7 @@
           "label": "Heading"
         },
         "body": {
-          "type": "textarea",
+          "type": "richtext",
           "label": "Body"
         }
       },
@@ -1945,8 +1959,9 @@
     {
       "name": "contact-form",
       "title": "Contact form",
+      "description": "Name, email and message fields that send to you.",
       "source": "sections/ContactForm.tsx",
-      "sourceHash": "d29a5512c15f85ba26134d698ca2b6b9",
+      "sourceHash": "3e99ad7725926a3086b366d985d8e4a5",
       "category": "forms",
       "icon": "✉",
       "role": "section",
@@ -2140,7 +2155,7 @@
           "info": "Makes the section an in-page link target, e.g. #shipping."
         },
         "description": {
-          "type": "textarea",
+          "type": "richtext",
           "group": "Content",
           "label": "Description"
         },
@@ -2200,7 +2215,8 @@
         },
         "action": {
           "type": "url",
-          "label": "Form action URL"
+          "label": "Form action URL",
+          "info": "Where the message is posted. The form is shown only when this is set."
         }
       },
       "allowedBlocks": [],
@@ -2209,8 +2225,9 @@
     {
       "name": "divider",
       "title": "Divider",
+      "description": "A thin rule between two sections.",
       "source": "sections/Divider.tsx",
-      "sourceHash": "6ce09700568b4fb94704674517ee5d40",
+      "sourceHash": "57caa8bbee166194cd10e8ef283a6113",
       "category": "layout",
       "icon": "—",
       "role": "section",
@@ -2286,8 +2303,9 @@
     {
       "name": "faq",
       "title": "FAQ",
+      "description": "Questions and answers that open on tap.",
       "source": "sections/FAQ.tsx",
-      "sourceHash": "efa5952b29a52fa95cb1c6be3850aa68",
+      "sourceHash": "2c4d34f64be1400d54775d94cd30a7d6",
       "category": "content",
       "icon": "?",
       "role": "section",
@@ -2481,7 +2499,7 @@
           "info": "Makes the section an in-page link target, e.g. #shipping."
         },
         "description": {
-          "type": "textarea",
+          "type": "richtext",
           "group": "Content",
           "label": "Description"
         },
@@ -2545,8 +2563,9 @@
     {
       "name": "faq-item",
       "title": "Question",
+      "description": "One question and its answer.",
       "source": "sections/FaqItem.tsx",
-      "sourceHash": "c307e5c5640aa825a2f5d926e17b3729",
+      "sourceHash": "3b692007ce41b37e58cf791c9514ab12",
       "category": "block",
       "icon": "?",
       "role": "block",
@@ -2563,7 +2582,7 @@
           "label": "Question"
         },
         "answer": {
-          "type": "textarea",
+          "type": "richtext",
           "label": "Answer"
         }
       },
@@ -2573,8 +2592,9 @@
     {
       "name": "feature-grid-blocks",
       "title": "Feature grid (blocks)",
+      "description": "A grid of features you compose from blocks.",
       "source": "sections/FeatureGridBlocks.tsx",
-      "sourceHash": "a43f9ae116a34a610f64d11a65dc6ec2",
+      "sourceHash": "f75e2128649a00daf7e0b850f17459fc",
       "category": "content",
       "icon": "star",
       "role": "section",
@@ -2768,7 +2788,7 @@
           "info": "Makes the section an in-page link target, e.g. #shipping."
         },
         "description": {
-          "type": "textarea",
+          "type": "richtext",
           "group": "Content",
           "label": "Description"
         },
@@ -2893,8 +2913,9 @@
     {
       "name": "feature-highlights",
       "title": "Feature Highlights",
+      "description": "Three or four features with icons and short text.",
       "source": "sections/FeatureHighlights.tsx",
-      "sourceHash": "d6dc54ba19086d7a2d342b4560d60de8",
+      "sourceHash": "99c1d029dc18390da29a92c2c85c479a",
       "category": "content",
       "icon": "star",
       "role": "section",
@@ -3134,8 +3155,9 @@
     {
       "name": "featured-collection",
       "title": "Featured collection",
+      "description": "A grid of products from one collection.",
       "source": "sections/FeaturedCollection.tsx",
-      "sourceHash": "42f339ab65e9c6ab12a22ece3b9a15d7",
+      "sourceHash": "7208eaedf313448f8d59f76c9aefeb27",
       "category": "commerce",
       "icon": "▦",
       "role": "section",
@@ -3329,7 +3351,7 @@
           "info": "Makes the section an in-page link target, e.g. #shipping."
         },
         "description": {
-          "type": "textarea",
+          "type": "richtext",
           "group": "Content",
           "label": "Description"
         },
@@ -3453,8 +3475,9 @@
     {
       "name": "featured-product",
       "title": "Featured product",
+      "description": "One product with price, variants and Add to cart.",
       "source": "sections/FeaturedProduct.tsx",
-      "sourceHash": "ddf421e2b53fe9d26d9f29896d434b9e",
+      "sourceHash": "bd76c87b4a26ff5a1a9acc8fabafa994",
       "category": "commerce",
       "icon": "★",
       "role": "section",
@@ -3656,7 +3679,7 @@
           "label": "Product"
         },
         "body": {
-          "type": "textarea",
+          "type": "richtext",
           "label": "Description"
         },
         "buttonLabel": {
@@ -3738,8 +3761,9 @@
     {
       "name": "footer",
       "title": "Footer",
+      "description": "Menus, brand details and legal links at the bottom of every page.",
       "source": "sections/Footer.tsx",
-      "sourceHash": "2f447647ed3e0d5a53e90b4614c4dba0",
+      "sourceHash": "65d2f83767f11c7fc9b63648f3375cff",
       "category": "layout",
       "icon": "▬",
       "role": "layout",
@@ -3859,8 +3883,9 @@
     {
       "name": "footer-brand",
       "title": "Brand information",
+      "description": "Logo, tagline and social links in the footer.",
       "source": "sections/FooterBrand.tsx",
-      "sourceHash": "a3b7162180915498f5c2cb11ac2383c5",
+      "sourceHash": "0538667ff69491a400b3b011a7e23401",
       "category": "block",
       "icon": "◈",
       "role": "block",
@@ -3877,7 +3902,7 @@
           "dynamic": true
         },
         "tagline": {
-          "type": "textarea",
+          "type": "richtext",
           "label": "Tagline (blank = theme tagline, then brand slogan)",
           "dynamic": true
         }
@@ -3888,8 +3913,9 @@
     {
       "name": "footer-menu",
       "title": "Menu",
+      "description": "One column of links in the footer.",
       "source": "sections/FooterMenu.tsx",
-      "sourceHash": "8c7428ef8b446b3ee8c1b44dac377750",
+      "sourceHash": "f30ae1dd3d01b5758da29dec49f082e5",
       "category": "block",
       "icon": "chat",
       "role": "block",
@@ -3915,8 +3941,9 @@
     {
       "name": "footer-text",
       "title": "Text",
+      "description": "A short paragraph in the footer.",
       "source": "sections/FooterText.tsx",
-      "sourceHash": "b6dcddb1b87b010d030acd1406a25e88",
+      "sourceHash": "4ef7bbf09d403a685bc334a72257dabf",
       "category": "block",
       "icon": "¶",
       "role": "block",
@@ -3933,7 +3960,7 @@
           "dynamic": true
         },
         "body": {
-          "type": "textarea",
+          "type": "richtext",
           "label": "Text",
           "dynamic": true
         }
@@ -3944,8 +3971,9 @@
     {
       "name": "group",
       "title": "Group",
+      "description": "A container that lays out other sections together.",
       "source": "sections/Group.tsx",
-      "sourceHash": "87c907ee111897a89ca51a66657ac4da",
+      "sourceHash": "aa7f6c4ba84675cf266fd0666abb4a37",
       "category": "layout",
       "icon": "▤",
       "role": "section",
@@ -4205,8 +4233,9 @@
     {
       "name": "header",
       "title": "Header",
+      "description": "Logo, navigation, search and cart at the top of every page.",
       "source": "sections/Header.tsx",
-      "sourceHash": "b253530e1add19e216d63ad94a0b3c7c",
+      "sourceHash": "2624bd0ba17dc183133bd2162ab747c4",
       "category": "layout",
       "icon": "▭",
       "role": "layout",
@@ -4374,8 +4403,9 @@
     {
       "name": "heading",
       "title": "Heading",
+      "description": "A heading line.",
       "source": "sections/HeadingBlock.tsx",
-      "sourceHash": "852d22f58e82193d0d62eafff09953c9",
+      "sourceHash": "128ee5aa907e881f7f4ee327c11b02a5",
       "category": "block",
       "icon": "H",
       "role": "block",
@@ -4442,8 +4472,9 @@
     {
       "name": "hero",
       "title": "Hero",
+      "description": "Full-width image with heading, text and a button.",
       "source": "sections/Hero.tsx",
-      "sourceHash": "49553f9fffc8239b73c1f03676df1e95",
+      "sourceHash": "b8fd81055fad4bc891ca622b1f5539d6",
       "category": "layout",
       "icon": "✦",
       "role": "section",
@@ -4620,7 +4651,7 @@
           "label": "Heading"
         },
         "subtext": {
-          "type": "textarea",
+          "type": "richtext",
           "label": "Subtext",
           "default": "Designed for everyday rituals — built to last beyond the season."
         },
@@ -4837,8 +4868,9 @@
     {
       "name": "icon",
       "title": "Icon",
+      "description": "A single icon.",
       "source": "sections/IconBlock.tsx",
-      "sourceHash": "1fe2d95442d6d096bc3889b2df3f0b23",
+      "sourceHash": "d6bc9700d499ac079ed15c4b38950187",
       "category": "block",
       "icon": "✶",
       "role": "block",
@@ -4924,8 +4956,9 @@
     {
       "name": "image",
       "title": "Image",
+      "description": "One image, optionally linked.",
       "source": "sections/ImageBlock.tsx",
-      "sourceHash": "d88d7a5d21b74dbecdc0e82d4ade3dcd",
+      "sourceHash": "b70dc20e07c6d7df233ba1a3aca1f1ce",
       "category": "block",
       "icon": "▥",
       "role": "block",
@@ -4988,8 +5021,9 @@
     {
       "name": "image-with-text",
       "title": "Image with text",
+      "description": "Image beside a heading and short paragraph.",
       "source": "sections/ImageWithText.tsx",
-      "sourceHash": "4e49018596ee398bbf2276cb072801e3",
+      "sourceHash": "ad042a6451e2df308d1444ec505af84f",
       "category": "content",
       "icon": "◧",
       "role": "section",
@@ -5284,7 +5318,7 @@
           "label": "Heading"
         },
         "body": {
-          "type": "textarea",
+          "type": "richtext",
           "label": "Body",
           "default": "Crafted in small batches with materials that age well. Every piece earns its place in your routine."
         },
@@ -5303,8 +5337,9 @@
     {
       "name": "jumbo-text",
       "title": "Jumbo text",
+      "description": "One oversized line of text.",
       "source": "sections/JumboText.tsx",
-      "sourceHash": "f822f4b3a0f398e9ed97c6198904d986",
+      "sourceHash": "6c0a3038547f3c442b44e2b5f8db9a47",
       "category": "block",
       "icon": "A",
       "role": "block",
@@ -5346,8 +5381,9 @@
     {
       "name": "logo",
       "title": "Logo",
+      "description": "One logo in a logo list.",
       "source": "sections/LogoItem.tsx",
-      "sourceHash": "a38ccb87bcfa6a1bc43d071875d5288f",
+      "sourceHash": "f669c3bad426a68ea01aa8080b180681",
       "category": "block",
       "icon": "◍",
       "role": "block",
@@ -5377,8 +5413,9 @@
     {
       "name": "logo-list",
       "title": "Logo list",
+      "description": "Press or stockist logos in a row.",
       "source": "sections/LogoList.tsx",
-      "sourceHash": "2b4ce66b62d56a4a5b15575262636a20",
+      "sourceHash": "5a777aec03c50516bf123960121fed35",
       "category": "social-proof",
       "icon": "◍",
       "role": "section",
@@ -5572,7 +5609,7 @@
           "info": "Makes the section an in-page link target, e.g. #shipping."
         },
         "description": {
-          "type": "textarea",
+          "type": "richtext",
           "group": "Content",
           "label": "Description"
         },
@@ -5663,8 +5700,9 @@
     {
       "name": "main-collection",
       "title": "Collection products",
+      "description": "The products of the current collection, with filters and sorting.",
       "source": "sections/MainCollection.tsx",
-      "sourceHash": "c591ef4dff74a45769abbaf2f640a491",
+      "sourceHash": "29374b971d0c6cf80ff0518b34e31346",
       "category": "commerce",
       "icon": "▤",
       "role": "section",
@@ -5781,8 +5819,9 @@
     {
       "name": "marquee",
       "title": "Marquee",
+      "description": "A line of text that scrolls across the page.",
       "source": "sections/Marquee.tsx",
-      "sourceHash": "1e8614d86c5f042f92ab4929150a9732",
+      "sourceHash": "9ee40f363e250b7c76fd908d66a7e613",
       "category": "content",
       "icon": "↔",
       "role": "section",
@@ -5859,8 +5898,9 @@
     {
       "name": "multicolumn",
       "title": "Multicolumn",
+      "description": "Two to four columns of heading and text.",
       "source": "sections/Multicolumn.tsx",
-      "sourceHash": "405df1356c97181dfbfe635881c815ce",
+      "sourceHash": "cf23bdeba732798654c510cff833d33c",
       "category": "content",
       "icon": "⫴",
       "role": "section",
@@ -6054,7 +6094,7 @@
           "info": "Makes the section an in-page link target, e.g. #shipping."
         },
         "description": {
-          "type": "textarea",
+          "type": "richtext",
           "group": "Content",
           "label": "Description"
         },
@@ -6153,8 +6193,9 @@
     {
       "name": "newsletter",
       "title": "Newsletter",
+      "description": "Heading, text and an email field.",
       "source": "sections/Newsletter.tsx",
-      "sourceHash": "95144453b1550fefcc1a7ad9f8883c80",
+      "sourceHash": "62e2da3a43363afba2d13d1fb8a5c96a",
       "category": "marketing",
       "icon": "✉",
       "role": "section",
@@ -6356,8 +6397,8 @@
           "label": "Heading"
         },
         "body": {
-          "type": "textarea",
-          "default": "Be the first to hear about new arrivals and member-only sales — and get 10% off your first order.",
+          "type": "richtext",
+          "default": "Be the first to hear about new arrivals and member-only sales.",
           "label": "Body"
         },
         "placeholder": {
@@ -6372,12 +6413,12 @@
         },
         "note": {
           "type": "text",
-          "default": "No spam. Unsubscribe anytime.",
           "label": "Footnote"
         },
         "action": {
           "type": "url",
-          "label": "Form action URL"
+          "label": "Form action URL",
+          "info": "Where the sign-up is posted. The form is shown only when this is set."
         },
         "layout": {
           "type": "select",
@@ -6406,8 +6447,9 @@
     {
       "name": "not-found",
       "title": "404",
+      "description": "The page shown when a link goes nowhere.",
       "source": "sections/NotFound.tsx",
-      "sourceHash": "ebc90522ea4aae6872e57051b3684d56",
+      "sourceHash": "208cbebdc3790b6f57ebbee156977440",
       "category": "system",
       "icon": "⚠",
       "role": "section",
@@ -6606,7 +6648,7 @@
           "label": "Heading"
         },
         "body": {
-          "type": "textarea",
+          "type": "richtext",
           "default": "The page you're looking for doesn't exist or may have moved.",
           "label": "Body"
         },
@@ -6636,8 +6678,9 @@
     {
       "name": "page-body",
       "title": "Page content",
+      "description": "The content of the current page.",
       "source": "sections/PageBody.tsx",
-      "sourceHash": "b7ec4e3d64ec5bf5d8f152a01d20af52",
+      "sourceHash": "5ae28bd7d7a7424619acf6fb0b54d240",
       "category": "content",
       "icon": "¶",
       "role": "section",
@@ -6838,7 +6881,7 @@
           "default": "Page"
         },
         "fallbackBody": {
-          "type": "textarea",
+          "type": "richtext",
           "label": "Fallback body (HTML)",
           "default": ""
         },
@@ -6869,8 +6912,9 @@
     {
       "name": "payment-icons",
       "title": "Payment icons",
+      "description": "The payment methods you accept, as icons.",
       "source": "sections/PaymentIcons.tsx",
-      "sourceHash": "aae983a3a5601cd2a39f42e4b510f851",
+      "sourceHash": "23fc8b99f760cfad90d875f6951a4c97",
       "category": "block",
       "icon": "▭",
       "role": "block",
@@ -6894,13 +6938,16 @@
     {
       "name": "policy-page",
       "title": "Policy",
+      "description": "The full text of a store policy.",
       "source": "sections/PolicyPage.tsx",
-      "sourceHash": "b0c7def5f0a474516f30dd9aa798000a",
+      "sourceHash": "81552d98b5845a77d20aadf5c399ccf4",
       "category": "commerce",
       "icon": "doc",
       "role": "section",
       "placement": {},
-      "requiresContext": [],
+      "requiresContext": [
+        "policy"
+      ],
       "attributes": {
         "sectionWidth": {
           "type": "select",
@@ -7124,8 +7171,9 @@
     {
       "name": "product-description",
       "title": "Product description",
+      "description": "The description of the current product.",
       "source": "sections/ProductDescription.tsx",
-      "sourceHash": "dee78ee653a5b7bb73ab07f35774a312",
+      "sourceHash": "601042486b155f39801e1d5a58fbb2fd",
       "category": "block",
       "icon": "¶",
       "role": "block",
@@ -7144,8 +7192,9 @@
     {
       "name": "product-details",
       "title": "Product details",
+      "description": "Gallery, price, variants and Add to cart for the current product.",
       "source": "sections/ProductDetails.tsx",
-      "sourceHash": "a479dd17089f919ebeea7167bffbf81f",
+      "sourceHash": "800edce407cc365761c6b81cdec0cc2f",
       "category": "commerce",
       "icon": "◉",
       "role": "section",
@@ -7544,8 +7593,9 @@
     {
       "name": "product-grid",
       "title": "Product grid",
+      "description": "A grid of products you choose.",
       "source": "sections/ProductGrid.tsx",
-      "sourceHash": "c895b9f469d87e6de2f95d776d051e48",
+      "sourceHash": "25e5f91edaeb8cc22cc3828b528c5368",
       "category": "commerce",
       "icon": "▦",
       "role": "section",
@@ -7739,7 +7789,7 @@
           "info": "Makes the section an in-page link target, e.g. #shipping."
         },
         "description": {
-          "type": "textarea",
+          "type": "richtext",
           "group": "Content",
           "label": "Description"
         },
@@ -7862,8 +7912,9 @@
     {
       "name": "product-inventory",
       "title": "Product inventory",
+      "description": "How many of the current product are in stock.",
       "source": "sections/ProductInventory.tsx",
-      "sourceHash": "c894e85e9195fd9939d9f2b18b43dfb5",
+      "sourceHash": "556433171ab4ebce9497a4cbc95a396b",
       "category": "block",
       "icon": "◔",
       "role": "block",
@@ -7893,8 +7944,9 @@
     {
       "name": "product-price",
       "title": "Product price",
+      "description": "The price of the current product.",
       "source": "sections/ProductPrice.tsx",
-      "sourceHash": "296941c37e7d1a6786f794f74628ff2e",
+      "sourceHash": "698efe0259c21c1fd911335c0534bed7",
       "category": "block",
       "icon": "$",
       "role": "block",
@@ -7913,8 +7965,9 @@
     {
       "name": "product-recommendations",
       "title": "Product recommendations",
+      "description": "Products related to the one being viewed.",
       "source": "sections/ProductRecommendations.tsx",
-      "sourceHash": "eabf994cf85248db00118ab924eb66ca",
+      "sourceHash": "55d071055a72b94835b1cf9b854e3f0d",
       "category": "product",
       "icon": "✧",
       "role": "section",
@@ -8108,7 +8161,7 @@
           "info": "Makes the section an in-page link target, e.g. #shipping."
         },
         "description": {
-          "type": "textarea",
+          "type": "richtext",
           "group": "Content",
           "label": "Description"
         },
@@ -8158,8 +8211,9 @@
     {
       "name": "product-sku",
       "title": "Product SKU",
+      "description": "The SKU of the current product.",
       "source": "sections/ProductSku.tsx",
-      "sourceHash": "1f0a64e4f94dcb0a9e3089a7e6ca592a",
+      "sourceHash": "d28f2e4f059d02841b002d2bab76f9a8",
       "category": "block",
       "icon": "⌗",
       "role": "block",
@@ -8178,8 +8232,9 @@
     {
       "name": "product-title",
       "title": "Product title",
+      "description": "The name of the current product.",
       "source": "sections/ProductTitle.tsx",
-      "sourceHash": "3939fbd9026a29e9a6a7e369d21893d3",
+      "sourceHash": "b6ff082bf7a0a6b8334460e54ec213fd",
       "category": "block",
       "icon": "T",
       "role": "block",
@@ -8198,8 +8253,9 @@
     {
       "name": "quantity",
       "title": "Quantity",
+      "description": "A quantity stepper for the current product.",
       "source": "sections/QuantitySelector.tsx",
-      "sourceHash": "0a5eecc26ce07a8456d97244e68d5cdb",
+      "sourceHash": "bfa907faf885d88b0907abaf919d2d88",
       "category": "block",
       "icon": "#",
       "role": "block",
@@ -8218,8 +8274,9 @@
     {
       "name": "rich-text",
       "title": "Rich text",
+      "description": "Heading, paragraph and a button, centred.",
       "source": "sections/RichText.tsx",
-      "sourceHash": "ebd489372eeaf9509c94c5f7b750ddf3",
+      "sourceHash": "38d765347594137c3241b6ab1f241ecf",
       "category": "content",
       "icon": "¶",
       "role": "section",
@@ -8395,7 +8452,7 @@
           "label": "Heading"
         },
         "body": {
-          "type": "textarea",
+          "type": "richtext",
           "default": "Tell your story here. A short paragraph about who you are, what you make, and why it matters — three or four sentences is plenty.",
           "label": "Body"
         },
@@ -8452,8 +8509,9 @@
     {
       "name": "search-results",
       "title": "Search results",
+      "description": "Products matching what the customer searched for.",
       "source": "sections/SearchResults.tsx",
-      "sourceHash": "a5c31cd17b7b6922fa057ac17abe5ca2",
+      "sourceHash": "b8538e9259eaa490094779d89be0bc04",
       "category": "commerce",
       "icon": "⌕",
       "role": "section",
@@ -8714,8 +8772,9 @@
     {
       "name": "slide",
       "title": "Slide",
+      "description": "One slide in a slideshow.",
       "source": "sections/SlideItem.tsx",
-      "sourceHash": "09a23311e45ec9ee4a9f6de0266cc261",
+      "sourceHash": "cb2f913f194733816aef485387208408",
       "category": "block",
       "icon": "▭",
       "role": "block",
@@ -8744,7 +8803,7 @@
           "label": "Heading"
         },
         "body": {
-          "type": "textarea",
+          "type": "richtext",
           "label": "Body"
         },
         "buttonLabel": {
@@ -8836,8 +8895,9 @@
     {
       "name": "slideshow",
       "title": "Slideshow",
+      "description": "Up to 5 rotating banners.",
       "source": "sections/Slideshow.tsx",
-      "sourceHash": "c35bd2539774d1149557242a0696ef63",
+      "sourceHash": "80e0467be705ae200b407fff2834e15c",
       "category": "layout",
       "icon": "▷",
       "role": "section",
@@ -9167,8 +9227,9 @@
     {
       "name": "social-links",
       "title": "Social links",
+      "description": "Links to your social profiles.",
       "source": "sections/SocialLinks.tsx",
-      "sourceHash": "08d2a38fb0461b1bd90381126d665391",
+      "sourceHash": "6f56aaf6331c15cab2cbcbd0c4946dd6",
       "category": "block",
       "icon": "@",
       "role": "block",
@@ -9208,8 +9269,9 @@
     {
       "name": "spacer",
       "title": "Spacer",
+      "description": "Empty vertical space.",
       "source": "sections/SpacerBlock.tsx",
-      "sourceHash": "a9603021ab244f16352a320b8a48bf31",
+      "sourceHash": "ad460261e95ac32ac1a42af28bc8a2ff",
       "category": "block",
       "icon": "↕",
       "role": "block",
@@ -9236,8 +9298,9 @@
     {
       "name": "store-locator",
       "title": "Store locator",
+      "description": "Your store addresses and opening hours.",
       "source": "sections/StoreLocator.tsx",
-      "sourceHash": "9b1f02bacc0ac3f4c4b6583cff057546",
+      "sourceHash": "5aae538b5503d448cff76dab92c2ac03",
       "category": "commerce",
       "icon": "pin",
       "role": "section",
@@ -9472,8 +9535,9 @@
     {
       "name": "swatches",
       "title": "Swatches",
+      "description": "Colour swatches for the current product.",
       "source": "sections/Swatches.tsx",
-      "sourceHash": "009603dd05b86632801ab030040cc4ed",
+      "sourceHash": "4f2bf2c37d90943c1abfeabd93308f72",
       "category": "block",
       "icon": "●",
       "role": "block",
@@ -9492,8 +9556,9 @@
     {
       "name": "text",
       "title": "Text",
+      "description": "A paragraph of text.",
       "source": "sections/TextBlock.tsx",
-      "sourceHash": "a70f955f87f308f9871294239321e6c5",
+      "sourceHash": "6ac29e654f162227ab9c3301b156ca68",
       "category": "block",
       "icon": "¶",
       "role": "block",
@@ -9507,7 +9572,7 @@
       "requiresContext": [],
       "attributes": {
         "text": {
-          "type": "textarea",
+          "type": "richtext",
           "default": "Add your text here.",
           "label": "Text"
         },
@@ -9537,8 +9602,9 @@
     {
       "name": "variant-picker",
       "title": "Variant picker",
+      "description": "Size, colour and other options for the current product.",
       "source": "sections/VariantPicker.tsx",
-      "sourceHash": "78c523b457af43d4c445b0e8a1aa7a2e",
+      "sourceHash": "00781684e95c034aa2222c04947571ff",
       "category": "block",
       "icon": "◧",
       "role": "block",
@@ -9557,8 +9623,9 @@
     {
       "name": "video",
       "title": "Video",
+      "description": "An embedded or uploaded video.",
       "source": "sections/VideoBlock.tsx",
-      "sourceHash": "bde85fc34140b4f9775b3fa792cf916a",
+      "sourceHash": "e73139ca91a89c9d5a1eb0ba3fdb702c",
       "category": "block",
       "icon": "▷",
       "role": "block",

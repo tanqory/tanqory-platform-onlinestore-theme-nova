@@ -4,7 +4,7 @@
  * look healthy.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { DataApi } from '@tanqory/theme-kit'
+import type { DataApi } from '../lib/tanqory/index'
 import { isConfiguredForLiveData, isEditorPreview, isMockDataAllowed } from '../lib/runtime'
 import { applyHead, computeHead } from '../lib/head'
 import { emitRoute, resetRouteAnalytics } from '../lib/route-analytics'

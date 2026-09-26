@@ -14,7 +14,7 @@
  */
 import type { DataApi } from './tanqory/index'
 import { matchRoute } from './routes.ts'
-import { productJsonLd, serializeJsonLd, type JsonLd } from './structured-data'
+import { productJsonLd, serializeJsonLd, type JsonLd } from './structured-data.ts'
 
 /** Build a HeadMeta from a resource's SEO (shared by blog/article, which resolve
  *  their SEO asynchronously rather than from the sync bootstrap). */

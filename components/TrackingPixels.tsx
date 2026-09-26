@@ -1,15 +1,15 @@
 import { useEffect } from 'react'
-import { useData, hasConsent, onConsentChange, wrapPixelCode } from '../lib/tanqory/index'
+import { useData, pixelConsent, onConsentChange, wrapPixelCode } from '../lib/tanqory/index'
 
 /**
  * Injects the store's CONNECTED tracking pixels (Settings → Customer events) on
  * the live storefront. Each pixel's script is appended to <head> once. The code
  * is the merchant's own snippet (configured in the Dashboard, so trusted).
  *
- * GATED ON CONSENT: pixels are marketing/tracking, so they only inject once the
- * shopper has granted the `marketing` purpose (when the store's cookie banner is
- * enabled — `hasConsent` is always true when no banner is in effect). If the
- * shopper grants later, `onConsentChange` re-runs the injection.
+ * GATED ON CONSENT: pixels are marketing/tracking, so they only inject after an EXPLICIT
+ * `marketing` grant (deny until decided) and never under Global Privacy Control — whatever the
+ * store's banner setting says (`pixelConsent`; the theme's `hasConsent` is fail-open with no banner
+ * and does not read GPC). If the shopper grants later, `onConsentChange` re-runs the injection.
  *
  * Deliberately INERT in the editor/preview planes — we never fire real tracking
  * while a merchant edits the theme.
@@ -29,7 +29,7 @@ export function TrackingPixels(): null {
     let cached: Array<{ id: string; code?: string | null }> | null = null
 
     const inject = (): void => {
-      if (cancelled || !cached || !hasConsent('marketing')) return
+      if (cancelled || !cached || !pixelConsent()) return
       for (const p of cached) {
         if (!p.code) continue
         const id = `tq-pixel-${p.id}`
